@@ -14,6 +14,7 @@
 
 >  _We recommend isolating Suricata data in its own index (“suricata”) for clarity._
 
+> **WARNING:** In Sycope, each stream has a retention period—the duration after which data is deleted. Set the retention period that meets your needs [here](https://documentation.sycope.com/User-Guide/Settings/Indices/Retention)
 ---
 
 ##  Prerequisites
