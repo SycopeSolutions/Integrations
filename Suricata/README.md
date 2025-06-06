@@ -27,8 +27,8 @@
 ---
 
 ##  Installation
-1. `git clone https://github.com/0x2e8b/sycope_suricata.git`  
-2. `cd sycope_suricata`  
+1. `git clone https://github.com/SycopeSolutions/Integrations.git`  
+2. `cd Integrations/Suricata`  
 3. `pip3 install -r requirements.txt` 
 4. Edit **config.json** (see next)
 
