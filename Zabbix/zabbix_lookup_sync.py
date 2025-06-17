@@ -79,8 +79,7 @@ login_payload = {
         "username": USERNAME,
         "password": PASSWORD
     },
-    "id": 1,
-    "auth": None
+    "id": 1
 }
 
 login_response = requests.post(ZABBIX_URL, json=login_payload)
