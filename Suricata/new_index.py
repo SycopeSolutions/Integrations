@@ -80,15 +80,12 @@ def main():
         session.headers.update({"X-XSRF-TOKEN": csrf})
 
     # 4. Prepare payload for index creation
-    payload = {
-        "category": "userIndex.index",
-        "config": {
+    payload =  {
             "name":       INDEX_NAME,
             "active":     True,
             "rotation":   "daily",
             "storeRaw":   True,
             "fields":     FIELDS
-        }
     }
 
     # 5. Send index creation request
