@@ -36,8 +36,6 @@ with requests.Session() as s:
         print(r.json())
         
     payload = {
-      "category": "userIndex.index",
-      "config": {
         "name": stream_name,
         "active": True,
         "rotation": rotation,
@@ -87,7 +85,6 @@ with requests.Session() as s:
             "displayName": "Packet Loss"
           }
         ]
-      }
     }
     r = s.post(host+'/npm/api/v1/config-element-index/user-index',json=payload, verify=False)
     
