@@ -49,3 +49,43 @@ The `zabbix_lookup_sync.py` script:
 ├── zabbix_statistics_sync.py        # Main processing script for synchronizing metrics data
 ├── zabbix_lookup_sync.py            # Main processing script for synchronizing inventory data
 ```
+
+---
+
+## Requirements
+
+- Python 3.8+
+- Zabbix 3.0+
+- Sycope >= 3.1 with API access
+- `requests` module:
+  ```bash
+  pip3 install requests
+  ```
+
+---
+
+##  User & Role Setup in Sycope
+
+After creating new index, add a dedicated user and role in Sycope for log ingestion:
+
+1. **Create a Role**  
+   Go to **Configuration → Roles**, create a role (e.g., `ZabbixInject`) with:
+   - Permission to inject data only into custom indexes
+
+2. **Create a User**  
+   Go to **Configuration → Users**, create a user (e.g., `zabbix_ingestor`) and assign the above role.
+
+---
+
+##  Installation
+
+```bash
+git clone https://github.com/SycopeSolutions/Integrations.git
+cd Integrations/Zabbix
+pip3 install -r requirements.txt
+python3 install.py
+```
+
+Edit the `config.json` as described below.
+
+---
