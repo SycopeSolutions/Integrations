@@ -2,6 +2,8 @@
 
 This integration enables sending monitoring statistics and inventory data from Zabbix to a custom index and dedicated Lookup in **Sycope** for further correlation, search and visualization.
 
+<img width="1870" alt="image" src="https://github.com/user-attachments/assets/4c16e0d5-91c2-41a4-8a9a-877e06085b30" />
+
 ---
 
 ## Components
@@ -170,6 +172,17 @@ Or run as a service (recommended)
 1. In Sycope UI, go to **Dashboards → Import**
 2. Upload `zabbix_statistics_dashboard.json`
 3. Upload `zabbix_inventory.json`
+
+##  Fields Import
+
+1. In Sycope UI, go to **Settings → Objects → Fields → Import Field**
+2. Upload `field_zabbix_graph_url.json` and others from fields directory
+
+##  Drilldown Import
+
+1. In Sycope UI, go to **Configuration → Shortcuts → Import Shortcut**
+2. Upload `zabbix_inventory_drilldown_action.json`
+3. Upload `zabbix_inventory_drilldown_widget.json`
 
 ---
 
