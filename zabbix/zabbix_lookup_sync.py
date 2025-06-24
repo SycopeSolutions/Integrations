@@ -194,12 +194,12 @@ else:
 
         # Build URLs conditionally
         icmp_url = (
-            f"{cfg["zabbix_host"].rstrip("/")}/history.php?action=showgraph&itemids%5B%5D={','.join(map(str, icmp_item_ids))}"
+            f"{cfg['zabbix_host'].rstrip('/')}/history.php?action=showgraph&itemids%5B%5D={','.join(map(str, icmp_item_ids))}"
             if icmp_item_ids
             else "No ICMP Items"
         )
         graph_url = (
-            f"{cfg["zabbix_host"].rstrip("/")}/zabbix.php?action=charts.view&filter_hostids%5B0%5D={host_id}&filter_show=1&filter_set=1"
+            f"{cfg['zabbix_host'].rstrip('/')}/zabbix.php?action=charts.view&filter_hostids%5B0%5D={host_id}&filter_show=1&filter_set=1"
             if has_items
             else "No Other Items"
         )
@@ -299,7 +299,7 @@ with requests.Session() as s:
 
     if lookup_id == "":
         print(f'There are no Lookups with "{cfg["lookup_name"]}" name. Creating new...')
-        r = s.post(f"{cfg["sycope_host"].rstrip("/")}/npm/api/v1/config-element-lookup/csvFile", json=lookup, verify=False)
+        r = s.post(f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/config-element-lookup/csvFile", json=lookup, verify=False)
         data = r.json()
 
         lookupid = data["id"]
@@ -338,7 +338,7 @@ with requests.Session() as s:
 
     if lookupprivacy == "Public" and savedsidPermsValue != "Public":
         r = s.put(
-            f"{cfg["sycope_host"].rstrip("/")}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
+            f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
             json=sidPermsPublic,
             verify=False,
         )
@@ -352,7 +352,7 @@ with requests.Session() as s:
 
     elif lookupprivacy == "Private" and savedsidPermsValue != "Private":
         r = s.put(
-            f"{cfg["sycope_host"].rstrip("/")}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
+            f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
             json=sidPermsPrivate,
             verify=False,
         )
