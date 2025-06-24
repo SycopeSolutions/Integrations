@@ -1,0 +1,4 @@
+2025-06-18 15:03:49,236 - INFO - Using index 'suricata' with columns: ['timestamp', 'flow_id', 'in_iface', 'event_type', 'src_ip', 'src_port', 'dest_ip', 'dest_port', 'proto', 'alert_action', 'alert_gid', 'alert_signature_id', 'alert_rev', 'event_signature', 'event_category', 'alert_severity', 'app_proto']
+2025-06-18 15:05:57,137 - INFO - Using index 'suricata' with columns: ['timestamp', 'flow_id', 'in_iface', 'event_type', 'src_ip', 'src_port', 'dest_ip', 'dest_port', 'proto', 'alert_action', 'alert_gid', 'alert_signature_id', 'alert_rev', 'event_signature', 'event_category', 'alert_severity', 'app_proto']
+2025-06-18 15:05:57,140 - INFO - Processed=0 Skipped=0 Invalid=0
+2025-06-18 15:05:57,140 - INFO - No valid rows to inject.
