@@ -90,7 +90,7 @@ After creating new index, add a dedicated user and role in Sycope for log ingest
 
 ```bash
 git clone https://github.com/SycopeSolutions/Integrations.git
-cd Integrations/Zabbix
+cd Integrations/zabbix
 pip3 install -r requirements.txt
 python3 install.py
 ```
