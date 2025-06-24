@@ -314,7 +314,7 @@ with requests.Session() as s:
     print("Checking privacy...")
 
     r = s.get(
-        f"{cfg["sycope_host"].rstrip("/")}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
+        f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
         json=lookup,
         verify=False,
     )
