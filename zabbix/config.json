@@ -1,0 +1,14 @@
+{
+    "zabbix_host": "http://192.168.1.46:8080",
+    "zabbix_api_base": "/api_jsonrpc.php",
+    "zabbix_login": "Admin",
+    "zabbix_pass": "",
+    "sycope_host": "https://192.168.1.14",
+    "api_base": "/npm/api/v1/",
+    "sycope_login": "admin",
+    "sycope_pass": "",
+    "lookup_name": "integration-zabbix",
+    "index_name": "ZabbixStats",
+    "index_rotation": "daily",
+    "period_minutes": 1440
+}
