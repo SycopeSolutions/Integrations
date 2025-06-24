@@ -55,7 +55,7 @@ The `zabbix_lookup_sync.py` script:
 ## Requirements
 
 - Python 3.8+
-- Zabbix 3.0+
+- Zabbix 7.0+
 - Sycope >= 3.1 with API access
 - `requests` module:
   ```bash
@@ -89,3 +89,92 @@ python3 install.py
 Edit the `config.json` as described below.
 
 ---
+
+##  Configuration (`config.json`)
+
+```jsonc
+{
+    // URL of the Zabbix API endpoint (HTTPS strongly recommended)
+    "zabbix_host": "http://192.168.1.46:8080",
+
+    // Additional part of the Zabbix API endpoint
+    "zabbix_api_base": "/api_jsonrpc.php",
+
+    // Zabbix API user
+    "zabbix_login": "Admin",
+
+    // Password for the above API user
+    "zabbix_pass": "",
+
+    // URL of the Sycope API endpoint (HTTPS strongly recommended)
+    "sycope_host": "https://192.168.1.14",
+
+    // Additional part of the Sycope API endpoint
+    "api_base": "/npm/api/v1/",
+
+    // Sycope API user (must have rights to inject data into custom indexes)
+    "sycope_login": "admin",
+
+    // Password for the above API user
+    "sycope_pass": "",
+
+    // Name of the Lookup in Sucope (for inventory data synchronization)
+    "lookup_name": "integration-zabbix",
+
+    // Name of the custom index defined in Sycope (for statistics)
+    "index_name": "ZabbixStats",
+
+    // Custom index rotation
+    "index_rotation": "daily",
+
+    // Custom index time period (amount of data to be synchronized)
+    "period_minutes": 60
+}
+```
+
+>  JSON does not support comments natively — this format is shown for documentation purposes only. Use a standard `config.json` file without comments in production.
+
+---
+
+##  Script Usage
+
+| Script                    | Purpose                                    | Example                                             |
+|---------------------------|--------------------------------------------|-----------------------------------------------------|
+| **install.py**            | Create index                               | `python3 install.py`                                |
+| **zabbix_lookup_sync.py** | Synchronization of the Inventory data      | `python3 zabbix_lookup_sync.py` (e.g., via systemd) |
+| **zabbix_statistics.py**  | Synchronization of the Statistics data     | `python3 zabbix_statistics.py` (e.g., via systemd)  |
+
+---
+
+##  Running the Script
+
+Run manually:
+```bash
+python3 zabbix_lookup_sync.py
+python3 zabbix_statistics.py
+```
+Or run as a service (recommended)
+
+---
+
+##  Notes
+
+- The script requires a valid custom index in Sycope with matching column definitions.
+- Running the script on the Sycope appliance is not supported due to security isolation.
+- Each index in Sycope has a **retention period**. Set it in **Settings → Indices → Retention** according to your storage policy.
+
+---
+
+##  Dashboard Import
+
+1. In Sycope UI, go to **Dashboards → Import**
+2. Upload `zabbix_statistics_dashboard.json`
+3. Upload `zabbix_inventory.json`
+
+---
+
+## Notice
+
+This integration **does not install or configure Zabbix for you**.
+You must install, configure, and run Zabbix **independently**.
+The provided Python scripts are intended **only for integrating** Zabbix data with **Sycope** using its REST API.
