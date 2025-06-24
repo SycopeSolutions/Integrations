@@ -340,7 +340,7 @@ def main():
     for offset in range(job_run["data"]["total"] // off_size + 1):
         # print(offset) # for debugging
         payload = {"limit": off_size, "offset": offset * off_size}
-        r = s.post(f"{cfg["sycope_host"].rstrip("/")}/npm/api/v1/pipeline/{job_run['jobId']}/data", json=payload, verify=False)
+        r = s.post(f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/pipeline/{job_run['jobId']}/data", json=payload, verify=False)
         chunk = r.json()
         saved_data.extend(chunk["data"])
 
