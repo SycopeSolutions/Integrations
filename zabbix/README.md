@@ -6,6 +6,7 @@ An example of the Zabbix Statistics Dashboard
 
 <img width="1870" alt="image" src="https://github.com/user-attachments/assets/4c16e0d5-91c2-41a4-8a9a-877e06085b30" />
 
+
 An example of the Zabbix Inventory Dashboard
 
 <img width="1865" alt="image" src="https://github.com/user-attachments/assets/44f602c4-821e-478b-88c3-15aa4e256f73" />
