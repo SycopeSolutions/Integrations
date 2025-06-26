@@ -9,15 +9,17 @@ class SycopeApi:
         login: str,
         password: str,
         api_endpoint: str = "/npm/api/v1/",
+        api_endpoint_lookup: str = "config-element-lookup/csvFile",
     ):
         payload = {"username": login, "password": password}
         response = session.post(host + "/npm/api/v1/login", json=payload, verify=False)
         data = response.json()
         if data["status"] == 200:
-            print("Login successful. Proceeding...")
+            print("Login to Sycope API successful. Proceeding...")
             self.host = host
             self.session = session
             self.api_endpoint = api_endpoint
+            self.api_endpoint_lookup = api_endpoint_lookup
         else:
             # For debugging
             print("Could not log in to Sycope API")
@@ -39,7 +41,7 @@ class SycopeApi:
             return []
 
     def get_lookups(self) -> list:
-        print("Searching in saved Lookups...")
+        print("Getting all saved Lookups...")
         r = self.session.get(
             self.host
             + self.api_endpoint
@@ -55,11 +57,11 @@ class SycopeApi:
     def get_lookup(self, lookup_name: str) -> tuple[str, dict]:
         all_data = self.get_lookups()
         lookup_id = [x["id"] for x in all_data if x["config"]["name"] == lookup_name]
-        lookup_id = lookup_id[0]
-        print("Searching in saved Lookups...")
+        print(f'Searching for the Lookup "{lookup_name}" in saved Lookups...')
         if lookup_id:
+            lookup_id = lookup_id[0]
             r = self.session.get(
-                self.host + self.api_endpoint + f"config-element-lookup/csvFile/{lookup_id}",
+                self.host + self.api_endpoint + self.api_endpoint_lookup + "/" + lookup_id,
                 verify=False,
             )
             saved_lookup = r.json()
@@ -68,8 +70,90 @@ class SycopeApi:
             else:
                 return "0", {}
         else:
-            print(f"Could not find lookup with the name {lookup_name}")
+            print(f'Could not find lookup with the name "{lookup_name}".')
             return "0", {}
+
+    def create_lookup(self, lookup_name: str, lookup):
+        r = self.session.post(self.host + self.api_endpoint + self.api_endpoint_lookup, json=lookup, verify=False)
+        data = r.json()
+        if data["status"] == 200:
+            lookup_id = data["id"]
+            print(f'New Lookup "{lookup_name}" with ID "{lookup_id}" has been created.')
+            return lookup_id
+        else:
+            # For debugging
+            print("Something went wrong. Please analyze the output:")
+            print(r.json())
+
+    def edit_lookup(self, lookup_id: str, lookup) ->  None:
+        r = self.session.put(self.host + self.api_endpoint + self.api_endpoint_lookup + "/" + lookup_id, json=lookup, verify=False)
+        data = r.json()
+        if data["status"] == 200:
+            print(
+                f'Data in the Lookup ID "{lookup_id}" have been successfully modified.'
+            )
+        else:
+            # For debugging
+            print("Something went wrong. Please analyze the output:")
+            print(r.json())
+
+    def privacy_check_lookup(self, lookup_id: str):
+        print("Checking privacy configuration...")
+        r = self.session.get(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, verify=False)
+        data = r.json()
+        if data and data["objectId"] == lookup_id:
+            savedsidPerms = data["sidPerms"]
+
+            # Definition for Public Privacy
+            sidPermsPublic = [{"sid": "ROLE_USER", "perms": ["VIEW"]}]
+            # Definition for Private Privacy
+            sidPermsPrivate = []
+
+            # Checking defined Privacy in Sycope
+            savedsidPermsValue = ""
+            if savedsidPerms == sidPermsPublic:
+                savedsidPermsValue = "Public"
+            elif savedsidPerms == sidPermsPrivate:
+                savedsidPermsValue = "Private"
+            else:
+                print(f'Script could not identify the Privacy configuration in the Lookup ID "{lookup_id}". Are you using custom Shared Privacy?')
+            return savedsidPermsValue
+        else:
+            # For debugging
+            print("Something went wrong. Please analyze the output:")
+            print(r.json())
+
+
+    def privacy_edit_lookup(self, lookup_id: str, lookup_privacy) -> None:
+        savedsidPermsValue = ""
+        sidPerms_saved = ""
+        savedsidPermsValue = self.privacy_check_lookup(lookup_id)
+        sidPerms_Public = [{"sid": "ROLE_USER", "perms": ["VIEW"]}]
+        sidPerms_Private = []
+        data = None
+        response = None
+
+        if(savedsidPermsValue == lookup_privacy):
+            print(f'Privacy in the Lookup ID "{lookup_id}" is identical to the input. No changes required.')
+        elif lookup_privacy == "Public":
+            response = self.session.put(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, json=sidPerms_Public, verify=False)
+            sidPerms_saved = sidPerms_Public
+        elif lookup_privacy == "Private":
+            response = self.session.put(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, json=sidPerms_Private, verify=False)
+            sidPerms_saved = sidPerms_Private
+        else:
+            print(f'Please choose supported privacy options - Public or Private.')
+
+        if response:
+            data = response.json()
+            if data["sidPerms"] == sidPerms_saved:
+                print(f'Privacy for the Lookup ID "{lookup_id}" have been successfully modified to "{lookup_privacy}".')
+            else:
+                # For debugging
+                print("Could not create custom_index with API response:")
+                print(response.json())
+        else:
+             return None
 
     def create_index(
         self,
