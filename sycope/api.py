@@ -55,13 +55,13 @@ class SycopeApi:
     def get_lookup(self, lookup_name: str) -> tuple[str, dict]:
         all_data = self.get_lookups()
         lookup_id = [x["id"] for x in all_data if x["config"]["name"] == lookup_name]
+        lookup_id = lookup_id[0]
         print("Searching in saved Lookups...")
         if lookup_id:
             r = self.session.get(
                 self.host + self.api_endpoint + f"config-element-lookup/csvFile/{lookup_id}",
                 verify=False,
             )
-
             saved_lookup = r.json()
             if isinstance(saved_lookup, dict):
                 return str(lookup_id), saved_lookup
