@@ -70,7 +70,11 @@ The `zabbix_lookup_sync.py` script:
   ```bash
   pip3 install requests
   ```
-
+- `polars` module:
+  ```bash
+  pip3 install polars
+  ```
+  
 ---
 
 ##  User & Role Setup in Sycope
