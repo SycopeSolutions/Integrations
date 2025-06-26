@@ -8,6 +8,7 @@
 import json
 import os
 import sys
+import logging
 from datetime import datetime, timedelta
 
 import polars as pl
@@ -31,24 +32,6 @@ try:
 except Exception as e:
     logging.error(f"ERROR loading config: {e}")
     sys.exit(1)
-
-# Examples for IPs to be synchronized
-# The Zabbix API is quite fast, allowing you to synchronize all IPs;
-# however, it may be wise to consider limiting them for efficiency or control.
-TARGET_IPS = [
-    "8.8.8.8",
-    "192.168.1.1",    
-    "192.168.1.3",
-    "192.168.1.20",
-    "192.168.1.21",
-    "192.168.1.37",
-    "192.168.1.50",
-    "192.168.1.61",
-    "192.168.1.62",
-    "192.168.1.71",
-    "192.168.1.72",
-    "192.168.1.73"
-]
 
 def val_numeric_range(val, lower=0, upper=100):
     try:
@@ -204,7 +187,7 @@ def create_minute_df_pl(start_datetime, stop_datetime):
 
 
 def main():
-        
+
     auth_token = zabbix_login()
 
     headers = {
@@ -222,7 +205,7 @@ def main():
     df_time_range = create_minute_df_pl(startTime.replace(second=30), endTime.replace(second=30))
 
     dfs_ips = []
-    for ip in TARGET_IPS:
+    for ip in cfg['target_ips']:
         history_data = {}
         for metric_name in ITEM_KEYS:
             history_data[metric_name] = []
@@ -274,7 +257,7 @@ def main():
                         value = round(value, val_config["round"])
 
                     history_data[metric_name].append((timestamp, value))
-                    
+
         if history_data:
             dfs = []
             for col, vals in history_data.items():
@@ -306,7 +289,7 @@ def main():
     ###### Checking current statistics in custom stream, in order not to duplicate samples
 
     endTime = "@" + endTime.astimezone().isoformat("T", "seconds")
-    
+
     # For debugging
     # print(startTime)
     # print("endTime =", endTime)
@@ -328,7 +311,7 @@ def main():
         "limit": off_size,
     }
 
-    
+
     r = s.post(cfg["sycope_host"].rstrip("/") + "/npm/api/v1/pipeline/run", json=payload, verify=False)
     job_run = r.json()
 
@@ -345,7 +328,7 @@ def main():
         saved_data.extend(chunk["data"])
 
     # For debugging
-    
+
     # API response
     # print("Data from Sycope:")
     # print(json.dumps(saved_data))
@@ -354,7 +337,7 @@ def main():
     # print("Data from Zabbix:")
     # print(json.dumps(new_data))
 
-    
+
     if not df.is_empty():
         print("We have found new data. Preparing the payload...")
         if saved_data:
@@ -405,7 +388,7 @@ def main():
                 ]
             )
             .rows(),
-            
+
         }
         print("Sending new data to Sycope...")
         r = s.post(cfg["sycope_host"].rstrip("/") + "/npm/api/v1/index/inject", json=new_data, verify=False)
@@ -416,7 +399,24 @@ def main():
             #For debugging
             print(f'Sycope API encountered an issue. Error message:')
             print(r.json())
-        
+
+
+    # Build the logout payload for Zabbix
+    logout_payload = {
+        "jsonrpc": "2.0",
+        "method": "user.logout",
+        "params": [],
+        "id": 2
+    }
+
+    # Send the logout request to Zabbix
+    print("Logging out from Zabbix.")
+    logout_response = requests.post(
+        cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"],
+        json=logout_payload,
+        verify=False
+    )
+
     # Closing the REST API session
     # Session should be automatically closed in session context manager
     print("Logging out from Sycope.")
