@@ -26,6 +26,15 @@ null = None  # workaround for defining null in JSON
 
 api_command = "/npm/api/v1/config-element-lookup/csvFile"
 
+try:
+    with open(CONFIG_FILE, 'r') as f:
+        cfg = json.load(f)
+except Exception as e:
+    logging.error(f"ERROR loading config: {e}")
+    sys.exit(1)
+else:
+    logging.info(f"Loaded configuration from {CONFIG_FILE}")
+
 lookupprivacy = "Public"  # Script supports Private and Public privacy
 lookup = {
     "config": {
@@ -64,15 +73,6 @@ lookup = {
     },
 }
 
-try:
-    with open(CONFIG_FILE, 'r') as f:
-        cfg = json.load(f)
-except Exception as e:
-    logging.error(f"ERROR loading config: {e}")
-    sys.exit(1)
-else:
-    logging.info(f"Loaded configuration from {CONFIG_FILE}")
-        
 # Step 1: Authenticate
 login_payload = {
     "jsonrpc": "2.0",
@@ -81,7 +81,7 @@ login_payload = {
     "id": 1,
 }
 
-login_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], json=login_payload)
+login_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], json=login_payload, verify=False)
 print("Login Response:", login_response.text)
 
 try:
@@ -93,11 +93,11 @@ try:
             'Authorization': f'Bearer {auth_token}',
             'Content-Type': 'application/json-rpc'
         }
-    
+
     else:
         print("Login failed:", login_result.get("error", "Unknown error"))
         exit()
-        
+
 except requests.exceptions.JSONDecodeError:
     print("Invalid JSON response from Zabbix server.")
     exit()
@@ -116,7 +116,7 @@ hosts_payload = {
     "id": 2
 }
 
-hosts_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], headers=headers, json=hosts_payload)
+hosts_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], headers=headers, json=hosts_payload, verify=False)
 hosts_data = hosts_response.json().get("result", [])
 
 # Filter to include only hosts with SNMP or ICMP interfaces
@@ -171,7 +171,7 @@ else:
             },
             "id": 3
         }
-        icmp_item_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], headers=headers, json=icmp_item_payload)
+        icmp_item_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], headers=headers, json=icmp_item_payload, verify=False)
         icmp_item_data = icmp_item_response.json().get("result", [])
         icmp_item_ids = [item["itemid"] for item in icmp_item_data]
 
@@ -185,7 +185,7 @@ else:
             },
             "id": 4
         }
-        items_check_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], headers=headers, json=items_check_payload)
+        items_check_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], headers=headers, json=items_check_payload, verify=False)
         all_items = items_check_response.json().get("result", [])
         # Filter out ICMP items from the list
         # Filter out ICMP items from the list
@@ -256,7 +256,7 @@ lookup["file"]["rows"].extend(lookupvalues)
 # Creating new session
 with requests.Session() as s:
     api = SycopeApi(s, cfg["sycope_host"].rstrip("/"), cfg["sycope_login"], cfg["sycope_pass"])
-
+    print(cfg["lookup_name"])
     lookup_id, saved_lookup = api.get_lookup(cfg["lookup_name"])
 
     # For debugging
