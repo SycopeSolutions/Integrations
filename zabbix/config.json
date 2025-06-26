@@ -8,6 +8,7 @@
   "sycope_login": "admin",
   "sycope_pass": "",
   "lookup_name": "integration-zabbix",
+  "lookup_privacy": "Public",
   "index_name": "ZabbixStats",
   "index_rotation": "daily",
   "period_minutes": 1440,
