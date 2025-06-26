@@ -141,8 +141,18 @@ Edit the `config.json` as described below.
     "index_rotation": "daily",
 
     // Custom index time period (amount of data to be synchronized)
-    "period_minutes": 60
+    // Script will check for duplicate data and will not save it twice
+    "period_minutes": 120
+
+    // Examples for IPs to be synchronized
+    // The Zabbix API is quite fast, allowing you to synchronize all IPs;
+    // however, it may be wise to consider limiting them for efficiency or control.
+    "target_ips": [
+      "8.8.8.8",
+      "192.168.1.1"
+    ]
 }
+
 ```
 
 >  JSON does not support comments natively — this format is shown for documentation purposes only. Use a standard `config.json` file without comments in production.
