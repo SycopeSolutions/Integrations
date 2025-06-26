@@ -22,10 +22,6 @@ requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 SCRIPT_DIR = os.getcwd()  # use current directory
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
 
-null = None  # workaround for defining null in JSON
-
-api_command = "/npm/api/v1/config-element-lookup/csvFile"
-
 try:
     with open(CONFIG_FILE, 'r') as f:
         cfg = json.load(f)
@@ -35,7 +31,6 @@ except Exception as e:
 else:
     logging.info(f"Loaded configuration from {CONFIG_FILE}")
 
-lookupprivacy = "Public"  # Script supports Private and Public privacy
 lookup = {
     "config": {
         "name": cfg["lookup_name"],
@@ -82,7 +77,7 @@ login_payload = {
 }
 
 login_response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"], json=login_payload, verify=False)
-print("Login Response:", login_response.text)
+print("Zabbix Login Response:", login_response.text)
 
 try:
     login_result = login_response.json()
@@ -128,12 +123,11 @@ snmp_hosts = [
 
 lookupvalues = []
 
-
 # Step 3: Display host info
 if not snmp_hosts:
-    print("No SNMP or ICMP hosts found.")
+    print("No SNMP or ICMP hosts found in Zabbix.")
 else:
-    print("SNMP/ICMP Host Information:")
+    print("Getting SNMP/ICMP Host Information from Zabbix.")
 
     for host in snmp_hosts:
         inventory = host.get("inventory", {})
@@ -256,119 +250,56 @@ lookup["file"]["rows"].extend(lookupvalues)
 # Creating new session
 with requests.Session() as s:
     api = SycopeApi(s, cfg["sycope_host"].rstrip("/"), cfg["sycope_login"], cfg["sycope_pass"])
-    print(cfg["lookup_name"])
     lookup_id, saved_lookup = api.get_lookup(cfg["lookup_name"])
 
     # For debugging
     # print(json.dumps(saved_lookup, indent=2))
-
+    #
     print("Checking data...")
-    compare_config = sorted(lookup["config"].items()) == sorted(saved_lookup["config"].items())
-    compare_rows = sorted(lookup["file"]["rows"], key=lambda x: str(x)) == sorted(
-        saved_lookup["file"]["rows"], key=lambda x: str(x)
-    )
 
-    # For debugging
-    # print(f'compare_config: {compare_config}')
-    # print(f'compare_rows: {compare_rows}')
-
-    if compare_config and compare_rows:
-        print(f'Saved data in the Lookup "{cfg["lookup_name"]}" is identical to the input. No changes required.')
+    if lookup_id == '0':
+        print(f'There are no Lookups with "{cfg["lookup_name"]}" name. Creating new...')
+        lookup_id = api.create_lookup(cfg["lookup_name"],lookup)
     else:
-        lookup.update(
-            {
-                "attributes": {"defaultColumns": []},
-                "tags": None,
-                "id": lookup_id,
-                "category": "lookup.lookup",
-            }
+        compare_config = sorted(lookup["config"].items()) == sorted(saved_lookup["config"].items())
+        compare_rows = sorted(lookup["file"]["rows"], key=lambda x: str(x)) == sorted(
+            saved_lookup["file"]["rows"], key=lambda x: str(x)
         )
 
-        api_command = api_command + "/" + lookup_id
+        # For debugging
+        # print(f'compare_config: {compare_config}')
+        # print(f'compare_rows: {compare_rows}')
 
-        r = s.put(cfg["sycope_host"].rstrip("/") + cfg["api_base"] + api_command, json=lookup, verify=False)
-        data = r.json()
-
-        if data["status"] == 200:
-            print(
-                f'Data in the Lookup "{cfg["lookup_name"]}" with ID "{lookup_id}" have been successfully modified.'
+        if compare_config and compare_rows:
+            print(f'Saved data in the Lookup "{cfg["lookup_name"]}" is identical to the input. No changes required.')
+        else:
+            lookup.update(
+                {
+                    "attributes": {"defaultColumns": []},
+                    "tags": None,
+                    "id": lookup_id,
+                    "category": "lookup.lookup",
+                }
             )
-        else:
-            # For debugging
-            print(r.json())
-
-    if lookup_id == "":
-        print(f'There are no Lookups with "{cfg["lookup_name"]}" name. Creating new...')
-        r = s.post(f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/config-element-lookup/csvFile", json=lookup, verify=False)
-        data = r.json()
-
-        lookupid = data["id"]
-
-        if data["status"] == 200:
-            print(f'New Lookup "{cfg["lookup_name"]}" with ID "{lookupid}" has been created.')
-        else:
-            # For debugging
-            print(r.json())
+            api.edit_lookup(lookup_id, lookup)
 
     # Let's check the privacy configuration
-    print("Checking privacy...")
+    savedsidPermsValue = api.privacy_edit_lookup(lookup_id, cfg["lookup_privacy"])
 
-    r = s.get(
-        f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
-        json=lookup,
-        verify=False,
+    # Build the logout payload for Zabbix
+    logout_payload = {
+        "jsonrpc": "2.0",
+        "method": "user.logout",
+        "params": [],
+        "id": 2
+    }
+
+    # Send the logout request to Zabbix
+    logout_response = requests.post(
+        cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"],
+        json=logout_payload,
+        verify=False
     )
-    data = r.json()
-    savedsidPerms = data["sidPerms"]
-
-    # Definition for Public Privacy
-    sidPermsPublic = [{"sid": "ROLE_USER", "perms": ["VIEW"]}]
-    # Definition for Private Privacy
-    sidPermsPrivate = []
-
-    # Checking defined Privacy in Sycope
-    savedsidPermsValue = ""
-    if savedsidPerms == sidPermsPublic:
-        savedsidPermsValue = "Public"
-    if savedsidPerms == sidPermsPrivate:
-        savedsidPermsValue = "Private"
-
-    # For debugging
-    # print(json.dumps(data, indent=2))
-
-    if lookupprivacy == "Public" and savedsidPermsValue != "Public":
-        r = s.put(
-            f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
-            json=sidPermsPublic,
-            verify=False,
-        )
-        data = r.json()
-        # Verifying if data was saved successfully
-        if data["sidPerms"] == sidPermsPublic:
-            print(f'Privacy for Lookup "{cfg["lookup_name"]}" with ID "{lookup_id}" has been modified to Public.')
-        else:
-            # For debugging
-            print(r.json())
-
-    elif lookupprivacy == "Private" and savedsidPermsValue != "Private":
-        r = s.put(
-            f"{cfg['sycope_host'].rstrip('/')}/npm/api/v1/permissions/CONFIGURATION.lookup.lookup/{lookup_id}",
-            json=sidPermsPrivate,
-            verify=False,
-        )
-        data = r.json()
-        # Verifying if data was saved successfully
-        if data["sidPerms"] == sidPermsPrivate:
-            print(f'Privacy for Lookup "{cfg["lookup_name"]}" with ID "{lookup_id}" has been modified to Private.')
-        else:
-            # For debugging
-            print(r.json())
-    elif savedsidPermsValue == "":
-        print(
-            f'Script could not identify the Privacy configuration in the Lookup "{cfg["lookup_name"]}". Are you using custom Shared Privacy?'
-        )
-    else:
-        print(f'Privacy in the Lookup "{cfg["lookup_name"]}" is identical to the input. No changes required.')
 
     # Closing the REST API session
     # Session should be automatically closed in session context manager
