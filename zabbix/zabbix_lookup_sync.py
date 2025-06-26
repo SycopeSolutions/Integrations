@@ -284,7 +284,7 @@ with requests.Session() as s:
             api.edit_lookup(lookup_id, lookup)
 
     # Let's check the privacy configuration
-    savedsidPermsValue = api.privacy_edit_lookup(lookup_id, cfg["lookup_privacy"])
+    api.privacy_edit_lookup(lookup_id, cfg["lookup_privacy"])
 
     # Build the logout payload for Zabbix
     logout_payload = {
@@ -295,6 +295,7 @@ with requests.Session() as s:
     }
 
     # Send the logout request to Zabbix
+    print("Logging out from Zabbix.")
     logout_response = requests.post(
         cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"],
         json=logout_payload,
