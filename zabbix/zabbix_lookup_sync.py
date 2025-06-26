@@ -286,7 +286,7 @@ with requests.Session() as s:
 
         api_command = api_command + "/" + lookup_id
 
-        r = s.put(cfg["sycope_host"].rstrip("/") + cfg["zabbix_api_base"] + api_command, json=lookup, verify=False)
+        r = s.put(cfg["sycope_host"].rstrip("/") + cfg["api_base"] + api_command, json=lookup, verify=False)
         data = r.json()
 
         if data["status"] == 200:
