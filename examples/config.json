@@ -1,0 +1,19 @@
+{
+  "user_number": 1,
+  "sycope_host": "https://192.168.1.14",
+  "api_base": "/npm/api/v1/",
+  "sycope_login": "admin",
+  "sycope_pass": "",
+  "index_name": "custom_index",
+  "index_rotation": "daily",
+  "period_minutes": 1440,
+  "target_ips": [
+    "10.240.0.180",
+    "10.240.2.171",
+    "10.240.2.156",
+    "10.240.42.151",
+    "10.240.175.56",
+    "10.240.0.20",
+    "10.240.2.210"
+  ]
+}
