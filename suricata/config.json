@@ -1,9 +1,9 @@
 {
-  "sycope_host": "https://192.168.0.100:8443",
-  "sycope_login": "admin",
-  "sycope_pass": "qwerty",
+  "sycope_host": "https://sycope.local",
+  "sycope_login": "",
+  "sycope_pass": "",
   "api_base": "/npm/api/v1/",
-  "index_name": "suricata1",
+  "index_name": "suricata",
   "suricata_eve_json_path": "/var/log/suricata/eve.json",
   "last_timestamp_file": "last_timestamp.txt",
   "event_types": ["anomaly", "alert"],
