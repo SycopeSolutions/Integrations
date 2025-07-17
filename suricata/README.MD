@@ -272,3 +272,4 @@ Make sure Suricata logs to the path defined in `config.json`.
 - Check log: `eve_processor.log` or `journalctl -u suricata_eve_processor`
 - Make sure the Sycope user has proper API rights
 - Confirm `eve.json` contains supported event types (`alert`, `anomaly`)
+- Feel free to contact our engineers via dedicated Discord Channel: https://discord.gg/dFjTv854
