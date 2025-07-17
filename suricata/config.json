@@ -7,8 +7,8 @@
   "suricata_eve_json_path": "/var/log/suricata/eve.json",
   "last_timestamp_file": "last_timestamp.txt",
   "event_types": ["anomaly", "alert"],
-  "anomaly_whitelist": false,
-  "alert_whitelist": false,
+  "anomaly_whitelist": [],
+  "alert_whitelist": [],
   "anomaly_blacklist": [],
   "alert_blacklist": []
 }
