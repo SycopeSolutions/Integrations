@@ -144,6 +144,72 @@ Or run as a service (recommended)
 
 ---
 
+##  Running as a System Service
+
+For automated processing, set up a systemd service with a 30-second timer:
+
+### 1. Create Service File
+Create `/etc/systemd/system/suricata-eve-processor.service`:
+```ini
+[Unit]
+Description=Suricata EVE Log Processor
+After=network.target
+
+[Service]
+Type=oneshot
+User=suricata
+Group=suricata
+WorkingDirectory=/opt/suricata-integration
+ExecStart=/usr/bin/python3 /opt/suricata-integration/eve_processor.py
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### 2. Create Timer File
+Create `/etc/systemd/system/suricata-eve-processor.timer`:
+```ini
+[Unit]
+Description=Run Suricata EVE Processor every 30 seconds
+Requires=suricata-eve-processor.service
+
+[Timer]
+OnBootSec=30sec
+OnUnitActiveSec=30sec
+AccuracySec=1sec
+
+[Install]
+WantedBy=timers.target
+```
+
+### 3. Enable and Start
+```bash
+# Reload systemd configuration
+sudo systemctl daemon-reload
+
+# Enable and start the timer
+sudo systemctl enable suricata-eve-processor.timer
+sudo systemctl start suricata-eve-processor.timer
+
+# Check status
+sudo systemctl status suricata-eve-processor.timer
+```
+
+### 4. Monitor Logs
+```bash
+# View service logs
+sudo journalctl -u suricata-eve-processor.service -f
+
+# View timer logs
+sudo journalctl -u suricata-eve-processor.timer -f
+```
+
+>  **Note**: Adjust the `WorkingDirectory` and script path to match your installation location. The service runs under the `suricata` user for security isolation.
+
+---
+
 ##  Notes
 
 - The script requires a valid custom index in Sycope with matching column definitions.
