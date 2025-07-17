@@ -93,7 +93,7 @@ def action_valid_ipv4(addr):
         socket.inet_aton(addr)
         return addr
     except Exception:
-        raise
+        return None
 
 
 def action_convert_time(val):
@@ -104,55 +104,58 @@ def action_convert_time(val):
         return None
 
 
-def build_row(ev, columns, column_actions=None):
+def build_row(ev, column_names, column_mapping, cols_idxs, column_actions=None):
+
     if column_actions is None:
         column_actions = {}
 
-    COLUMN_MAP = {
-        "common": {
-            "timestamp": ["timestamp"],
-            "flow_id": ["flow_id"],
-            "in_iface": ["in_iface"],
-            "event_type": ["event_type"],
-            "src_ip": ["src_ip"],
-            "src_port": ["src_port"],
-            "dest_ip": ["dest_ip"],
-            "dest_port": ["dest_port"],
-            "proto": ["proto"],
-            "app_proto": ["app_proto"],
-        },
-        "anomaly": {
-            "event_category": ["anomaly", "type"],
-            "event_signature": ["anomaly", "event"],
-        },
-        "alert": {
-            "alert_action": ["alert", "action"],
-            "alert_gid": ["alert", "gid"],
-            "alert_signature_id": ["alert", "signature_id"],
-            "alert_rev": ["alert", "rev"],
-            "event_signature": ["alert", "signature"],
-            "event_category": ["alert", "category"],
-            "alert_severity": ["alert", "severity"],
-        },
-    }
-
     et = ev.get("event_type")
-    row_map = COLUMN_MAP["common"].copy()
-    row_map.update(COLUMN_MAP.get(et, {}))
+    row_map = column_mapping["common"].copy()
+    row_map.update(column_mapping.get(et, {}))
 
     row = []
-    for col in columns:
+    for col in column_names:
         if col in row_map:
-            val = ev
-            for key in row_map[col]:
-                val = val.get(key, None)
+            if row_map[col]:
+                val = ev
+                for key in row_map[col]:
+                    val = val.get(key, None)
+            else:
+                val = None
         else:
             val = ev.get(col) or None
 
         if col in column_actions:
-            val = column_actions[col](val)
+            try:
+                val = column_actions[col](val)
+            except Exception as e:
+                logging.debug(f"Column action failed for {col}: {val} - {e}")
+                raise
 
         row.append(val)
+
+    if 'clientIp' in column_names or 'serverIp' in column_names:
+        src_ip_idx, dst_ip_idx, src_port_idx, dst_port_idx, serverIp_idx, clientIp_idx, serverPort_idx, clientPort_idx = cols_idxs
+
+        src_ip = row[src_ip_idx] if src_ip_idx is not None else None
+        dst_ip = row[dst_ip_idx] if dst_ip_idx is not None else None
+        src_port = row[src_port_idx] if src_port_idx is not None else None
+        dst_port = row[dst_port_idx] if dst_port_idx is not None else None
+
+        src_port_cmp = src_port if src_port is not None else 0
+        dst_port_cmp = dst_port if dst_port is not None else 0
+
+        if src_port_cmp >= dst_port_cmp:
+            client_ip, server_ip = src_ip, dst_ip
+            client_port, server_port = src_port, dst_port
+        else:
+            client_ip, server_ip = dst_ip, src_ip
+            client_port, server_port = dst_port, src_port
+
+        row[clientIp_idx] = client_ip
+        row[serverIp_idx] = server_ip
+        row[clientPort_idx] = client_port
+        row[serverPort_idx] = server_port
     return row
 
 
@@ -162,7 +165,10 @@ def main():
     except Exception as e:
         logging.error(f"Failed to load config: {e}")
         sys.exit(1)
-
+    cfg["alert_whitelist_set"] = set(cfg.get("alert_whitelist", []))
+    cfg["alert_blacklist_set"] = set(cfg.get("alert_blacklist", []))
+    cfg["anomaly_whitelist_set"] = set(cfg.get("anomaly_whitelist", []))
+    cfg["anomaly_blacklist_set"] = set(cfg.get("anomaly_blacklist", []))
     last_ts_file = os.path.join(SCRIPT_DIR, cfg["last_timestamp_file"])
     last_dt = load_last_ts(last_ts_file)
     max_dt = last_dt
@@ -189,6 +195,49 @@ def main():
         fields = idx["config"]["fields"]
         COLUMNS = [f["name"] for f in fields]
         TYPES = [f["type"] for f in fields]
+
+        COLUMN_MAP = {
+            "common": {
+                "timestamp": ["timestamp"],
+                "flow_id": ["flow_id"],
+                "in_iface": ["in_iface"],
+                "event_type": ["event_type"],
+                "src_ip": ["src_ip"],
+                "src_port": ["src_port"],
+                "dest_ip": ["dest_ip"],
+                "dest_port": ["dest_port"],
+                "proto": ["proto"],
+                "app_proto": ["app_proto"],
+                "clientIp": [],
+                "clientPort": [],
+                "serverIp": [],
+                "serverPort": [],
+            },
+            "anomaly": {
+                "event_category": ["anomaly", "type"],
+                "event_signature": ["anomaly", "event"],
+            },
+            "alert": {
+                "alert_action": ["alert", "action"],
+                "alert_gid": ["alert", "gid"],
+                "alert_signature_id": ["alert", "signature_id"],
+                "alert_rev": ["alert", "rev"],
+                "event_signature": ["alert", "signature"],
+                "event_category": ["alert", "category"],
+                "alert_severity": ["alert", "severity"],
+            },
+        }
+
+        src_ip_idx = COLUMNS.index('src_ip') if 'src_ip' in COLUMNS else None
+        dst_ip_idx = COLUMNS.index('dest_ip') if 'dest_ip' in COLUMNS else None
+        src_port_idx = COLUMNS.index('src_port') if 'src_port' in COLUMNS else None
+        dst_port_idx = COLUMNS.index('dest_port') if 'dest_port' in COLUMNS else None
+        serverIp_idx = COLUMNS.index('serverIp') if 'serverIp' in COLUMNS else None
+        clientIp_idx = COLUMNS.index('clientIp') if 'clientIp' in COLUMNS else None
+        serverPort_idx = COLUMNS.index('serverPort') if 'serverPort' in COLUMNS else None
+        clientPort_idx = COLUMNS.index('clientPort') if 'clientPort' in COLUMNS else None
+        cols_idxs = [src_ip_idx, dst_ip_idx, src_port_idx, dst_port_idx, serverIp_idx, clientIp_idx, serverPort_idx, clientPort_idx]
+
         logging.info(f"Using index '{cfg['index_name']}' with columns: {COLUMNS}")
 
         column_actions = {}
@@ -217,7 +266,7 @@ def main():
                     continue
 
                 try:
-                    row = build_row(ev, COLUMNS, column_actions)
+                    row = build_row(ev, COLUMNS, COLUMN_MAP, cols_idxs, column_actions)
                 except Exception:
                     counts["invalid"] += 1
                 else:
@@ -233,7 +282,7 @@ def main():
                 "sortTimestamp": True,
                 "rows": rows,
             }
-            inj = s.post(f"{cfg['sycope_host'].rstrip('/')}{cfg['api_base']}/index/inject", json=payload, verify=False)
+            inj = s.post(f"{cfg['sycope_host']}{cfg['api_base']}index/inject", json=payload, verify=False)
             logging.info(f"Inject status: {inj.status_code} {inj.text}")
         else:
             logging.info("No valid rows to inject.")
