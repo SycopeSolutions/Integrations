@@ -31,8 +31,8 @@ logging.basicConfig(
 #     "suricata_eve_json_path": "/var/log/suricata/eve.json",  // Path to Suricata's eve.json file
 #     "last_timestamp_file": "last_timestamp.txt",        // File storing last processed timestamp
 #     "event_types": ["anomaly", "alert"],                // Event types to process (e.g., "alert", "anomaly")
-#     "anomaly_whitelist": false,                         // If true, only allow anomaly events listed in anomaly_whitelist
-#     "alert_whitelist": false,                           // If true, only allow alert SIDs listed in alert_whitelist
+#     "anomaly_whitelist": []],                         // If true, only allow anomaly events listed in anomaly_whitelist
+#     "alert_whitelist": []],                           // If true, only allow alert SIDs listed in alert_whitelist
 #     "anomaly_blacklist": [],                            // List of anomaly event names to skip
 #     "alert_blacklist": []                               // List of Suricata alert signature IDs to skip
 # }
@@ -47,14 +47,18 @@ FIELDS = [
     {"name": "flow_id", "type": "long", "description": "Suricata flow ID", "displayName": "Flow ID"},
     {"name": "in_iface", "type": "string", "description": "Interface name", "displayName": "Interface"},
     {"name": "event_type", "type": "string", "description": "Type of event", "displayName": "Event Type"},
-    {"name": "src_ip", "type": "ip4", "description": "Source IP address", "displayName": "Src IP"},
-    {"name": "src_port", "type": "int", "description": "Source port", "displayName": "Src Port"},
-    {"name": "dest_ip", "type": "ip4", "description": "Destination IP address", "displayName": "Dest IP"},
-    {"name": "dest_port", "type": "int", "description": "Destination port", "displayName": "Dest Port"},
+    {"name": "src_ip", "type": "ip4", "description": "Source IP address", "displayName": "Source IP"},
+    {"name": "src_port", "type": "int", "description": "Source port", "displayName": "Source Port"},
+    {"name": "dest_ip", "type": "ip4", "description": "Destination IP address", "displayName": "Destination IP"},
+    {"name": "dest_port", "type": "int", "description": "Destination port", "displayName": "Destination Port"},
+    {"name": "clientIp", "type": "ip4", "description": "Source IP address", "displayName": "Client IP"},
+    {"name": "clientPort", "type": "int", "description": "Source port", "displayName": "Client Port"},
+    {"name": "serverIp", "type": "ip4", "description": "Destination IP address", "displayName": "Server IP"},
+    {"name": "serverPort", "type": "int", "description": "Destination port", "displayName": "Server Port"},
     {"name": "proto", "type": "string", "description": "Layer 4 protocol", "displayName": "Protocol"},
     # alert fields
-    {"name": "alert_action", "type": "string", "description": "Alert action", "displayName": "Alert Action"},
-    {"name": "alert_gid", "type": "int", "description": "Generator ID", "displayName": "Alert GID"},
+    {"name": "alert_action", "type": "string", "description": "Alert action", "displayName": "Suricata Alert Action"},
+    {"name": "alert_gid", "type": "int", "description": "Generator ID", "displayName": "Suricata Alert GID"},
     {"name": "alert_signature_id", "type": "int", "description": "Signature ID", "displayName": "Sig ID"},
     {"name": "alert_rev", "type": "int", "description": "Signature revision", "displayName": "Sig Rev"},
     {"name": "event_signature","type": "string","description": "Signature text","displayName": "Signature"},
@@ -67,7 +71,6 @@ FIELDS = [
     # additional
     {"name": "app_proto", "type": "string", "description": "Application protocol", "displayName": "App Proto"}
 ]
-
 def main():
     try:
         cfg = load_config(CONFIG_PATH)
