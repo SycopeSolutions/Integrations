@@ -108,10 +108,10 @@ After creating new index, add a dedicated user and role in Sycope for log ingest
   "event_types": ["alert", "anomaly"],
 
   // If true: only process anomalies listed in anomaly_whitelist
-  "anomaly_whitelist": false,
+  "anomaly_whitelist": [],
 
   // If true: only process alerts (signatures) listed in alert_whitelist
-  "alert_whitelist": false,
+  "alert_whitelist": [],
 
   // List of anomaly event names to exclude (only used if whitelist is false)
   "anomaly_blacklist": [],
@@ -183,6 +183,7 @@ AccuracySec=1sec
 [Install]
 WantedBy=timers.target
 ```
+> **Note**: Adjust time, default timer is set for 30 seconds
 
 ### 3. Enable and Start
 ```bash
