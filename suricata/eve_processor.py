@@ -271,14 +271,8 @@ def build_row(ev, column_names, column_mapping, cols_idxs, column_actions=None):
     return row
 
 
-def main():
-    """
-    Main function to process Suricata EVE JSON logs.
-
-    Loads configuration, connects to Sycope API, processes EVE log entries,
-    and injects filtered events into the configured custom index.
-    """
-    # Load and validate configuration
+def initialize_config():
+    """Load and initialize configuration with filter sets."""
     try:
         cfg = load_config(CONFIG_PATH)
     except Exception as e:
@@ -291,142 +285,193 @@ def main():
     cfg["anomaly_whitelist_set"] = set(cfg.get("anomaly_whitelist", []))
     cfg["anomaly_blacklist_set"] = set(cfg.get("anomaly_blacklist", []))
 
-    # Initialize timestamp tracking and processing state
-    last_ts_file = os.path.join(SCRIPT_DIR, cfg["last_timestamp_file"])
-    last_dt = load_last_ts(last_ts_file)
+    return cfg
+
+
+def setup_api_connection(cfg):
+    """Initialize HTTP session and Sycope API connection."""
+    session = requests.Session()
+    session.headers.update({"Content-Type": "application/json"})
+    api = SycopeApi(
+        session=session,
+        host=cfg["sycope_host"].rstrip("/"),
+        login=cfg["sycope_login"],
+        password=cfg["sycope_pass"],
+        api_endpoint=cfg.get("api_base", "/npm/api/v1/"),
+    )
+    return session, api
+
+
+def get_index_configuration(api, index_name):
+    """Get and validate index configuration."""
+    indexes = api.get_user_indicies()
+    match = [x for x in indexes if x["config"]["name"] == index_name]
+    if not match:
+        logging.error(f"Index '{index_name}' not found.")
+        sys.exit(1)
+    return match[0]
+
+
+def setup_column_mapping(fields):
+    """Setup column mappings and transformations."""
+    columns = [f["name"] for f in fields]
+    types = [f["type"] for f in fields]
+
+    # Define mapping from database columns to EVE JSON field paths
+    column_map = {
+        "common": {
+            "timestamp": ["timestamp"],
+            "flow_id": ["flow_id"],
+            "in_iface": ["in_iface"],
+            "event_type": ["event_type"],
+            "src_ip": ["src_ip"],
+            "src_port": ["src_port"],
+            "dest_ip": ["dest_ip"],
+            "dest_port": ["dest_port"],
+            "proto": ["proto"],
+            "app_proto": ["app_proto"],
+            "clientIp": [],  # Computed field
+            "clientPort": [],  # Computed field
+            "serverIp": [],  # Computed field
+            "serverPort": [],  # Computed field
+        },
+        "anomaly": {
+            "event_category": ["anomaly", "type"],
+            "event_signature": ["anomaly", "event"],
+        },
+        "alert": {
+            "alert_action": ["alert", "action"],
+            "alert_gid": ["alert", "gid"],
+            "alert_signature_id": ["alert", "signature_id"],
+            "alert_rev": ["alert", "rev"],
+            "event_signature": ["alert", "signature"],
+            "event_category": ["alert", "category"],
+            "alert_severity": ["alert", "severity"],
+        },
+    }
+
+    # Get column indices for client/server determination
+    cols_idxs = [
+        columns.index('src_ip') if 'src_ip' in columns else None,
+        columns.index('dest_ip') if 'dest_ip' in columns else None,
+        columns.index('src_port') if 'src_port' in columns else None,
+        columns.index('dest_port') if 'dest_port' in columns else None,
+        columns.index('serverIp') if 'serverIp' in columns else None,
+        columns.index('clientIp') if 'clientIp' in columns else None,
+        columns.index('serverPort') if 'serverPort' in columns else None,
+        columns.index('clientPort') if 'clientPort' in columns else None,
+    ]
+
+    # Set up column transformation functions based on data types
+    column_actions = {}
+    for col, typ in zip(columns, types):
+        if typ == "ip4":
+            column_actions[col] = action_valid_ipv4
+        if col == "timestamp":
+            column_actions[col] = action_convert_time
+
+    return columns, column_map, cols_idxs, column_actions
+
+
+def process_log_file(cfg, columns, column_map, cols_idxs, column_actions, last_dt):
+    """Process EVE JSON log file and return rows and statistics."""
     max_dt = last_dt
     rows = []
     counts = {"processed": 0, "skipped": 0, "invalid": 0}
 
-    # Initialize HTTP session and Sycope API connection
-    with requests.Session() as s:
-        s.headers.update({"Content-Type": "application/json"})
-        api = SycopeApi(
-            session=s,
-            host=cfg["sycope_host"].rstrip("/"),
-            login=cfg["sycope_login"],
-            password=cfg["sycope_pass"],
-            api_endpoint=cfg.get("api_base", "/npm/api/v1/"),
-        )
+    with open(cfg["suricata_eve_json_path"]) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
 
-        # Get target index configuration
-        indexes = api.get_user_indicies()
-        match = [x for x in indexes if x["config"]["name"] == cfg["index_name"]]
-        if not match:
-            logging.error(f"Index '{cfg['index_name']}' not found.")
-            sys.exit(1)
+            # Parse JSON event
+            try:
+                ev = json.loads(line)
+            except json.JSONDecodeError:
+                counts["skipped"] += 1
+                continue
 
-        # Extract column names and types from index schema
-        idx = match[0]
+            # Apply filters and timestamp checks
+            ok, dt = should_process(ev, cfg, last_dt)
+            if dt and dt > max_dt:
+                max_dt = dt
+            if not ok:
+                counts["skipped"] += 1
+                continue
+
+            # Build database row from event
+            try:
+                row = build_row(ev, columns, column_map, cols_idxs, column_actions)
+            except Exception:
+                counts["invalid"] += 1
+            else:
+                rows.append(row)
+                counts["processed"] += 1
+
+    return rows, counts, max_dt
+
+
+def inject_data(session, cfg, columns, rows):
+    """Inject processed events into Sycope index."""
+    if not rows:
+        logging.info("No valid rows to inject.")
+        return
+
+    payload = {
+        "columns": columns,
+        "indexName": cfg["index_name"],
+        "sortTimestamp": True,
+        "rows": rows,
+    }
+    inj = session.post(f"{cfg['sycope_host']}{cfg['api_base']}index/inject", json=payload, verify=False)
+    logging.info(f"Inject status: {inj.status_code} {inj.text}")
+
+
+def update_timestamp(last_ts_file, max_dt, last_dt):
+    """Update timestamp tracking file if needed."""
+    if max_dt > last_dt:
+        save_last_ts(last_ts_file, max_dt)
+        logging.info(f"Saved new timestamp: {max_dt.isoformat()}")
+
+
+def main():
+    """
+    Main function to process Suricata EVE JSON logs.
+
+    Loads configuration, connects to Sycope API, processes EVE log entries,
+    and injects filtered events into the configured custom index.
+    """
+    # Initialize configuration
+    cfg = initialize_config()
+
+    # Initialize timestamp tracking
+    last_ts_file = os.path.join(SCRIPT_DIR, cfg["last_timestamp_file"])
+    last_dt = load_last_ts(last_ts_file)
+
+    # Setup API connection
+    with requests.Session() as session:
+        session, api = setup_api_connection(cfg)
+
+        # Get index configuration
+        idx = get_index_configuration(api, cfg["index_name"])
         fields = idx["config"]["fields"]
-        COLUMNS = [f["name"] for f in fields]
-        TYPES = [f["type"] for f in fields]
 
-        # Define mapping from database columns to EVE JSON field paths
-        COLUMN_MAP = {
-            "common": {
-                "timestamp": ["timestamp"],
-                "flow_id": ["flow_id"],
-                "in_iface": ["in_iface"],
-                "event_type": ["event_type"],
-                "src_ip": ["src_ip"],
-                "src_port": ["src_port"],
-                "dest_ip": ["dest_ip"],
-                "dest_port": ["dest_port"],
-                "proto": ["proto"],
-                "app_proto": ["app_proto"],
-                "clientIp": [],  # Computed field
-                "clientPort": [],  # Computed field
-                "serverIp": [],  # Computed field
-                "serverPort": [],  # Computed field
-            },
-            "anomaly": {
-                "event_category": ["anomaly", "type"],
-                "event_signature": ["anomaly", "event"],
-            },
-            "alert": {
-                "alert_action": ["alert", "action"],
-                "alert_gid": ["alert", "gid"],
-                "alert_signature_id": ["alert", "signature_id"],
-                "alert_rev": ["alert", "rev"],
-                "event_signature": ["alert", "signature"],
-                "event_category": ["alert", "category"],
-                "alert_severity": ["alert", "severity"],
-            },
-        }
+        # Setup column mapping and transformations
+        columns, column_map, cols_idxs, column_actions = setup_column_mapping(fields)
+        logging.info(f"Using index '{cfg['index_name']}' with columns: {columns}")
 
-        # Get column indices for client/server determination
-        src_ip_idx = COLUMNS.index('src_ip') if 'src_ip' in COLUMNS else None
-        dst_ip_idx = COLUMNS.index('dest_ip') if 'dest_ip' in COLUMNS else None
-        src_port_idx = COLUMNS.index('src_port') if 'src_port' in COLUMNS else None
-        dst_port_idx = COLUMNS.index('dest_port') if 'dest_port' in COLUMNS else None
-        serverIp_idx = COLUMNS.index('serverIp') if 'serverIp' in COLUMNS else None
-        clientIp_idx = COLUMNS.index('clientIp') if 'clientIp' in COLUMNS else None
-        serverPort_idx = COLUMNS.index('serverPort') if 'serverPort' in COLUMNS else None
-        clientPort_idx = COLUMNS.index('clientPort') if 'clientPort' in COLUMNS else None
-        cols_idxs = [src_ip_idx, dst_ip_idx, src_port_idx, dst_port_idx, serverIp_idx, clientIp_idx, serverPort_idx, clientPort_idx]
-
-        logging.info(f"Using index '{cfg['index_name']}' with columns: {COLUMNS}")
-
-        # Set up column transformation functions based on data types
-        column_actions = {}
-        for col, typ in zip(COLUMNS, TYPES):
-            if typ == "ip4":
-                column_actions[col] = action_valid_ipv4
-            if col == "timestamp":
-                column_actions[col] = action_convert_time
-
-        # Process EVE JSON log file line by line
-        with open(cfg["suricata_eve_json_path"]) as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-
-                # Parse JSON event
-                try:
-                    ev = json.loads(line)
-                except json.JSONDecodeError:
-                    counts["skipped"] += 1
-                    continue
-
-                # Apply filters and timestamp checks
-                ok, dt = should_process(ev, cfg, last_dt)
-                if dt and dt > max_dt:
-                    max_dt = dt
-                if not ok:
-                    counts["skipped"] += 1
-                    continue
-
-                # Build database row from event
-                try:
-                    row = build_row(ev, COLUMNS, COLUMN_MAP, cols_idxs, column_actions)
-                except Exception:
-                    counts["invalid"] += 1
-                else:
-                    rows.append(row)
-                    counts["processed"] += 1
+        # Process log file
+        rows, counts, max_dt = process_log_file(cfg, columns, column_map, cols_idxs, column_actions, last_dt)
 
         # Log processing statistics
         logging.info(f"Processed={counts['processed']} Skipped={counts['skipped']} Invalid={counts['invalid']}")
 
-        # Inject processed events into Sycope index
-        if rows:
-            payload = {
-                "columns": COLUMNS,
-                "indexName": cfg["index_name"],
-                "sortTimestamp": True,
-                "rows": rows,
-            }
-            inj = s.post(f"{cfg['sycope_host']}{cfg['api_base']}index/inject", json=payload, verify=False)
-            logging.info(f"Inject status: {inj.status_code} {inj.text}")
-        else:
-            logging.info("No valid rows to inject.")
+        # Inject data
+        inject_data(session, cfg, columns, rows)
 
-        # Update timestamp tracking file
-        if max_dt > last_dt:
-            save_last_ts(last_ts_file, max_dt)
-            logging.info(f"Saved new timestamp: {max_dt.isoformat()}")
+        # Update timestamp
+        update_timestamp(last_ts_file, max_dt, last_dt)
 
         # Clean up API session
         api.log_out()
