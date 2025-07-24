@@ -9,7 +9,7 @@ import json
 import os
 import sys
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import polars as pl
 import requests
@@ -182,6 +182,7 @@ def create_minute_df_pl(start_datetime, stop_datetime):
             interval="1m",
             time_unit="ms",
             eager=True,  # Return a Series directly
+            time_zone="UTC"
         ).alias("datetime")
     )
 
@@ -198,8 +199,8 @@ def main():
     api = SycopeApi(s, cfg["sycope_host"].rstrip("/"), cfg["sycope_login"], cfg["sycope_pass"])
     columns = []
 
-    startTime = datetime.now() - timedelta(minutes=cfg["period_minutes"])
-    endTime = datetime.now() - timedelta(seconds=75)
+    startTime = datetime.now(timezone.utc) - timedelta(minutes=cfg["period_minutes"])
+    endTime = datetime.now(timezone.utc) - timedelta(seconds=75)
     end_time_int = int(endTime.timestamp())
     start_time_int = int(startTime.timestamp())
     df_time_range = create_minute_df_pl(startTime.replace(second=30), endTime.replace(second=30))
@@ -246,7 +247,8 @@ def main():
                         value, **val_config["validation_args"]
                     ):
 
-                        history_data[metric_name].append((timestamp, ip, hostname, None))
+                        #history_data[metric_name].append((timestamp, ip, hostname, None))
+                        history_data[metric_name].append((timestamp, None))
                         continue
 
                     value = val_config["output_type"](value)
