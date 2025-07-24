@@ -11,7 +11,8 @@
   "lookup_privacy": "Public",
   "index_name": "ZabbixStats",
   "index_rotation": "daily",
-  "period_minutes": 1440,
+  "period_minutes": 30,
+  "use_dynamic_ips": false,
   "target_ips": [
     "8.8.8.8",
     "192.168.1.1",
