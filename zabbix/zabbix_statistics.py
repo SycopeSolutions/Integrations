@@ -17,14 +17,15 @@ from requests import Session
 
 # Hiding SSL certificate warning messages
 from urllib3.exceptions import InsecureRequestWarning
-
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
-sys.path.append('../sycope')
-from api import SycopeApi
-
-SCRIPT_DIR = os.getcwd()  # use current directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', 'sycope'))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
+
+sys.path.append(PARENT_DIR)
+
+from api import SycopeApi
 
 try:
     with open(CONFIG_FILE, 'r') as f:
