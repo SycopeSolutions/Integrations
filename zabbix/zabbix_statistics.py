@@ -266,7 +266,7 @@ def main():
                 z = pl.DataFrame(vals, schema=["timestamp", col], orient="row").with_columns(
                     datetime=pl.from_epoch(
                         "timestamp", time_unit="ms"
-                    )
+                    ).dt.convert_time_zone(time_zone="UTC")
                 )
                 df = df_time_range.sort("datetime").join_asof(
                     z.sort("datetime").drop("timestamp"), on="datetime", tolerance="59s", strategy="nearest"
