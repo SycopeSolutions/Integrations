@@ -12,15 +12,17 @@ import logging
 
 # Hiding SSL certificate warning messages
 from urllib3.exceptions import InsecureRequestWarning
-
-# setting path
-sys.path.append('../sycope')
-from api import SycopeApi
-
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
-SCRIPT_DIR = os.getcwd()  # use current directory
+# Path handling for config and modules
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PARENT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', 'sycope'))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
+
+# Extend path to load SycopeApi from external module
+sys.path.append(PARENT_DIR)
+
+from api import SycopeApi  # Import Sycope API wrapper
 
 try:
     with open(CONFIG_FILE, 'r') as f:
