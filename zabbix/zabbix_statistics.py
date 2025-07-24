@@ -5,28 +5,33 @@
 # Script version: 1.0
 # Tested on Sycope 3.1
 
+# Standard library imports
 import json
 import os
 import sys
 import logging
 from datetime import datetime, timedelta, timezone
 
+# Third-party libraries
 import polars as pl
 import requests
 from requests import Session
 
-# Hiding SSL certificate warning messages
+# Hiding SSL certificate warning messages (e.g., self-signed certs)
 from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
+# Path handling for config and modules
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '..', 'sycope'))
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
 
+# Extend path to load SycopeApi from external module
 sys.path.append(PARENT_DIR)
 
-from api import SycopeApi
+from api import SycopeApi  # Import Sycope API wrapper
 
+# Load configuration file (JSON format)
 try:
     with open(CONFIG_FILE, 'r') as f:
         cfg = json.load(f)
@@ -34,17 +39,18 @@ except Exception as e:
     logging.error(f"ERROR loading config: {e}")
     sys.exit(1)
 
+# Validate if a value is a float within a specified range
 def val_numeric_range(val, lower=0, upper=100):
     try:
         return float(val) >= lower and float(val) <= upper
     except Exception:
         return False
 
-
+# Divide a value (default by 100)
 def val_div(x, div=100):
     return x / div
 
-
+# Multiply a value (default by 1000)
 def val_multi(x, multi=1000):
     return x * multi
 
@@ -87,9 +93,10 @@ ITEM_KEYS = {
 }
 
 
-# Defining session for Sycope
+# Initialize HTTP session for Sycope API
 s = Session()
 
+# Log in to Zabbix API and retrieve auth token
 def zabbix_login():
     payload = {
         "jsonrpc": "2.0",
@@ -104,7 +111,24 @@ def zabbix_login():
         return data["result"]
     raise Exception(f"Zabbix API login failed: {data.get('error')}")
 
+# Get all primary host interface IPs from Zabbix
+def get_all_host_ips(headers):
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "hostinterface.get",
+        "params": {
+            "output": ["ip"],
+            "filter": {
+                "main": "1",  # Only get primary interfaces
+            }
+        },
+        "id": 1001
+    }
+    response = requests.post(cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"], headers=headers, json=payload, verify=False)
+    result = response.json()["result"]
+    return sorted(set([x["ip"] for x in result if "ip" in x]))
 
+# Get Zabbix host ID by IP address
 def get_host_id_by_ip(headers, ip):
     payload = {
         "jsonrpc": "2.0",
@@ -118,7 +142,7 @@ def get_host_id_by_ip(headers, ip):
         return data[0]["hostid"]
     return None
 
-
+# Get hostname (inventory name) from Zabbix using host ID
 def get_hostname_by_id(headers, host_id):
     payload = {
         "jsonrpc": "2.0",
@@ -134,7 +158,7 @@ def get_hostname_by_id(headers, host_id):
     return ""
 
 
-# def get_items_id(headers, host_id, key_):
+# Get all item definitions from Zabbix host
 def get_items_id(headers, host_id):
     payload = {
         "jsonrpc": "2.0",
@@ -154,7 +178,7 @@ def get_items_id(headers, host_id):
         return items
     return []
 
-
+# Get historical metric data from Zabbix
 def get_history(headers, item_id, start_time, end_time, history_type=0):
     payload = {
         "jsonrpc": "2.0",
@@ -174,7 +198,7 @@ def get_history(headers, item_id, start_time, end_time, history_type=0):
     response = requests.post(cfg["zabbix_host"].rstrip("/")+cfg["zabbix_api_base"].rstrip("/"), headers=headers, json=payload, verify=False)
     return response.json()["result"]
 
-
+# Create time-aligned Polars DataFrame (1-minute interval)
 def create_minute_df_pl(start_datetime, stop_datetime):
     return pl.DataFrame(
         pl.datetime_range(
@@ -187,9 +211,9 @@ def create_minute_df_pl(start_datetime, stop_datetime):
         ).alias("datetime")
     )
 
-
+# Main script logic
 def main():
-
+    # Authenticate and set headers
     auth_token = zabbix_login()
 
     headers = {
@@ -200,6 +224,7 @@ def main():
     api = SycopeApi(s, cfg["sycope_host"].rstrip("/"), cfg["sycope_login"], cfg["sycope_pass"])
     columns = []
 
+    # Define time range
     startTime = datetime.now(timezone.utc) - timedelta(minutes=cfg["period_minutes"])
     endTime = datetime.now(timezone.utc) - timedelta(seconds=75)
     end_time_int = int(endTime.timestamp())
@@ -207,7 +232,17 @@ def main():
     df_time_range = create_minute_df_pl(startTime.replace(second=30), endTime.replace(second=30))
 
     dfs_ips = []
-    for ip in cfg['target_ips']:
+
+    # Decide whether to use static IPs from config or dynamically discover from Zabbix
+    if cfg.get("use_dynamic_ips", False):
+        ips = get_all_host_ips(headers)
+        print(f"Discovered {len(ips)} IPs dynamically from Zabbix.")
+    else:
+        ips = cfg.get("target_ips", [])
+        print(f"Using {len(ips)} static IPs from config.")
+
+    for ip in ips:
+
         history_data = {}
         for metric_name in ITEM_KEYS:
             history_data[metric_name] = []
@@ -288,22 +323,14 @@ def main():
             datetime=pl.col("datetime").dt.strftime("%Y/%m/%d %H:%M"),
         )
 
-
-    ###### Checking current statistics in custom stream, in order not to duplicate samples
-
+    # Query Sycope for already indexed data to avoid duplicates
     endTime = "@" + endTime.astimezone().isoformat("T", "seconds")
-
-    # For debugging
-    # print(startTime)
-    # print("endTime =", endTime)
-
     startTime = startTime.astimezone().isoformat("T", "seconds")
     startTime = "@" + startTime
-
     query = f'src stream="{cfg["index_name"]}"'
 
-    ### Sending NQL query (HTTPS POST) to find ID of the requested IP address
-    ### Output will include jobId
+    # Sending NQL query (HTTPS POST) to find ID of the requested IP address
+    # Output will include jobId
     off_size = 50000
     payload = {
         "startTime": startTime,
@@ -321,7 +348,7 @@ def main():
     # For debugging
     # print(r.json())
 
-    ### Gathering query output using jobId
+    # Retrieve output data from Sycope using job ID
     saved_data = []
     for offset in range(job_run["data"]["total"] // off_size + 1):
         # print(offset) # for debugging
@@ -338,9 +365,9 @@ def main():
     # print("----------")
 
     # print("Data from Zabbix:")
-    # print(json.dumps(new_data))
+    # print(df)
 
-
+    # Filter new records that are not yet indexed
     if not df.is_empty():
         print("We have found new data. Preparing the payload...")
         if saved_data:
