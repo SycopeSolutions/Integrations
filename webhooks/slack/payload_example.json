@@ -50,7 +50,7 @@
             "type": "plain_text",
             "text": "🔗 View in Sycope"
           },
-          "url": "https://192.168.1.14/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22id%20%3D%20%5C%22[(${id})]%5C%22%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22now-24hours%22,%22to%22:%22now%22,%22roundTo%22:%22hour%22%7D%7D"
+          "url": "https://your_sycope_ip_or_dns/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22id%20%3D%20%5C%22[(${id})]%5C%22%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22now-24hours%22,%22to%22:%22now%22,%22roundTo%22:%22hour%22%7D%7D"
         }
       ]
     }
