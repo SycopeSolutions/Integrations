@@ -60,9 +60,9 @@ You can configure a new external action in Sycope, which may be triggered manual
 
 A complete example of a custom payload in `payload_example.json` file is available in the slack folder. You can copy and paste it directly or adjust it to meet your specific requirements.
 In the **Edit External Destination** form, you can select **Placeholders** to view all available dynamic values. These placeholders are automatically populated with data when the action is executed.
+https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/slack/payload_example.json
 
 In addition to the built-in placeholders, users also have access to custom **result** values from triggered alerts. For example, to reference the **serverIp** value from an active alert, use the following placeholder: `[(${result.serverIp})]`
-https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/slack/payload_example.json
 
 Users can reference any available value through the **result** object. The corresponding field names can be identified in the **Alerts** dashboards by enabling the **“Show raw field names”** option.
 
