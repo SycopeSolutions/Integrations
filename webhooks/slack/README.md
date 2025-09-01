@@ -31,13 +31,14 @@ The above test will be immediately visible on the chosen channel:
 
 Slack messages can be structured with Block Kit, which supports headers, sections, fields, context, and buttons. This allows us to present Sycope alerts in a clean, human-friendly format.
 To make alerts instantly recognizable, we recommend mapping severity levels to emoji icons:
-Sycope Thresholds Level	Emoji	Example in Slack
+
 
 | Sycope Thresholds Level  | Emoji | Example in Slack |
 | ------------- | ------------- | ------------- |
-| Critical  | :red_circle:  | 🔴 Critical |
-| Major  | :warning:  | ⚠️ Major  |
-| Minor  | :large_blue_circle:  | 🔵 Minor  |
+| Critical  | `:red_circle:`  | 🔴 Critical |
+| Major  | `:warning:`  | ⚠️ Major  |
+| Minor  | `:large_blue_circle:`  | 🔵 Minor  |
+
 
 The example below demonstrates an alert message that includes the Rule Type, Alert Name, Client IP, Server IP, Timestamp, and Severity, along with a “View in Sycope” button for direct access to the alert details within Sycope.
 
