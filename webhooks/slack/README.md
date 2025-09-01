@@ -49,7 +49,7 @@ Within Slack, users can create threads on an alert message to collaborate, ackno
 ## Creating a New External Action for Alerts
 
 You can configure a new external action in Sycope, which may be triggered manually (by right-clicking an active alert) or automatically (by assigning it to a specific rule).
-1.	Navigate to Settings -> Integrations -> External Destination in the Sycope web interface.
+1.	Navigate to Settings → Integrations → External Destination in the Sycope web interface.
 2.	Click **Add External Destination**.
 3.	Select Type: **Rest Client**.
 4.	Complete the configuration form using the example provided below (including **Custom Payload**).
@@ -57,10 +57,10 @@ You can configure a new external action in Sycope, which may be triggered manual
 
 <img width="468" height="468" alt="image" src="https://github.com/user-attachments/assets/abfbe360-5035-4af3-b34f-f965f2d4e978" />
 
-A complete example of a custom payload in payload_example.json file is available in the slack folder. You can copy and paste it directly or adjust it to meet your specific requirements.
+A complete example of a custom payload in `payload_example.json` file is available in the slack folder. You can copy and paste it directly or adjust it to meet your specific requirements.
 In the **Edit External Destination** form, you can select **Placeholders** to view all available dynamic values. These placeholders are automatically populated with data when the action is executed.
 
-In addition to the built-in placeholders, users also have access to custom **result** values from triggered alerts. For example, to reference the **serverIp** value from an active alert, use the following placeholder: [(${result.serverIp})]
+In addition to the built-in placeholders, users also have access to custom **result** values from triggered alerts. For example, to reference the **serverIp** value from an active alert, use the following placeholder: `[(${result.serverIp})]`
 https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/slack/payload_example.json
 
 Users can reference any available value through the **result** object. The corresponding field names can be identified in the **Alerts** dashboards by enabling the **“Show raw field names”** option.
@@ -70,16 +70,16 @@ Users can reference any available value through the **result** object. The corre
 To view the full details of an active alert, users can click **“View in Sycope”**, which redirects them to the **Alerts** dashboard with the corresponding AlertId automatically applied as a filter.
 Please note that the button can be configured to open any dashboard or view, depending on your requirements.
 
-<img width="468" height="287" alt="image" src="https://github.com/user-attachments/assets/26c7f324-b429-4e8a-a5c3-afb54bc6a420" />
+<img width="1920" height="1175" alt="1" src="https://github.com/user-attachments/assets/e39718fa-2a8c-437b-ba34-468c5ae82bac" />
 
 ## Best Practices
 
 We recommend below best practices to achieve the best workflow in the team.
-•	Use dedicated channels (e.g. #security-alerts, #network-ops) to avoid noise.
-•	Choose the right fields for the specific team to make it easy for engineers to triage alerts directly inside Slack
-•	Group related fields into columns using fields blocks.
-•	Always include a link back to Sycope for quick root-cause analysis.
-•	Use emojis for severity and system type to increase readability.
+- Use dedicated channels (e.g. #security-alerts, #network-ops) to avoid noise.
+- Choose the right fields for the specific team to make it easy for engineers to triage alerts directly inside Slack
+- Group related fields into columns using fields blocks.
+- Always include a link back to Sycope for quick root-cause analysis.
+- Use emojis for severity and system type to increase readability.
 
 ## Conclusion
 
