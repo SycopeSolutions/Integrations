@@ -33,7 +33,7 @@ Slack messages can be structured with Block Kit, which supports headers, section
 To make alerts instantly recognizable, we recommend mapping severity levels to emoji icons:
 
 
-| Sycope Thresholds Level  | Emoji | Example in Slack |
+| Sycope Threshold Level  | Emoji | Example in Slack |
 | ------------- | ------------- | ------------- |
 | Critical  | `:red_circle:`  | 🔴 Critical |
 | Major  | `:warning:`  | ⚠️ Major  |
