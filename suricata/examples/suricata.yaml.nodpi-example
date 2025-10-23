@@ -1,0 +1,330 @@
+%YAML 1.1
+---
+
+# Suricata configuration optimized for Sycope integration
+# Only collects data that Sycope can process by default (flow-based, no DPI)
+
+vars:
+  address-groups:
+    HOME_NET: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+    EXTERNAL_NET: "!$HOME_NET"
+
+    HTTP_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    AIM_SERVERS: "$EXTERNAL_NET"
+    DC_SERVERS: "$HOME_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "$HOME_NET"
+    MODBUS_CLIENT: "$HOME_NET"
+    MODBUS_SERVER: "$HOME_NET"
+    ENIP_CLIENT: "$HOME_NET"
+    ENIP_SERVER: "$HOME_NET"
+
+  port-groups:
+    HTTP_PORTS: "80"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: 22
+    DNP3_PORTS: 20000
+    MODBUS_PORTS: 502
+    FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
+    FTP_PORTS: 21
+    GENEVE_PORTS: 6081
+    VXLAN_PORTS: 4789
+    TEREDO_PORTS: 3544
+
+# Outputs
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+
+      pcap-file: no
+      community-id: no
+
+      types:
+        # Required by Sycope
+        - alert:
+            enabled: yes
+            payload: no
+            payload-buffer-size: 0
+            payload-printable: no
+            packet: no
+            metadata: yes
+            tagged-packets: no
+
+        - anomaly:
+            enabled: yes
+
+        - flow:
+            enabled: no
+
+        # Disabled - Sycope doesn't process these by default
+        - http:
+            enabled: no
+        - dns:
+            enabled: no
+        - tls:
+            enabled: no
+        - files:
+            enabled: no
+        - smtp:
+            enabled: no
+        - ssh:
+            enabled: no
+        - stats:
+            enabled: no
+        - dhcp:
+            enabled: no
+        - tftp:
+            enabled: no
+        - smb:
+            enabled: no
+        - dcerpc:
+            enabled: no
+        - netflow:
+            enabled: no
+        - nfs:
+            enabled: yes
+        - tftp:
+            enabled: no
+        - ikev2:
+            enabled: no
+        - krb5:
+            enabled: no
+        - snmp:
+            enabled: no
+        - rfb:
+            enabled: no
+        - sip:
+            enabled: no
+        - quic:
+            enabled: no
+        - websocket:
+            enabled: no
+
+  - stats:
+      enabled: no
+
+# Logging
+logging:
+  default-log-level: notice
+  outputs:
+    - console:
+        enabled: yes
+    - file:
+        enabled: yes
+        level: info
+        filename: /var/log/suricata/suricata.log
+    - syslog:
+        enabled: no
+
+# AF_PACKET capture
+af-packet:
+  - interface: eth0
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+    tpacket-v3: yes
+    ring-size: 2048
+    block-size: 32768
+
+# Pcap capture (alternative to af-packet)
+pcap:
+  - interface: eth0
+
+# Detection engine
+detect:
+  profile: medium
+  custom-values:
+    toclient-groups: 3
+    toserver-groups: 25
+
+  sgh-mpm-context: auto
+  inspection-recursion-limit: 3000
+
+# Flow settings
+flow:
+  memcap: 128mb
+  hash-size: 65536
+  prealloc: 10000
+  emergency-recovery: 30
+
+# Stream engine
+stream:
+  memcap: 64mb
+  checksum-validation: yes
+  inline: auto
+  reassembly:
+    memcap: 256mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+    randomize-chunk-size: yes
+
+# Host table
+host:
+  hash-size: 4096
+  prealloc: 1000
+  memcap: 32mb
+
+# Defrag settings
+defrag:
+  memcap: 32mb
+  hash-size: 65536
+  trackers: 65535
+  max-frags: 65535
+  prealloc: yes
+  timeout: 60
+
+# Flow timeouts
+flow-timeouts:
+  default:
+    new: 30
+    established: 300
+    closed: 0
+    bypassed: 100
+    emergency-new: 10
+    emergency-established: 100
+    emergency-closed: 0
+    emergency-bypassed: 50
+  tcp:
+    new: 60
+    established: 600
+    closed: 60
+    bypassed: 100
+    emergency-new: 5
+    emergency-established: 100
+    emergency-closed: 10
+    emergency-bypassed: 50
+  udp:
+    new: 30
+    established: 300
+    bypassed: 100
+    emergency-new: 10
+    emergency-established: 100
+    emergency-bypassed: 50
+  icmp:
+    new: 30
+    established: 300
+    bypassed: 100
+    emergency-new: 10
+    emergency-established: 100
+    emergency-bypassed: 50
+
+# Application layer protocols
+app-layer:
+  protocols:
+    tls:
+      enabled: yes
+      detection-ports:
+        dp: 443
+    http:
+      enabled: yes
+      memcap: 64mb
+    dns:
+      tcp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+      udp:
+        enabled: yes
+        detection-ports:
+          dp: 53
+    ssh:
+      enabled: yes
+    smtp:
+      enabled: yes
+      raw-extraction: no
+      mime:
+        decode-mime: no
+        decode-base64: no
+        decode-quoted-printable: no
+        header-value-depth: 2000
+        extract-urls: no
+        body-md5: no
+    ftp:
+      enabled: yes
+    smb:
+      enabled: yes
+      detection-ports:
+        dp: 139, 445
+    nfs:
+      enabled: yes
+    tftp:
+      enabled: no
+    ike:
+      enabled: yes
+    krb5:
+      enabled: yes
+    snmp:
+      enabled: no
+    sip:
+      enabled: no
+    rdp:
+      enabled: yes
+    modbus:
+      enabled: no
+    dnp3:
+      enabled: no
+    enip:
+      enabled: no
+
+# Rule files
+default-rule-path: /var/lib/suricata/rules
+rule-files:
+  - suricata.rules
+
+# Classification file
+classification-file: /etc/suricata/classification.config
+reference-config-file: /etc/suricata/reference.config
+
+# Thresholding
+threshold-file: /etc/suricata/threshold.config
+
+# Performance tuning
+threading:
+  set-cpu-affinity: no
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ 0 ]
+    - receive-cpu-set:
+        cpu: [ 0 ]
+    - worker-cpu-set:
+        cpu: [ "all" ]
+  detect-thread-ratio: 1.0
+
+# Profiling
+profiling:
+  rules:
+    enabled: no
+    filename: rule_perf.log
+    append: yes
+  keywords:
+    enabled: no
+    filename: keyword_perf.log
+    append: yes
+
+# Capture statistics
+stats:
+  enabled: no
+  interval: 8
+
+# Host mode
+host-mode: auto
+
+# Unix command socket
+unix-command:
+  enabled: auto
+
+# Legacy options
+legacy:
+  uricontent: enabled
+
+# Exception policy
+exception-policy: auto
