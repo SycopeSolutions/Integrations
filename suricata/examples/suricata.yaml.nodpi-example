@@ -1,6 +1,5 @@
 %YAML 1.1
 ---
-
 # Suricata configuration optimized for Sycope integration
 # Only collects data that Sycope can process by default (flow-based, no DPI)
 
