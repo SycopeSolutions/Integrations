@@ -225,6 +225,7 @@ else:
         # print("=" * 40)
 
         lookupvalues.append(
+            [str(x) for x in
             [
                 snmp_ip if host_type == "SNMP" else icmp_ip,
                 host_name,
@@ -236,7 +237,7 @@ else:
                 inventory.get("serialno_a", "") if isinstance(inventory, dict) else "",
                 inventory.get("notes", "") if isinstance(inventory, dict) else "",
                 status_map.get(str(host.get("status")), "Unknown"),
-            ]
+            ]]
         )
 
 # For debugging
@@ -262,6 +263,11 @@ with requests.Session() as s:
     if lookup_id == '0':
         print(f'There are no Lookups with "{cfg["lookup_name"]}" name. Creating new...')
         lookup_id = api.create_lookup(cfg["lookup_name"],lookup)
+        if lookup_id =="0":
+            print("Dumping lookup that could have not been created to lookup_rows.problem.json")
+            with open("lookup_rows_problem", "w") as f:
+                json.dump(lookup, f)
+            exit()
     else:
         compare_config = sorted(lookup["config"].items()) == sorted(saved_lookup["config"].items())
         compare_rows = sorted(lookup["file"]["rows"], key=lambda x: str(x)) == sorted(

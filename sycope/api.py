@@ -84,6 +84,7 @@ class SycopeApi:
             # For debugging
             print("Something went wrong. Please analyze the output:")
             print(r.json())
+            return "0"
 
     def edit_lookup(self, lookup_id: str, lookup) ->  None:
         r = self.session.put(self.host + self.api_endpoint + self.api_endpoint_lookup + "/" + lookup_id, json=lookup, verify=False)
@@ -99,7 +100,12 @@ class SycopeApi:
 
     def privacy_check_lookup(self, lookup_id: str):
         print("Checking privacy configuration...")
-        r = self.session.get(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, verify=False)
+        try:
+            r = self.session.get(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, verify=False)
+        except:
+            print("Could not get privacy configuration with values:")
+            print(f"Host: {self.host}, api endpoint: {self.api_endpoint}, lookup_id: {lookup_id}")
+            return ""
         data = r.json()
         if data and data["objectId"] == lookup_id:
             savedsidPerms = data["sidPerms"]
