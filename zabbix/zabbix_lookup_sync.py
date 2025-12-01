@@ -41,7 +41,7 @@ lookup = {
         "dataFile": "test-csv-file.csv",
         "delimiter": ",",
         "types": [
-            "ip4",
+            "ip",
             "string",
             "string",
             "string",
@@ -263,7 +263,7 @@ with requests.Session() as s:
     if lookup_id == '0':
         print(f'There are no Lookups with "{cfg["lookup_name"]}" name. Creating new...')
         lookup_id = api.create_lookup(cfg["lookup_name"],lookup)
-        if lookup_id =="0":
+        if lookup_id == '0':
             print("Dumping lookup that could have not been created to lookup_rows.problem.json")
             with open("lookup_rows_problem", "w") as f:
                 json.dump(lookup, f)
