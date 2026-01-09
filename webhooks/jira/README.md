@@ -34,7 +34,7 @@ It should look similar to the following:
 
 You now have everything needed to create a new alert action in **Sycope** and start creating Jira incidents automatically.
 
-## Sycope
+## Creating a New Jira Integration in Sycope
 
 First, go to **Settings → General → Integrations → External Destinations** and click **Add External Destination**.
 
@@ -63,4 +63,30 @@ You need to modify the following values in the payload:
 - `"key": "IT"` → replace with the specific key of your Jira project  
 - `https://SYCOPE_IP` → replace with the IP address or DNS record of your Sycope installation
 
+The final result should appear as shown below:
+<img width="714" height="812" alt="image" src="https://github.com/user-attachments/assets/9a669ab7-5269-4638-b73d-9d53466002c1" />
 
+You can start using your new integration immediately via the **Context Menu**.  
+While viewing **Alerts**, right-click an active alert and select your action from:
+
+**Send externally → REST Client** list
+
+<img width="943" height="425" alt="image" src="https://github.com/user-attachments/assets/2e2f91b0-d92c-4121-a5a9-74dd79816dad" />
+
+This action will create a new incident, which should appear as shown below:
+<img width="1904" height="750" alt="image" src="https://github.com/user-attachments/assets/183c0574-5cbc-4c59-a76b-66391a0d6c21" />
+
+To have these actions executed automatically when an alert is triggered, navigate to **Configuration → Rules** and edit the desired rule.  
+
+Under **Actions**, configure the following:
+
+- **Type:** Third-party system (REST)  
+- **External system:** REST  
+- **Instance name:** `YOUR_NAME`  
+- **Threshold levels:** Select the levels that should trigger this action  
+
+The final result should appear as shown below:
+
+<img width="1899" height="1029" alt="image" src="https://github.com/user-attachments/assets/8645de39-e5e7-4815-b3a6-6824c391dcbc" />
+
+And that’s it! You should now see new Jira incidents created each time this rule triggers an alert.
