@@ -36,3 +36,31 @@ You now have everything needed to create a new alert action in **Sycope** and st
 
 ## Sycope
 
+First, go to **Settings → General → Integrations → External Destinations** and click **Add External Destination**.
+
+Please define the following values:
+
+- **Name:** As per your requirements  
+- **URL Protocol:** HTTPS  
+- **URL Host:** `YOUR_NAME.atlassian.net`  
+- **URL Port:** 443  
+- **Method:** POST  
+
+- **Path:** `/rest/api/3/issue`  
+
+- **Authentication:** Basic  
+  - **Username:** `YOUR_EMAIL`  
+  - **Password:** `YOUR_TOKEN`  
+
+- **Custom Payload:** Enabled  
+
+For the **Custom Payload** body, use the ready-to-go example from our repository:  
+[https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira/payload_example.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira/payload_example.json)
+
+
+You need to modify the following values in the payload:
+
+- `"key": "IT"` → replace with the specific key of your Jira project  
+- `https://SYCOPE_IP` → replace with the IP address or DNS record of your Sycope installation
+
+
