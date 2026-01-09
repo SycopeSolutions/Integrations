@@ -1,0 +1,187 @@
+{
+  "fields": {
+    "project": {
+      "key": "IT"
+    },
+    "summary": "[(${name})]",
+    "issuetype": {
+      "name": "Incident"
+    },
+    "labels": ["sycope", "security"],
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "🚨 Sycope [(${ruleType})] Alert",
+              "marks": [{ "type": "strong" }]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Triggered at: ",
+              "marks": [{ "type": "strong" }]
+            },
+            {
+              "type": "text",
+              "text": "[(${timestamp})]"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Threshold: ",
+              "marks": [{ "type": "strong" }]
+            },
+            {
+              "type": "text",
+              "text": "📊 [(${alertFlagThresholdLevel})]"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Severity: ",
+              "marks": [{ "type": "strong" }]
+            },
+            {
+              "type": "text",
+              "text": "⚠️ [(${severity})]"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Alert Details",
+              "marks": [{ "type": "strong" }]
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "attrs": {
+            "isNumberColumnEnabled": false,
+            "layout": "default"
+          },
+          "content": [
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [{ "type": "text", "text": "Field" }]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [{ "type": "text", "text": "Value" }]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [{ "type": "text", "text": "Client IP" }]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "[(${result.clientIp})]",
+                          "marks": [{ "type": "code" }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [{ "type": "text", "text": "Server IP" }]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "[(${result.serverIp})]",
+                          "marks": [{ "type": "code" }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "🔗 Open alert in Sycope",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "https://SYCOPE_IP/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22id%20%3D%20%5C%22[(${id})]%5C%22%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22startOfHour-30days%22,%22to%22:%22now%22,%22roundTo%22:%22hour%22%7D%7D"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
