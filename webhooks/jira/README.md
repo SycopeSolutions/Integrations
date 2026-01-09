@@ -12,7 +12,7 @@ Available spaces can be accessed here: https://YOUR_NAME.atlassian.net/jira/for-
 <img width="1448" height="596" alt="image" src="https://github.com/user-attachments/assets/02b9329e-d156-4b68-ab6d-e40e280b750c" />
 
 The new space should be visible in your Jira Service Desk projects. In our example, we used “IT Support” and “HelpDesk”.
-Defined spaces can be access here: https://YOUR_NAME.atlassian.net/jira/projects
+Defined spaces can be accessed here: https://YOUR_NAME.atlassian.net/jira/projects
 
 <img width="1507" height="600" alt="image" src="https://github.com/user-attachments/assets/b6e31691-d71b-4ba1-997e-40bfb4c2939f" />
 
