@@ -7,6 +7,7 @@ Below is a test example demonstrating how Sycope creates new Jira incidents. You
 ## Prerequirements
 
 All of the requirements listed below are included in the Jira Free tier. First, please create a new IT Service Management space, or another space with a similar configuration.
+Available spaces can be accessed here: https://YOUR_NAME.atlassian.net/jira/for-you
 
 <img width="1448" height="596" alt="image" src="https://github.com/user-attachments/assets/02b9329e-d156-4b68-ab6d-e40e280b750c" />
 
@@ -15,6 +16,7 @@ The new space should be visible in your Jira Service Desk projects. In our examp
 <img width="1507" height="600" alt="image" src="https://github.com/user-attachments/assets/b6e31691-d71b-4ba1-997e-40bfb4c2939f" />
 
 Next, navigate to your Atlassian profile, go to **Security**, and create a new API token.
+API tokens can be managed and created here: [https://id.atlassian.com/manage-profile/security/api-tokens](https://id.atlassian.com/manage-profile/security/api-tokens)
 
 <img width="1038" height="365" alt="image" src="https://github.com/user-attachments/assets/1505eca6-ebbd-473d-903a-d24dc07bb458" />
 
