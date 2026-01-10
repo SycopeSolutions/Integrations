@@ -28,5 +28,63 @@ From the available templates, search for the keyword **webhook** and choose **Se
 
 <img width="1152" height="518" alt="image" src="https://github.com/user-attachments/assets/74fa4393-b354-4332-9299-d591f339acbe" />
 
+You will be prompted to choose which account should be used to connect **Power Automate** with **Microsoft Teams** in your organization. You can use your own email address or select a dedicated **service account** with Office 365 enabled.  
 
+For this example, a personal account is used. Once completed, it should appear as shown below:
 
+<img width="1888" height="593" alt="image" src="https://github.com/user-attachments/assets/1b7d9472-e987-4566-b188-081c8634104e" />
+
+Next, click **Edit** to prepare the flow to receive alerts from Sycope.  
+
+Select the **When a Teams webhook request is received** block and copy the webhook URL. It should look similar to the following:
+
+https://xxxxxxxxxxx.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/xxxxxxxxxx/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xxxxxxx
+
+From this screen, you can also restrict which accounts are allowed to trigger the webhook.  
+
+For testing purposes, we will leave it set to **Anyone**.
+
+<img width="1079" height="476" alt="image" src="https://github.com/user-attachments/assets/0fd962ba-bb2b-4ce4-82de-3ee80aeb2a95" />
+
+Next, we need to modify the flow to handle Sycope alerts in **JSON** format.  
+
+Click the first **+** sign and select the **Parse JSON** action.
+
+<img width="1049" height="250" alt="image" src="https://github.com/user-attachments/assets/469c4ce6-1a51-4b02-82a7-f406391cb77c" />
+
+Other actions from the template are not required, so please remove them.
+
+<img width="1051" height="358" alt="image" src="https://github.com/user-attachments/assets/40a7e568-e52b-444a-8214-ce571dfcbefa" />
+
+Next, we need to provide a JSON example from Sycope for the **Parse JSON** action, so that Power Automate has a reference point.  
+
+Log in to Sycope and create a new integration by navigating to:  
+
+**Settings → General → Integrations → External Destinations**  
+
+Then click **Add External Destination**.
+
+It is necessary to split the Webhook URL into individual query parameters.  
+
+You can do this automatically using **Postman** or another tool, or manually using the example below.
+
+Our test URL is https://xxxxxxxxxxx.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/xxxxxxxxxx/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xxxxxxx
+
+Main parameters:
+- **Name:** As per your requirements
+- **URL Protocol:** HTTPS
+- **URL Host:** `xxxxxxxxxxx.dc.environment.api.powerplatform.com`
+- **URL Port:** 443
+- **Method:** POST
+- **Path:** /powerautomate/automations/direct/workflows/xxxxxxxxxx/triggers/manual/paths/invoke
+
+Query params:
+- **api-version:** 1
+- **sp:** /triggers/manual/run
+- **sv:** 1.0
+- **sig:** xxxxxxx
+
+The final result should appear as shown below:
+<img width="713" height="932" alt="image" src="https://github.com/user-attachments/assets/082e074b-0830-474e-a074-2d75ea185963" />
+
+There is no need to edit other tabs and your new Integration can now be saved.
