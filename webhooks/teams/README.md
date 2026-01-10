@@ -130,6 +130,7 @@ Next, move to the **Initialize variable (Body)** action. We will use it to creat
 <img width="1071" height="469" alt="image" src="https://github.com/user-attachments/assets/c2fae530-8c43-4004-880f-0f871c4d606f" />
 
 For **Value**, select **function**:
+
 <img width="720" height="124" alt="image" src="https://github.com/user-attachments/assets/2158c2d8-7a78-47de-8476-3b53526c05c9" />
 
 Use the following example:
