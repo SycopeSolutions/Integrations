@@ -18,7 +18,7 @@ All of the requirements listed below are included in all Office 365 plans. First
 
 On the right-hand side, click **Create team** and provide the required **Team name** and **Channel name**. In our example, the **Team name** is **NOC Operators** and the **Channel name** is **Sycope Alerts**.
 
-<img width="1069" height="715" alt="image" src="https://github.com/user-attachments/assets/3d488c9e-b2d1-459c-8ce1-e7a415839923" />
+<img width="1010" height="749" alt="image" src="https://github.com/user-attachments/assets/8aed0195-a9c5-4787-ab94-21fea28ec541" />
 
 Next, you need to create a new webhook in **Microsoft Power Automate**. This can be done at:  
 [https://make.powerautomate.com/](https://make.powerautomate.com/)
