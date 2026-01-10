@@ -97,9 +97,7 @@ First, select **When a Teams webhook request is received**, then choose **Show r
 
 <img width="1231" height="563" alt="image" src="https://github.com/user-attachments/assets/294471c9-d00b-4542-88ad-70f3d14f6167" />
 
-The output should look similar to the example below, but much longer.  
-
-Please copy all the text into **Notepad** for reference.
+The output should look similar to the example below, but much longer. Please copy all the text into **Notepad**.
 
 <img width="571" height="175" alt="image" src="https://github.com/user-attachments/assets/dbdabb97-635e-43c7-9210-9520b60093a3" />
 
