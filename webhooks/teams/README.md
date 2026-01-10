@@ -101,9 +101,9 @@ The output should look similar to the example below, but much longer. Please cop
 
 <img width="571" height="175" alt="image" src="https://github.com/user-attachments/assets/dbdabb97-635e-43c7-9210-9520b60093a3" />
 
-Now, you need to exit this test. Go back to our flow and click Edit.
+Next, exit the test by returning to your flow and clicking **Edit**.  
 
-Next, we need to modify the flow to handle Sycope alerts in **JSON** format, using the example we just sent.
+We now need to modify the flow to handle Sycope alerts in **JSON** format, using the example we just sent.
 
 Click the first **+** sign and select the **Parse JSON** action.
 
