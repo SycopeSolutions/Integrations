@@ -34,9 +34,7 @@ For this example, a personal account is used. Once completed, it should appear a
 
 <img width="1888" height="593" alt="image" src="https://github.com/user-attachments/assets/1b7d9472-e987-4566-b188-081c8634104e" />
 
-Next, click **Edit** to prepare the flow to receive alerts from Sycope.  
-
-Select the **When a Teams webhook request is received** block and copy the webhook URL. It should look similar to the following:
+Next, click **Edit**. Select the **When a Teams webhook request is received** block and copy the webhook URL. It should look similar to the following:
 
 https://xxxxxxxxxxx.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/xxxxxxxxxx/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xxxxxxx
 
