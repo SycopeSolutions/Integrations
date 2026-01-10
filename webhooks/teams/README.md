@@ -109,7 +109,7 @@ Click the first **+** sign and select the **Parse JSON** action.
 
 <img width="1049" height="250" alt="image" src="https://github.com/user-attachments/assets/469c4ce6-1a51-4b02-82a7-f406391cb77c" />
 
-Click **Use sample payload to generate schema** and paste the entire JSON alert from your Notepad.
+Click the **Parse JSON** action, then select **Use sample payload to generate schema** and paste the entire JSON alert from your Notepad.
 
 <img width="1059" height="420" alt="image" src="https://github.com/user-attachments/assets/1384bb62-bcd9-4f26-8074-90344e9b15de" />
 
