@@ -12,7 +12,7 @@ Thanks to Power Automate features, you can use logical statements to dynamically
 
 <img width="1025" height="988" alt="image" src="https://github.com/user-attachments/assets/7cd78539-c37b-43c9-a96f-e2d6df413ee1" />
 
-## Prerequirements
+## Step-by-Step Guide
 
 All of the requirements listed below are included in all Office 365 plans. First, you need to have a Microsoft Teams **Team** defined. This can be done directly in Microsoft Teams by navigating to the **Chat** tab, scrolling down to **Teams and channels**, and selecting **See all your teams**.  
 
