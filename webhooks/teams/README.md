@@ -113,25 +113,32 @@ Click the first **+** sign and select the **Parse JSON** action.
 
 <img width="1049" height="250" alt="image" src="https://github.com/user-attachments/assets/469c4ce6-1a51-4b02-82a7-f406391cb77c" />
 
-Choose Parse JSON action, in order to click on Use sample payload to generate schema and paste entire JSON alert from your Notepad.
+Select the **Parse JSON** action.  
+
+Click **Use sample payload to generate schema** and paste the entire JSON alert from your Notepad.
 
 <img width="1059" height="420" alt="image" src="https://github.com/user-attachments/assets/1384bb62-bcd9-4f26-8074-90344e9b15de" />
 
-Final result should looks similar to below. You can see that Power Automate generated Schema automatically. 
+The final result should appear similar to the example below.  
+
+You will notice that Power Automate has automatically generated the schema.
 
 <img width="768" height="406" alt="image" src="https://github.com/user-attachments/assets/60532fea-5357-4be4-a8cc-10c4a7b79abc" />
 
-For Content, please click on the lightning symbol and choose Body.
+For **Content**, click on the **lightning** symbol and select **Body**.
 
 <img width="1007" height="306" alt="image" src="https://github.com/user-attachments/assets/bbcbbc7a-7b64-4acd-a0b8-e117f9bf8e2c" />
 
-Now we can move to the next Initialize variable (Body) action. We can change the Name to "sycopeLink" and Type needs to be changed to String.
+Next, move to the **Initialize variable (Body)** action. We will use it to create our **View in Sycope** button.
+
+- Change the **Name** to `sycopeLink`  
+- Set the **Type** to **String**
 <img width="1071" height="469" alt="image" src="https://github.com/user-attachments/assets/c2fae530-8c43-4004-880f-0f871c4d606f" />
 
-For Value choose function:
+For **Value**, select **function**:
 <img width="720" height="124" alt="image" src="https://github.com/user-attachments/assets/2158c2d8-7a78-47de-8476-3b53526c05c9" />
 
-Use below example:
+Use the following example:
 
 concat(
     'https://YOUR_SYCOPE_IP_OR_DNS/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22id%20%3D%20%5C%22',
@@ -139,18 +146,57 @@ concat(
     '%5C%22%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22startOfHour-30days%22,%22to%22:%22now%22,%22roundTo%22:%22hour%22%7D%7D'
 )
 
-It should look like this:
+It should appear as shown below:
 <img width="995" height="248" alt="image" src="https://github.com/user-attachments/assets/49e26de8-cbf7-42ef-a31d-bc1dd5141551" />
 
-You can remove the other actions:
+You can remove any other unnecessary actions:
 
 <img width="1009" height="374" alt="image" src="https://github.com/user-attachments/assets/408c10f4-4b81-4e27-b36c-548bac11fb48" />
 
-We are ready to add the most important action, which is "Post card in a chat or channel":
+We are now ready to add the most important action at the end of the flow: **Post card in a chat or channel**.
 
 <img width="1002" height="341" alt="image" src="https://github.com/user-attachments/assets/f09c81df-8a8c-49d9-a096-5806eb31d812" />
 
-Click on our new action and choose the Team and Channel, which you have created at the beginning.
+Click on the new action and select the **Team** and **Channel** that you created at the beginning.
 
 <img width="559" height="409" alt="image" src="https://github.com/user-attachments/assets/23a4b8c2-43b8-4129-9f90-c6d933d68a3a" />
 
+For the **Adaptive Card**, we have prepared a dedicated JSON for you.  
+
+Please download the file below and paste its content into the action:
+
+https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/teams/adaptivecard.json
+
+This is how it should appear.  
+
+You can see that all logical functions, such as if statements, are now represented by function icons, indicating they were recognized correctly. These functions enable mapping **Severity** to colors, along with a few other visual features.  
+
+Once you click **Save**, Power Automate should display the message:  
+*"Your flow is ready to go. We recommend you test it."*
+
+<img width="991" height="608" alt="image" src="https://github.com/user-attachments/assets/898d09e0-34b2-4026-b466-800f04bc9fe2" />
+
+Now for the best part!  
+
+Return to Sycope, right-click any alert, and select **Send externally** to your Microsoft Teams integration.  
+
+If everything is configured correctly, you should see a **Success** message in Power Automate:
+
+<img width="1055" height="205" alt="image" src="https://github.com/user-attachments/assets/cfc4abe4-d95d-496a-9cf4-4853e282d4d6" />
+
+You should now see a new alert posted in your Teams channel.
+
+To have these posts executed automatically when an alert is triggered, navigate to **Configuration → Rules** and edit the desired rule.  
+
+Under **Actions**, configure the following:
+
+- **Type:** Third-party system (REST)
+- **External system:** REST
+- **Instance name:** `YOUR_NAME`
+- **Threshold levels:** Select the levels that should trigger this action
+
+The final result should appear as shown below:
+
+<img width="930" height="509" alt="image" src="https://github.com/user-attachments/assets/cf0430b0-b75a-4a51-bd76-1593be89fe94" />
+
+And that’s it! You should now see new Teams posts created each time this rule triggers an alert.
