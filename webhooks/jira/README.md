@@ -6,6 +6,8 @@ Below is a test example demonstrating how Sycope creates new Jira incidents. You
 
 ## Prerequirements
 
+**Note:** The following steps have been verified and are fully supported in **Sycope 3.2** or later.
+
 All of the requirements listed below are included in the Jira Free tier. First, please create a new IT Service Management space, or another space with a similar configuration.
 Available spaces can be accessed here: https://YOUR_NAME.atlassian.net/jira/for-you
 
