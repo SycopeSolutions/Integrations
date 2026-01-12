@@ -21,12 +21,12 @@ The following steps have been verified and are fully supported in the following 
 ## Step-by-Step Guide
 
 First, please create a new IT Service Management Space, or another Space with a similar configuration.
-Available Spaces can be accessed here: https://YOUR_NAME.atlassian.net/jira/for-you
+Available Spaces can be accessed here: `https://YOUR_NAME.atlassian.net/jira/for-you`
 
 <img width="1448" height="596" alt="image" src="https://github.com/user-attachments/assets/02b9329e-d156-4b68-ab6d-e40e280b750c" />
 
 The new Space should be visible in your Jira Service Desk projects. In our example, we used “IT Support” and “HelpDesk”.
-Defined Spaces can be accessed here: https://YOUR_NAME.atlassian.net/jira/projects
+Defined Spaces can be accessed here: `https://YOUR_NAME.atlassian.net/jira/projects`
 
 <img width="1507" height="600" alt="image" src="https://github.com/user-attachments/assets/b6e31691-d71b-4ba1-997e-40bfb4c2939f" />
 
@@ -40,7 +40,7 @@ Use **Basic Auth** for authentication.
 
 Send an HTTPS `GET` request to your projects URL, which should look like this:
 
-https://YOUR_NAME.atlassian.net/rest/api/3/project
+`https://YOUR_NAME.atlassian.net/rest/api/3/project`
 
 To create new incidents in your **IT Support** project, you need to identify the `"key"` value from the output above.
 It should look similar to the following:
@@ -55,9 +55,9 @@ Depending on your requirements, you may also consider adding additional fields t
 
 To access the custom fields in Jira, navigate to:
 
-**Settings → Work items** while on https://your_name.atlassian.net/jira/for-you
+**Settings → Work items** while on `https://your_name.atlassian.net/jira/for-you`
 
-**OR** use the direct link: https://your_name.atlassian.net/jira/settings/issues/fields
+**OR** use the direct link: `https://your_name.atlassian.net/jira/settings/issues/fields`
 
 <img width="513" height="414" alt="image" src="https://github.com/user-attachments/assets/a601da16-12dd-423b-933b-52038a5ce59a" />
 
@@ -80,14 +80,14 @@ Jira API does not recognize the custom field names directly and requires their a
 
 To do this, send an HTTPS `GET` request to the Jira fields endpoint, which typically looks like this:
 
-https://your_name.atlassian.net/rest/api/3/field
+`https://your_name.atlassian.net/rest/api/3/field`
 
 After retrieving the list of fields from the Jira API, locate and copy the **IDs** for `clientIp` and `serverIp`.  
 
-The IDs will look similar to the following example - `clientIp`: `customfield_10091`:
+The **IDs** will look similar to the following example - `customfield_10091` for `clientIp`:
 
     {
-        **"id": "customfield_10091",**
+        "id": "customfield_10091", <<<<<--------
         "key": "customfield_10091",
         "name": "clientIp",
         "untranslatedName": "clientIp",
@@ -106,3 +106,4 @@ The IDs will look similar to the following example - `clientIp`: `customfield_10
             "customId": 10091
         }
     }
+
