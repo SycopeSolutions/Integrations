@@ -56,6 +56,7 @@ Depending on your requirements, you may also consider adding additional fields t
 To access the custom fields in Jira, navigate to:
 
 **Settings → Work items** while on https://your_name.atlassian.net/jira/for-you
+
 **OR** use the direct link: https://your_name.atlassian.net/jira/settings/issues/fields
 
 <img width="513" height="414" alt="image" src="https://github.com/user-attachments/assets/a601da16-12dd-423b-933b-52038a5ce59a" />
