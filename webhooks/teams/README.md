@@ -12,11 +12,16 @@ Thanks to Power Automate features, you can use logical statements to dynamically
 
 <img width="1025" height="988" alt="image" src="https://github.com/user-attachments/assets/7cd78539-c37b-43c9-a96f-e2d6df413ee1" />
 
+## Prerequirements
+
+The following steps have been verified and are fully supported in the following environment:
+
+- **Sycope** version 3.2 or later
+- **Microsoft 365 Business Basic** or higher
+
 ## Step-by-Step Guide
 
-**Note:** The following steps have been verified and are fully supported in **Sycope 3.2** or later.
-
-All of the requirements listed below are included in all Office 365 plans. First, you need to have a Microsoft Teams **Team** defined. This can be done directly in Microsoft Teams by navigating to the **Chat** tab, scrolling down to **Teams and channels**, and selecting **See all your teams**.  
+First, you need to have a Microsoft Teams **Team** defined. This can be done directly in Microsoft Teams by navigating to the **Chat** tab, scrolling down to **Teams and channels**, and selecting **See all your teams**.  
 
 On the right-hand side, click **Create team** and provide the required **Team name** and **Channel name**. In our example, the **Team name** is **NOC Operators** and the **Channel name** is **Sycope Alerts**.
 
