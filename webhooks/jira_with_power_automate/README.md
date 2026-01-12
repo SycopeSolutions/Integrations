@@ -11,13 +11,16 @@ This approach helps prevent the creation of duplicate incidents in Jira.
 
 <img width="689" height="1047" alt="image" src="https://github.com/user-attachments/assets/5861a05b-6fef-4b80-9fc7-5130244f85a7" />
 
-|   |   |
-|---|---|
-| ![IT Support Space View](https://github.com/user-attachments/assets/aac1bc23-6f9c-4b47-b97e-5451b8788ced) |   |
+<img src="https://github.com/user-attachments/assets/aac1bc23-6f9c-4b47-b97e-5451b8788ced" 
+     width="100%" 
+     style="border:1px solid #ccc; box-shadow: 4px 4px 10px rgba(0,0,0,0.3);" 
+     alt="IT Support Space View" />
 
-|   |   |
-|---|---|
-| ![Jira Comment Example](https://github.com/user-attachments/assets/5861a05b-6fef-4b80-9fc7-5130244f85a7) |   |
+<img src="https://github.com/user-attachments/assets/5861a05b-6fef-4b80-9fc7-5130244f85a7" 
+     width="50%" 
+     style="border:1px solid #ccc; box-shadow: 4px 4px 10px rgba(0,0,0,0.3);" 
+     alt="Jira Comment Example" />
+|
 
 
 
