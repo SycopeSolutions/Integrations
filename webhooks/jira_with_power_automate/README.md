@@ -16,7 +16,7 @@ This approach helps prevent the creation of duplicate incidents in Jira.
 The following steps have been verified and are fully supported in the following environment:
 
 - **Sycope** version 3.2 or later
-- **Microsoft 365 Business Basic** or higher, with the **Power Automate Premium** add-on
+- **Microsoft 365 Business Basic** or higher, with the **Power Automate Premium** add-on (starting at €14 per month)
 
 ## Step-by-Step Guide
 
