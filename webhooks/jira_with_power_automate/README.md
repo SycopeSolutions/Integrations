@@ -282,6 +282,8 @@ We also need to configure **Authentication** in the **Advanced parameters** sect
 Next, we need to prepare JSON parsing for the Jira response, similar to how we did for the Sycope alert.  
 
 You can use **curl** or **Postman** to retrieve open Jira incidents. Below is a sample **curl** command you can use, or you may use Postman if preferred.
+> **Note:**  
+> Please ensure that at least one Jira incident is currently open. If none exist, create a test incident before proceeding.
 
         curl -X POST \
           -H "Content-Type: application/json" \
@@ -319,5 +321,26 @@ We are now ready to add a new **Condition**, which will determine whether to cre
 
 <img width="1019" height="580" alt="image" src="https://github.com/user-attachments/assets/c4eee8b5-935d-41e8-8b0d-eda2f93a377f" />
 
+Once the **Condition** is added, click on its name.  
 
+Go to the first condition expression and select **Function**.
 
+<img width="1021" height="467" alt="image" src="https://github.com/user-attachments/assets/d82d8096-8ec1-4bf8-a2ee-6d43b070ccb3" />
+
+Add the following function into the window and click **Add**:
+
+        length(body('Parse_JSON_for_Jira_Issues')?['issues'])
+
+<img width="679" height="169" alt="image" src="https://github.com/user-attachments/assets/a5562447-f187-4429-8f36-b9360bf72601" />
+
+Power Automate should recognize the function.  
+
+You can now select **greater than** and set the value to `0`.  
+
+This means the **Condition** will evaluate to **True** if at least one Jira incident exists with the same **Alert name**, **clientIp**, and **serverIp**.
+
+<img width="545" height="281" alt="image" src="https://github.com/user-attachments/assets/ad753665-207d-43c7-a0d2-0ea03fa18619" />
+
+Now, let's add "Apply to each" in the True section. This will be protection in case of duplicate Jira incidents. There should not be any duplicates, but just in case we will add comments into every duplicate. If needed, you can modify it to just use the first incident that was found by using "maxResults": 1 filter in Get Jira Issues.
+
+<img width="957" height="388" alt="image" src="https://github.com/user-attachments/assets/12c66626-d7ef-41f5-9139-24083abc57fa" />
