@@ -35,11 +35,16 @@ Send an HTTPS `GET` request to your projects URL, which should look like this:
 
 https://YOUR_NAME.atlassian.net/rest/api/3/project
 
-You can use **Postman** or any other HTTP client to send the request. 
+You can use below **curl** command, **Postman** or any other HTTP client to send the request. 
 
 **Important:** Use **Basic Authentication** with:
 - **Username:** your Jira email address
 - **Password:** your Jira API token
+
+curl -X GET \
+https://YOUR_NAME.atlassian.net/rest/api/3/project \
+-H "Accept: application/json" \
+-u "EMAIL:API_TOKEN"
 
 To create new incidents in your **IT Support** project, you need to identify the `"key"` value from the output above.
 It should look similar to the following:
