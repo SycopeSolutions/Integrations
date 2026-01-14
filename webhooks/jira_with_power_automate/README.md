@@ -1,4 +1,4 @@
-# Integrating Sycope with Jira Atlassian + Power Automate Using Webhooks
+# Integrating Sycope with Jira Atlassian + Power Automate Using Webhooks (draft)
 
 Below is a test example demonstrating how Sycope creates new Jira incidents as well as Jira comments. You can use the instructions below to configure the same setup. Incidents can be created automatically when an alert is triggered or manually via the context menu, as described further below.
 
@@ -44,11 +44,16 @@ Send an HTTPS `GET` request to your projects URL, which should look like this:
 
 `https://YOUR_NAME.atlassian.net/rest/api/3/project`
 
-You can use **Postman** or any other HTTP client to send the request.  
+You can use below **curl** command, **Postman** or any other HTTP client to send the request. 
 
-**Important:** Use **Basic Authentication** with:  
-- **Username:** your Jira email address  
+**Important:** Use **Basic Authentication** with:
+- **Username:** your Jira email address
 - **Password:** your Jira API token
+
+        curl -X GET \
+        https://YOUR_NAME.atlassian.net/rest/api/3/project \
+        -H "Accept: application/json" \
+        -u "EMAIL:API_TOKEN"
 
 To create new incidents in your **IT Support** project, you need to identify the `"key"` value from the output above.
 It should look similar to the following:
