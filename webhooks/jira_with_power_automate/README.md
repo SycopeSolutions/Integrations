@@ -135,7 +135,29 @@ This webhook will receive alerts from Sycope and determine whether to create a n
 You can configure this webhook at:
 [https://make.powerautomate.com/](https://make.powerautomate.com/)
 
-In the **My flows** tab, click **New flow** and select **Template**.  
+In the **My flows** tab, click **New flow** and select **Instant cloud flow**.  
+From the available flow's triggers, search for the **When an HTTP request is received** and define a new name of your **flow**.
 
+<img width="825" height="528" alt="image" src="https://github.com/user-attachments/assets/d559a233-d425-4a2e-b3ec-f9bdc49063ab" />
 
+In the next step, you will be redirected to the **Edit** view of your newly created flow. Click on the trigger labeled **Manual**.  
+
+From this section, you can restrict which accounts are permitted to trigger the webhook.  
+
+For testing purposes, we will leave this option set to **Anyone**.
+
+<img width="1074" height="560" alt="image" src="https://github.com/user-attachments/assets/8036b930-13f6-46bc-b918-3e7188eeba8c" />
+
+To generate the webhook URL, you must first save the flow. Power Automate requires at least one action to be defined before a flow can be saved.  
+
+Since we are not yet ready to configure the main actions, add a temporary placeholder action:
+1. Click the **+** button
+2. From **Built-in** tools, select **Date Time**
+3. Choose **Current time**
+
+This will allow you to save the flow. Once saved, click the first trigger (**Manual**) to view the generated **HTTP URL**.  
+
+Please copy this URL to your Notepad, as it will be required later to create a new Sycope integration.
+
+<img width="738" height="549" alt="image" src="https://github.com/user-attachments/assets/8dc496ce-3c38-4177-8dea-ebca1ec0fc92" />
 
