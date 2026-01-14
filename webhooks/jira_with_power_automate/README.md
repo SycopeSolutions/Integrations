@@ -219,7 +219,7 @@ First, select **manual**, then choose **Show raw output** under **OUTPUTS**
 
 The output should look similar to the example below, but much longer. Please copy all the text into **Notepad**.
 
-<img width="571" height="303" alt="image" src="https://github.com/user-attachments/assets/fe1672ce-a65d-4d47-a392-5c69c80d8dc1" />
+<img width="569" height="232" alt="image" src="https://github.com/user-attachments/assets/bbd39270-ff76-42da-8e18-c9aae0cb0672" />
 
 Next, exit the test by returning to your flow and clicking **Edit**.  
 
