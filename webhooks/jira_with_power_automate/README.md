@@ -344,3 +344,6 @@ This means the **Condition** will evaluate to **True** if at least one Jira inci
 Now, let's add "Apply to each" in the True section. This will be protection in case of duplicate Jira incidents. There should not be any duplicates, but just in case we will add comments into every duplicate. If needed, you can modify it to just use the first incident that was found by using "maxResults": 1 filter in Get Jira Issues.
 
 <img width="957" height="388" alt="image" src="https://github.com/user-attachments/assets/12c66626-d7ef-41f5-9139-24083abc57fa" />
+
+
+<img width="1020" height="373" alt="image" src="https://github.com/user-attachments/assets/fd1a823e-aeb3-4354-bb04-01519c768618" />
