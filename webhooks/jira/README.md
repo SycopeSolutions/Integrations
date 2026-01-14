@@ -49,7 +49,7 @@ You can use below **curl** command, **Postman** or any other HTTP client to send
 To create new incidents in your **IT Support** project, you need to identify the `"key"` value from the output above.
 It should look similar to the following:
 
-        "id": "10034",
+        "id": "10034", <<<<<--------
         "key": "IT",
         "name": "IT Support",
 
