@@ -205,6 +205,8 @@ A **Success** message should appear in the bottom-right corner.
 
 <img width="1202" height="520" alt="image" src="https://github.com/user-attachments/assets/c2445dba-7378-4bdf-8b11-acc25f6ec47e" />
 
+### Expanding Power Automate flow configuration
+
 Now, return to **Microsoft Power Automate** and click the **Back** button.  
 
 You should see a **Succeeded** status for the manual action from Sycope, indicating that the webhook has successfully received the manual action.
@@ -247,4 +249,25 @@ For **Content**, click on the **lightning** symbol...
 
 <img width="556" height="461" alt="image" src="https://github.com/user-attachments/assets/2b668beb-1b8d-4820-a0d4-789d5a9455dd" />
 
+We are now ready to add an action that will gather all currently open Jira incidents. This list will be used to compare against alerts received from Sycope.  
+
+Click the last **+** sign and search for the **HTTP** action.
+
+<img width="871" height="377" alt="image" src="https://github.com/user-attachments/assets/731eff2d-d228-4aae-a46f-b2104bb53cef" />
+
+We have renamed this action to **Parse JSON from Sycope**.  
+
+- **URI:** `https://YOUR_NAME.atlassian.net/rest/api/3/search/jql`  
+- **Method:** `POST`  
+
+For the **Body**, use our template:  
+[https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/get_jira_issues.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/get_jira_issues.json)  
+
+> **Note:** The template requires the following modifications:  
+> 1. Replace the **project key** with your own (in our example, it is `"IT"`).  
+> 2. Update the two **customfield IDs** as needed.  
+
+We have included several **if statements** to compare the alert's `name`, `clientIp`, and `serverIp` with currently open Jira incidents. You can adjust the number of fields used for comparison depending on your requirements.
+
+<img width="872" height="734" alt="image" src="https://github.com/user-attachments/assets/e96ac096-f62d-48a8-ab87-084173c7cc09" />
 
