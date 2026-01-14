@@ -271,3 +271,34 @@ We have included several **if statements** to compare the alert's `name`, `clien
 
 <img width="872" height="734" alt="image" src="https://github.com/user-attachments/assets/e96ac096-f62d-48a8-ab87-084173c7cc09" />
 
+We also need to configure **Authentication** in the **Advanced parameters** section and save all changes:
+
+- **Authentication type:** Basic  
+- **Username:** your Jira email address  
+- **Password:** your Jira API token
+
+<img width="551" height="331" alt="image" src="https://github.com/user-attachments/assets/ba0aa89b-caff-42ea-b1e1-74cbe8d36395" />
+
+Next, we need to prepare JSON parsing for the Jira response, similar to how we did for the Sycope alert.  
+
+You can use **curl** or **Postman** to retrieve open Jira incidents. Below is a sample **curl** command you can use, or you may use Postman if preferred.
+
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -u "YOUR_EMAIL:YOUR_API_TOKEN" \
+          -d '{
+            "jql": "project = IT AND statusCategory != Done",
+            "fields": ["summary", "assignee", "status", "created", "customfield_10091", "customfield_10092"],
+            "maxResults": 1
+          }' \
+          https://YOUR_NAME.atlassian.net/rest/api/3/search/jql
+
+The output should appear similar to the example below.  
+
+Please copy it into **Notepad** for reference.
+
+<img width="922" height="310" alt="image" src="https://github.com/user-attachments/assets/d08e706f-73c4-4f2b-a620-46150389f0d0" />
+
+
+  
+
