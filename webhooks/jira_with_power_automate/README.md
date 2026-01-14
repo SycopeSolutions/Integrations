@@ -161,3 +161,89 @@ Please copy this URL to your Notepad, as it will be required later to create a n
 
 <img width="738" height="549" alt="image" src="https://github.com/user-attachments/assets/8dc496ce-3c38-4177-8dea-ebca1ec0fc92" />
 
+### Initial Integration setup in Sycope
+
+Next, we need to provide a JSON example from Sycope so that Power Automate has a reference point for parsing it.
+
+Log in to Sycope and create a new integration by navigating to:  
+
+**Settings → General → Integrations → External Destinations**  
+
+Then click **Add External Destination**.
+
+It is necessary to split the Webhook URL into individual query parameters.  
+
+You can do this automatically using **Postman** or another tool, or manually using the example below.
+
+Our test URL is https://xxxxxxxxxxx.dc.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/xxxxxxxxxx/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=xxxxxxx
+
+Main parameters:
+- **Name:** As per your requirements
+- **URL Protocol:** HTTPS
+- **URL Host:** `xxxxxxxxxxx.dc.environment.api.powerplatform.com`
+- **URL Port:** 443
+- **Method:** POST
+- **Path:** /powerautomate/automations/direct/workflows/xxxxxxxxxx/triggers/manual/paths/invoke
+
+Query params:
+- **api-version:** 1
+- **sp:** /triggers/manual/run
+- **sv:** 1.0
+- **sig:** xxxxxxx
+
+The final result should appear as shown below:
+<img width="713" height="932" alt="image" src="https://github.com/user-attachments/assets/082e074b-0830-474e-a074-2d75ea185963" />
+
+There is no need to edit other tabs and your new Integration can now be saved.
+
+Next, select any active alert from the **Alerts** view and right-click its name.  
+
+Choose: **Send externally → REST Client → YOUR_INTEGRATION_NAME**.  
+
+A **Success** message should appear in the bottom-right corner.
+
+<img width="1162" height="421" alt="image" src="https://github.com/user-attachments/assets/033da5fc-b2a9-46de-92ea-0ab23cbeb6e3" />
+
+Now, return to **Microsoft Power Automate** and click the **Back** button.  
+
+You should see a **Succeeded** status for the manual action from Sycope, indicating that the webhook has successfully received the manual action.
+
+<img width="1099" height="610" alt="image" src="https://github.com/user-attachments/assets/2d882788-4cac-4d9b-bafc-b716f6dc1123" />
+
+Click on the **Start date** to analyze our test.  
+
+First, select **manual**, then choose **Show raw output** under **OUTPUTS**
+
+<img width="873" height="458" alt="image" src="https://github.com/user-attachments/assets/741d2bc4-4999-4c00-8d5d-7aaffd6166f8" />
+
+The output should look similar to the example below, but much longer. Please copy all the text into **Notepad**.
+
+<img width="571" height="303" alt="image" src="https://github.com/user-attachments/assets/fe1672ce-a65d-4d47-a392-5c69c80d8dc1" />
+
+Next, exit the test by returning to your flow and clicking **Edit**.  
+
+We now need to modify the flow to handle Sycope alerts in **JSON** format, using the example we just sent.
+
+Click the first **+** sign and select the **Parse JSON** action. I have renamed it to "Parse JSON from Sycope".
+
+<img width="870" height="280" alt="image" src="https://github.com/user-attachments/assets/45dbfe9a-eb17-4092-86e7-53fb0408d890" />
+
+Click the **Parse JSON from Sycope** action, then select **Use sample payload to generate schema** and paste the entire JSON alert from your Notepad.
+
+<img width="787" height="351" alt="image" src="https://github.com/user-attachments/assets/72569502-3937-41d8-a32b-2d4edd4e3e8c" />
+
+The final result should appear similar to the example below.  
+
+You will notice that Power Automate has automatically generated the schema.
+
+<img width="877" height="622" alt="image" src="https://github.com/user-attachments/assets/8cb1ee1c-9699-4aa8-be37-46ebb04df38d" />
+
+For **Content**, click on the **lightning** symbol...
+
+<img width="575" height="231" alt="image" src="https://github.com/user-attachments/assets/c95c2dd9-f63c-4215-a79a-2ad846c8d606" />
+
+...and select **Body** from your **manual** trigger, which I called **When Webhook received Alert from Sycope**.
+
+<img width="556" height="461" alt="image" src="https://github.com/user-attachments/assets/2b668beb-1b8d-4820-a0d4-789d5a9455dd" />
+
+
