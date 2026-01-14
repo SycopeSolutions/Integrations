@@ -41,10 +41,10 @@ You can use below **curl** command, **Postman** or any other HTTP client to send
 - **Username:** your Jira email address
 - **Password:** your Jira API token
 
-`curl -X GET \
-https://YOUR_NAME.atlassian.net/rest/api/3/project \
--H "Accept: application/json" \
--u "EMAIL:API_TOKEN"`
+        curl -X GET \
+        https://YOUR_NAME.atlassian.net/rest/api/3/project \
+        -H "Accept: application/json" \
+        -u "EMAIL:API_TOKEN"
 
 To create new incidents in your **IT Support** project, you need to identify the `"key"` value from the output above.
 It should look similar to the following:
