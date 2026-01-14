@@ -95,6 +95,12 @@ To do this, send an HTTPS `GET` request to the Jira fields endpoint, which typic
 
 `https://your_name.atlassian.net/rest/api/3/field`
 
+Example using **curl** command:
+        curl -X GET \
+        https://YOUR_NAME.atlassian.net/rest/api/3/field \
+        -H "Accept: application/json" \
+        -u "EMAIL:API_TOKEN"
+
 After retrieving the list of fields from the Jira API, locate and copy the **IDs** for `clientIp` and `serverIp`.  
 
 The **IDs** will look similar to the following example - `customfield_10091` for `clientIp`:
