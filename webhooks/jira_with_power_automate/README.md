@@ -192,7 +192,8 @@ Query params:
 - **sig:** xxxxxxx
 
 The final result should appear as shown below:
-<img width="713" height="932" alt="image" src="https://github.com/user-attachments/assets/082e074b-0830-474e-a074-2d75ea185963" />
+
+<img width="683" height="893" alt="image" src="https://github.com/user-attachments/assets/5552e9de-95f9-45ef-88eb-a5a9bfeb4c2a" />
 
 There is no need to edit other tabs and your new Integration can now be saved.
 
@@ -202,7 +203,7 @@ Choose: **Send externally → REST Client → YOUR_INTEGRATION_NAME**.
 
 A **Success** message should appear in the bottom-right corner.
 
-<img width="1162" height="421" alt="image" src="https://github.com/user-attachments/assets/033da5fc-b2a9-46de-92ea-0ab23cbeb6e3" />
+<img width="1202" height="520" alt="image" src="https://github.com/user-attachments/assets/c2445dba-7378-4bdf-8b11-acc25f6ec47e" />
 
 Now, return to **Microsoft Power Automate** and click the **Back** button.  
 
