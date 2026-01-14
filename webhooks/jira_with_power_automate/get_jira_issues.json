@@ -1,0 +1,11 @@
+{
+  "jql": "project = IT AND statusCategory != Done AND summary ~ \"@{body('Parse_JSON_from_Sycope')?['name']}\"@{if(not(empty(body('Parse_JSON_from_Sycope')?['clientIp']?['addressString'])), concat(' AND clientIp ~ \"', body('Parse_JSON_from_Sycope')?['clientIp']?['addressString'], '\"'), '')}@{if(not(empty(body('Parse_JSON_from_Sycope')?['serverIp']?['addressString'])), concat(' AND serverIp ~ \"', body('Parse_JSON_from_Sycope')?['serverIp']?['addressString'], '\"'), '')}",
+  "fields": [
+    "summary",
+    "assignee",
+    "status",
+    "created",
+    "customfield_10091",
+    "customfield_10092"
+  ]
+}
