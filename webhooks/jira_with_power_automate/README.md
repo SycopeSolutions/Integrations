@@ -299,6 +299,25 @@ Please copy it into **Notepad** for reference.
 
 <img width="922" height="310" alt="image" src="https://github.com/user-attachments/assets/d08e706f-73c4-4f2b-a620-46150389f0d0" />
 
+Next, add a new **Parse JSON** action at the end of the flow.
 
-  
+<img width="1020" height="509" alt="image" src="https://github.com/user-attachments/assets/3c24fd16-1008-43ef-886f-5434c327bf91" />
+
+For **Content**, select **Body** from the **Get Jira Issues** action using the **lightning** option.  
+
+Then, use the copied JSON in **Use sample payload to generate schema** to generate the schema automatically.
+
+<img width="1014" height="423" alt="image" src="https://github.com/user-attachments/assets/c2132cee-4f80-4aa1-ad41-d17e76f6ca52" />
+
+I have also renamed the new action to **Parse JSON for Jira Issues**.  
+
+The final result should appear as shown below. You can now save the flow.
+
+<img width="1023" height="617" alt="image" src="https://github.com/user-attachments/assets/906049e6-bfef-464b-91a2-ae2f4f8d5765" />
+
+We are now ready to add a new **Condition**, which will determine whether to create a new incident or add a comment to an existing one.
+
+<img width="1019" height="580" alt="image" src="https://github.com/user-attachments/assets/c4eee8b5-935d-41e8-8b0d-eda2f93a377f" />
+
+
 
