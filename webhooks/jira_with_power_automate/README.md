@@ -1,4 +1,4 @@
-# Integrating Sycope with Jira Atlassian + Power Automate Using Webhooks (draft)
+# Integrating Sycope with Jira Atlassian + Power Automate Using Webhooks
 
 Below is a test example demonstrating how Sycope creates new Jira incidents as well as Jira comments. You can use the instructions below to configure the same setup. Incidents can be created automatically when an alert is triggered or manually via the context menu, as described further below.
 
