@@ -341,9 +341,36 @@ This means the **Condition** will evaluate to **True** if at least one Jira inci
 
 <img width="545" height="281" alt="image" src="https://github.com/user-attachments/assets/ad753665-207d-43c7-a0d2-0ea03fa18619" />
 
-Now, let's add "Apply to each" in the True section. This will be protection in case of duplicate Jira incidents. There should not be any duplicates, but just in case we will add comments into every duplicate. If needed, you can modify it to just use the first incident that was found by using "maxResults": 1 filter in Get Jira Issues.
+Next, add an **Apply to each** action in the **True** branch of the condition.  
+
+This serves as a safeguard against duplicate Jira incidents. While duplicates should not occur, this setup ensures that a comment is added to every matching incident if necessary. Alternatively, you can modify the flow to only use the first incident by applying the `maxResults: 1` filter in the **Get Jira Issues** action.
 
 <img width="957" height="388" alt="image" src="https://github.com/user-attachments/assets/12c66626-d7ef-41f5-9139-24083abc57fa" />
 
+In the **Select an output from previous step** field, choose `Body → issues` from the **Parse JSON for Jira Issues** action.
 
 <img width="1020" height="373" alt="image" src="https://github.com/user-attachments/assets/fd1a823e-aeb3-4354-bb04-01519c768618" />
+
+We now have the data available to operate within the **Apply to each** block.  
+
+Next, add the **HTTP** actions inside this block.
+
+<img width="935" height="323" alt="image" src="https://github.com/user-attachments/assets/b8fe67a0-b8ff-45ba-ba5c-d3e05e468f21" />
+
+Configure the **HTTP** action inside the **Apply to each** block using the following parameters:
+
+- **Name:** Create Jira comment  
+- **URI:** `https://YOUR_NAME.atlassian.net/rest/api/3/issue/@{items('Apply_to_each')?['key']}/comment`  
+- **Method:** POST  
+- **Body:** Use the example from our repository: [create_jira_comment.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/create_jira_comment)  
+  > **Note:** Replace `SYCOPE_IP` with your Sycope IP address or DNS record.
+
+Also, configure **Authentication** in the **Advanced parameters** section and save all changes:  
+
+- **Authentication type:** Basic  
+- **Username:** your Jira email address  
+- **Password:** your Jira API token
+
+<img width="999" height="566" alt="image" src="https://github.com/user-attachments/assets/c80f92b7-117e-4a12-87ae-83a6fbf4ca7b" />
+
+
