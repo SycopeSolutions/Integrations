@@ -6,6 +6,9 @@ Example view of the **IT Support** space showing multiple active incidents gener
 
 <img width="1909" height="884" alt="image" src="https://github.com/user-attachments/assets/aac1bc23-6f9c-4b47-b97e-5451b8788ced" />
 
+
+<img width="1920" height="1169" alt="image" src="https://github.com/user-attachments/assets/a5765f83-c149-4f41-a34e-242b245340d8" />
+
 **Example of Jira comments for a reoccurring issue:**  
 This approach helps prevent the creation of duplicate incidents in Jira.
 
@@ -385,7 +388,7 @@ Please use below parameters:
 - **URI:** `https://YOUR_NAME.atlassian.net/rest/api/3/issue/@{items('Apply_to_each')?['key']}/comment`  
 - **Method:** POST  
 - **Body:** Use the example from our repository: [new_jira_incident.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/new_jira_incident.json))  
-  > **Note:** Replace `SYCOPE_IP` with your Sycope IP address or DNS record.
+> **Note:** Replace `SYCOPE_IP` with your Sycope IP address or DNS record, and update `"key": "IT"` with your Jira project key.
 
 Also, configure **Authentication** in the **Advanced parameters** section and save all changes:  
 
@@ -395,3 +398,29 @@ Also, configure **Authentication** in the **Advanced parameters** section and sa
 
 <img width="1024" height="588" alt="image" src="https://github.com/user-attachments/assets/426bf50d-28c4-4d2c-8a50-95602668497d" />
 
+You can now remove the temporary **Current time** action, as it is no longer needed.
+
+<img width="901" height="191" alt="image" src="https://github.com/user-attachments/assets/d7a5be8a-2606-4b4c-a154-15da3307c898" />
+
+The final flow should look as shown below.  
+
+Please ensure that you have **saved** all changes before proceeding.
+
+<img width="531" height="785" alt="image" src="https://github.com/user-attachments/assets/27fe6d6c-4f9c-473d-ac58-ecb40534da9b" />
+
+### Final Words
+
+You have now completed the setup! Your **External Destinations** can be used manually from the Alerts dashboard or added to an existing rule to trigger automatically when an alert occurs.
+
+To execute these actions automatically, navigate to **Configuration → Rules** and edit the desired rule.  
+
+Under **Actions**, configure the following:
+
+- **Type:** Third-party system (REST)  
+- **External system:** REST  
+- **Instance name:** `YOUR_NAME`  
+- **Threshold levels:** Select the severity levels that should trigger this action  
+
+The final configuration should appear as shown below:
+
+<img width="1899" height="1029" alt="image" src="https://github.com/user-attachments/assets/8645de39-e5e7-4815-b3a6-6824c391dcbc" />
