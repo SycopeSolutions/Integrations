@@ -1,0 +1,356 @@
+{
+  "fields": {
+    "project": {
+      "key": "IT"
+    },
+    "summary": "@{coalesce(body('Parse_JSON_from_Sycope')?['name'],'Sycope Alert')}",
+    "issuetype": {
+      "name": "Incident"
+    },
+    "labels": [
+      "sycope",
+      "security"
+    ],
+    "customfield_10091": "@{coalesce(body('Parse_JSON_from_Sycope')?['clientIp']?['addressString'],'-')}",
+    "customfield_10092": "@{coalesce(body('Parse_JSON_from_Sycope')?['serverIp']?['addressString'],'-')}",
+    "description": {
+      "type": "doc",
+      "version": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "🚨 Sycope Alert",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Triggered at: ",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "@{coalesce(body('Parse_JSON_from_Sycope')?['timestamp'],string(body('Parse_JSON_from_Sycope')?['unixTimestamp']))}"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Threshold: ",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "📊 @{coalesce(body('Parse_JSON_from_Sycope')?['alertFlagThresholdLevel'],'-')}"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Severity: ",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "text": "⚠️ @{coalesce(body('Parse_JSON_from_Sycope')?['severity'],'-')}"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "Alert Details",
+              "marks": [
+                {
+                  "type": "strong"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "attrs": {
+            "isNumberColumnEnabled": false,
+            "layout": "default"
+          },
+          "content": [
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Field"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableHeader",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Value"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Client IP"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "@{coalesce(body('Parse_JSON_from_Sycope')?['clientIp']?['addressString'],'-')}",
+                          "marks": [
+                            {
+                              "type": "code"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Server IP"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "@{coalesce(body('Parse_JSON_from_Sycope')?['serverIp']?['addressString'],'-')}",
+                          "marks": [
+                            {
+                              "type": "code"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Mitre Tactic"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "@{coalesce(body('Parse_JSON_from_Sycope')?['mitreTactic'],'-')}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Mitre Technique"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "@{coalesce(body('Parse_JSON_from_Sycope')?['mitreTechnique'],'-')}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "tableRow",
+              "content": [
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Mitre Technique Id"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "tableCell",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "@{coalesce(body('Parse_JSON_from_Sycope')?['mitreId'],'-')}"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "🔗 Open alert in Sycope",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "https://SYCOPE_IP/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22id%20%3D%20%5C%22@{body('Parse_JSON_from_Sycope')?['id']}%5C%22%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22startOfHour-30days%22,%22to%22:%22startOfHour%22,%22roundTo%22:%22utcDay%22%7D%7D"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "🔎 Open related alerts in Sycope",
+              "marks": [
+                {
+                  "type": "link",
+                  "attrs": {
+                    "href": "@{concat('https://SYCOPE_IP/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22',encodeUriComponent(concat('alertName = \"',body('Parse_JSON_from_Sycope')?['name'],'\"',if(empty(body('Parse_JSON_from_Sycope')?['clientIp']?['addressString']),'',concat(' and clientIp = \"',body('Parse_JSON_from_Sycope')?['clientIp']?['addressString'],'\"')),if(empty(body('Parse_JSON_from_Sycope')?['serverIp']?['addressString']),'',concat(' and serverIp = \"',body('Parse_JSON_from_Sycope')?['serverIp']?['addressString'],'\"')))),'%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22startOfHour-30days%22,%22to%22:%22startOfHour%22,%22roundTo%22:%22utcDay%22%7D%7D')}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
