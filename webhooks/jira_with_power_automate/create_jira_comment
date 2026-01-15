@@ -1,0 +1,34 @@
+{
+  "body": {
+    "type": "doc",
+    "version": 1,
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "🔁 Alert triggered again in Sycope at @{coalesce(body('Parse_JSON_from_Sycope')?['timestamp'], string(body('Parse_JSON_from_Sycope')?['unixTimestamp']))}."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "content": [
+          {
+            "type": "text",
+            "text": "🔗 Open alert in Sycope",
+            "marks": [
+              {
+                "type": "link",
+                "attrs": {
+                  "href": "https://SYCOPE_IP/panel/alerts?source=alerts&gq=%7B%22query%22:%7B%22source%22:%22alerts%22,%22nql%22:%22id%20%3D%20%5C%22@{body('Parse_JSON_from_Sycope')?['id']}%5C%22%22,%22advanced%22:false%7D,%22timerange%22:%7B%22from%22:%22startOfHour-30days%22,%22to%22:%22startOfHour%22,%22roundTo%22:%22utcDay%22%7D%7D"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
