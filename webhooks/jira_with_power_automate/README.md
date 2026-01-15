@@ -362,7 +362,7 @@ Configure the **HTTP** action inside the **Apply to each** block using the follo
 - **Name:** Create Jira comment  
 - **URI:** `https://YOUR_NAME.atlassian.net/rest/api/3/issue/@{items('Apply_to_each')?['key']}/comment`  
 - **Method:** POST  
-- **Body:** Use the example from our repository: [create_jira_comment.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/create_jira_comment)  
+- **Body:** Use the example from our repository: [create_jira_comment.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/create_jira_comment.json)  
   > **Note:** Replace `SYCOPE_IP` with your Sycope IP address or DNS record.
 
 Also, configure **Authentication** in the **Advanced parameters** section and save all changes:  
@@ -373,4 +373,25 @@ Also, configure **Authentication** in the **Advanced parameters** section and sa
 
 <img width="999" height="566" alt="image" src="https://github.com/user-attachments/assets/c80f92b7-117e-4a12-87ae-83a6fbf4ca7b" />
 
+Next, add the main **HTTP** action to create a new Jira incident.  
+
+This action should be placed in the **False** branch of the condition, meaning no existing open incidents were found for the alert.
+
+<img width="943" height="347" alt="image" src="https://github.com/user-attachments/assets/9f8c29f4-378d-421d-8ca9-47096180873d" />
+
+Please use below parameters:
+
+- **Name:** Open new Jira incident
+- **URI:** `https://YOUR_NAME.atlassian.net/rest/api/3/issue/@{items('Apply_to_each')?['key']}/comment`  
+- **Method:** POST  
+- **Body:** Use the example from our repository: [new_jira_incident.json](https://github.com/SycopeSolutions/Integrations/blob/main/webhooks/jira_with_power_automate/new_jira_incident.json))  
+  > **Note:** Replace `SYCOPE_IP` with your Sycope IP address or DNS record.
+
+Also, configure **Authentication** in the **Advanced parameters** section and save all changes:  
+
+- **Authentication type:** Basic  
+- **Username:** your Jira email address  
+- **Password:** your Jira API token
+
+<img width="1024" height="588" alt="image" src="https://github.com/user-attachments/assets/426bf50d-28c4-4d2c-8a50-95602668497d" />
 
