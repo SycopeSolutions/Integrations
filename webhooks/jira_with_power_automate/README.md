@@ -4,7 +4,7 @@ Below is a test example demonstrating how Sycope creates new Jira incidents as w
 
 Example view of the **IT Support** space showing multiple active incidents generated from **Sycope** alerts:
 
-<img width="1909" height="884" alt="image" src="https://github.com/user-attachments/assets/aac1bc23-6f9c-4b47-b97e-5451b8788ced" />
+<img width="1912" height="1045" alt="image" src="https://github.com/user-attachments/assets/6bb40db9-9155-499e-806d-812cece3045b" />
 
 **Example of Jira comments for a reoccurring issue:**  
 
