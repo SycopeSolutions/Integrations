@@ -10,7 +10,7 @@ Example view of the **IT Support** space showing multiple active incidents gener
 
 Example view of a Jira incident with multiple comments representing new alerts for the same issue, demonstrating how duplicate incidents are avoided.
 
-<img width="1920" height="1169" alt="image" src="https://github.com/user-attachments/assets/a5765f83-c149-4f41-a34e-242b245340d8" />
+<img width="1920" height="1167" alt="image" src="https://github.com/user-attachments/assets/b8fa1f95-faf7-49c2-9dd9-839f36618808" />
 
 ## Prerequirements
 
