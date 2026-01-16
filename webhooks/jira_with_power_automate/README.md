@@ -17,6 +17,7 @@ Example view of a Jira incident with multiple comments representing new alerts f
 The following steps have been verified and are fully supported in the following environment:
 
 - **Sycope** version 3.2 or later
+- **Atlassian Jira Free** (supports up to 10 users or 3 agents) or higher
 - **Microsoft 365 Business Basic** or higher, with the **Power Automate Premium** add-on (starting at €14 per month)
 
 ## Step-by-Step Guide
