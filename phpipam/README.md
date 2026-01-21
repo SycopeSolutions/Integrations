@@ -6,6 +6,9 @@
 
 - Python 3.8+
 - Sycope >= 3.1 with API access
+- phpIPAM 1.5+
+  - API enabled
+  - API application (`App ID`) configured on each phpIPAM instance
 - `requests` module:
   ```bash
   pip3 install requests
