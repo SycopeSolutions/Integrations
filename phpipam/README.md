@@ -22,4 +22,4 @@ You can install all dependencies in a single command:
 
 ```bash
 pip3 install requests pandas urllib3
----
+
