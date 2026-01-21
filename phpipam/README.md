@@ -26,3 +26,16 @@ You can install all dependencies in a single command:
 ```bash
 pip3 install requests pandas urllib3
 
+---
+
+##  Installation
+
+```bash
+git clone https://github.com/SycopeSolutions/Integrations.git
+cd Integrations/phpipam
+pip3 install -r requirements.txt
+```
+
+Edit the `config.json`.
+
+---
