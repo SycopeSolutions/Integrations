@@ -29,6 +29,18 @@ pip3 install requests pandas urllib3
 
 ---
 
+##  Configuring phpIPAM
+
+You can verify phpIPAM API using the following `curl` command:
+
+```bash
+root@integration:~# curl -X POST -u Admin:ipamadmin123 "http://192.168.1.87/api/sycope/user/"
+{"code":200,"success":true,"data":{"token":"YOUR_TOKEN","expires":"2026-01-21 15:23:24"},"time":0.005}
+root@integration:~#
+```
+
+---
+
 ##  Installation
 
 ```bash
@@ -40,3 +52,4 @@ pip3 install -r requirements.txt
 Edit the `config.json`.
 
 ---
+
