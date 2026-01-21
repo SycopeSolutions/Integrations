@@ -19,8 +19,6 @@
   "sycope_login": "admin",
   "sycope_pass": "qwerty",
   "api_base": "/npm/api/v1/",
-  "index_name": "PhpipamInventory",
-  "index_rotation": "monthly",
   "lookup_name": "hosts & subnets",
   "sync_mode": "addresses",
   "include_sections": [],
