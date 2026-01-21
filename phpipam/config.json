@@ -1,0 +1,32 @@
+{
+  "phpipam_hosts": [
+    {
+      "host": "http://192.168.1.87/",
+      "app_id": "sycope",
+      "username": "Admin",
+      "password": "ipamadmin123",
+      "api_base": "/api"
+    },
+    {
+      "host": "http://192.168.1.88/",
+      "app_id": "sycope",
+      "username": "Admin",
+      "password": "ipamadmin123",
+      "api_base": "/api"
+    }
+  ],
+  "sycope_host": "https://192.168.1.14",
+  "sycope_login": "admin",
+  "sycope_pass": "qwerty",
+  "api_base": "/npm/api/v1/",
+  "index_name": "PhpipamInventory",
+  "index_rotation": "monthly",
+  "lookup_name": "hosts & subnets",
+  "sync_mode": "addresses",
+  "include_sections": [],
+  "exclude_sections": [],
+  "exclude_description": ["prefix1", "prefix2"],
+  "include_inactive": false,
+  "include_reserved": true,
+  "include_dhcp": true
+}
