@@ -10,6 +10,7 @@ class SycopeApi:
         password: str,
         api_endpoint: str = "/npm/api/v1/",
         api_endpoint_lookup: str = "config-element-lookup/csvFile",
+        api_endpoint_lookup_subnet: str = "config-element-lookup/subnet",
     ):
         payload = {"username": login, "password": password}
         response = session.post(host + "/npm/api/v1/login", json=payload, verify=False)
@@ -20,14 +21,22 @@ class SycopeApi:
             self.session = session
             self.api_endpoint = api_endpoint
             self.api_endpoint_lookup = api_endpoint_lookup
+            self.api_endpoint_lookup_subnet = api_endpoint_lookup_subnet
         else:
             # For debugging
             print("Could not log in to Sycope API")
             print(response.json())
 
     def log_out(self) -> requests.Response:
-        repsonse = self.session.get(self.host + self.api_endpoint + "logout", verify=False)
-        return repsonse
+        response = self.session.get(self.host + self.api_endpoint + "logout", verify=False)
+        data = response.json()
+        if data["status"] == 200:
+            print("Logged out from Sycope")
+        else:
+            # For debugging
+            print("Logged out from Sycope was unsuccessful.")
+            print(response.json())
+        return response
 
     def get_user_indicies(self) -> list:
         print("Searching in existing custom indexes...")
@@ -54,16 +63,27 @@ class SycopeApi:
         else:
             return []
 
-    def get_lookup(self, lookup_name: str) -> tuple[str, dict]:
+    def get_lookup(self, lookup_name: str, lookup_type: str = "default") -> tuple[str, dict]:
+        # Map lookup_type → URL suffix
+        url_map = {
+            "default": self.api_endpoint_lookup,
+            "subnet": self.api_endpoint_lookup_subnet,
+        }
+
+        # pick the correct URL
+        endpoint = url_map.get(lookup_type, self.api_endpoint_lookup)
+
         all_data = self.get_lookups()
         lookup_id = [x["id"] for x in all_data if x["config"]["name"] == lookup_name]
         print(f'Searching for the Lookup "{lookup_name}" in saved Lookups...')
         if lookup_id:
             lookup_id = lookup_id[0]
-            r = self.session.get(
-                self.host + self.api_endpoint + self.api_endpoint_lookup + "/" + lookup_id,
-                verify=False,
-            )
+
+            # build URL dynamically based on type
+            url = f"{self.host}{self.api_endpoint}{endpoint}/{lookup_id}"
+
+            r = self.session.get(url, verify=False)
+
             saved_lookup = r.json()
             if isinstance(saved_lookup, dict):
                 return str(lookup_id), saved_lookup
@@ -74,7 +94,9 @@ class SycopeApi:
             return "0", {}
 
     def create_lookup(self, lookup_name: str, lookup):
-        r = self.session.post(self.host + self.api_endpoint + self.api_endpoint_lookup, json=lookup, verify=False)
+        r = self.session.post(
+            self.host + self.api_endpoint + self.api_endpoint_lookup, json=lookup, verify=False
+        )
         data = r.json()
         if data["status"] == 200:
             lookup_id = data["id"]
@@ -84,15 +106,22 @@ class SycopeApi:
             # For debugging
             print("Something went wrong. Please analyze the output:")
             print(r.json())
-            return "0"
 
-    def edit_lookup(self, lookup_id: str, lookup) ->  None:
-        r = self.session.put(self.host + self.api_endpoint + self.api_endpoint_lookup + "/" + lookup_id, json=lookup, verify=False)
+    def edit_lookup(self, lookup_id: str, lookup, lookup_type: str = "default") -> None:
+        url_map = {
+            "default": self.api_endpoint_lookup,
+            "subnet": self.api_endpoint_lookup_subnet,
+        }
+        # Select endpoint based on lookup_type
+        endpoint = url_map.get(lookup_type, self.api_endpoint_lookup)
+        # Build URL
+        url = f"{self.host}{self.api_endpoint}{endpoint}/{lookup_id}"
+        # Perform PUT request
+        r = self.session.put(url, json=lookup, verify=False)
         data = r.json()
+
         if data["status"] == 200:
-            print(
-                f'Data in the Lookup ID "{lookup_id}" have been successfully modified.'
-            )
+            print(f'Data in the Lookup ID "{lookup_id}" have been successfully modified.')
         else:
             # For debugging
             print("Something went wrong. Please analyze the output:")
@@ -100,12 +129,10 @@ class SycopeApi:
 
     def privacy_check_lookup(self, lookup_id: str):
         print("Checking privacy configuration...")
-        try:
-            r = self.session.get(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, verify=False)
-        except:
-            print("Could not get privacy configuration with values:")
-            print(f"Host: {self.host}, api endpoint: {self.api_endpoint}, lookup_id: {lookup_id}")
-            return ""
+        r = self.session.get(
+            self.host + self.api_endpoint + "permissions/CONFIGURATION.lookup.lookup/" + lookup_id,
+            verify=False,
+        )
         data = r.json()
         if data and data["objectId"] == lookup_id:
             savedsidPerms = data["sidPerms"]
@@ -122,13 +149,14 @@ class SycopeApi:
             elif savedsidPerms == sidPermsPrivate:
                 savedsidPermsValue = "Private"
             else:
-                print(f'Script could not identify the Privacy configuration in the Lookup ID "{lookup_id}". Are you using custom Shared Privacy?')
+                print(
+                    f'Script could not identify the Privacy configuration in the Lookup ID "{lookup_id}". Are you using custom Shared Privacy?'
+                )
             return savedsidPermsValue
         else:
             # For debugging
             print("Something went wrong. Please analyze the output:")
             print(r.json())
-
 
     def privacy_edit_lookup(self, lookup_id: str, lookup_privacy) -> None:
         savedsidPermsValue = ""
@@ -139,27 +167,37 @@ class SycopeApi:
         data = None
         response = None
 
-        if(savedsidPermsValue == lookup_privacy):
+        if savedsidPermsValue == lookup_privacy:
             print(f'Privacy in the Lookup ID "{lookup_id}" is identical to the input. No changes required.')
         elif lookup_privacy == "Public":
-            response = self.session.put(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, json=sidPerms_Public, verify=False)
+            response = self.session.put(
+                self.host + self.api_endpoint + "permissions/CONFIGURATION.lookup.lookup/" + lookup_id,
+                json=sidPerms_Public,
+                verify=False,
+            )
             sidPerms_saved = sidPerms_Public
         elif lookup_privacy == "Private":
-            response = self.session.put(self.host + self.api_endpoint + f"permissions/CONFIGURATION.lookup.lookup/" + lookup_id, json=sidPerms_Private, verify=False)
+            response = self.session.put(
+                self.host + self.api_endpoint + "permissions/CONFIGURATION.lookup.lookup/" + lookup_id,
+                json=sidPerms_Private,
+                verify=False,
+            )
             sidPerms_saved = sidPerms_Private
         else:
-            print(f'Please choose supported privacy options - Public or Private.')
+            print("Please choose supported privacy options - Public or Private.")
 
         if response:
             data = response.json()
             if data["sidPerms"] == sidPerms_saved:
-                print(f'Privacy for the Lookup ID "{lookup_id}" have been successfully modified to "{lookup_privacy}".')
+                print(
+                    f'Privacy for the Lookup ID "{lookup_id}" have been successfully modified to "{lookup_privacy}".'
+                )
             else:
                 # For debugging
                 print("Could not create custom_index with API response:")
                 print(response.json())
         else:
-             return None
+            return None
 
     def create_index(
         self,
