@@ -1,9 +1,18 @@
 # phpIPAM Integration with Sycope - Beta
 
+Integration between **Sycope** and **phpIPAM** enables zero-configuration of the primary Lookup **Hosts & Subnets**, delivering inventory details of network infrastructure used by Host & Subnet dashboards, filters, rules, and many other features.
+
+With this integration, you can maintain an always up-to-date Sycope infrastructure configuration by continuously synchronizing it with your IPAM software.
+
+The example below demonstrates how **individual IP addresses** are synchronized. The **Hostname** field from **phpIPAM** is stored in the **Name** field in **Sycope**, while the **Description** field is stored in **Description**.
 
 <img width="1918" height="1168" alt="image" src="https://github.com/user-attachments/assets/f692b605-67ac-4ec6-bcdc-97089fe63a1f" />
 
+The screenshot below demonstrates how **subnets** are synchronized. The **Description** field from **phpIPAM** is stored in the **Name** field in **Sycope**.
+
 <img width="1920" height="1168" alt="image" src="https://github.com/user-attachments/assets/11bb7120-a1c8-4406-be92-11dff47f7072" />
+
+Finally, the example below shows how **inventory data** from **phpIPAM** can be used for filtering within **Sycope**.
 
 <img width="1919" height="1168" alt="image" src="https://github.com/user-attachments/assets/4d7c3416-8bb2-4113-a345-7166e85067fb" />
 
@@ -38,6 +47,9 @@ pip3 install requests pandas urllib3
 ---
 
 ##  Configuring phpIPAM
+
+<img width="1277" height="829" alt="image" src="https://github.com/user-attachments/assets/aec8cd62-3b52-4d30-8af7-668f34ea0d6c" />
+
 
 You can verify phpIPAM API using the following `curl` command:
 
