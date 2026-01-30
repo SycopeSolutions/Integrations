@@ -1,4 +1,5 @@
 {
+  "log_level": "info",
   "sycope_host": "https://sycope.local",
   "sycope_login": "",
   "sycope_pass": "",
