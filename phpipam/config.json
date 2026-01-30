@@ -5,20 +5,20 @@
       "host": "http://192.168.1.87/",
       "app_id": "sycope",
       "username": "Admin",
-      "password": "ipamadmin123",
+      "password": "",
       "api_base": "/api"
     },
     {
       "host": "http://192.168.1.88/",
       "app_id": "sycope",
       "username": "Admin",
-      "password": "ipamadmin123",
+      "password": "",
       "api_base": "/api"
     }
   ],
   "sycope_host": "https://192.168.1.14",
   "sycope_login": "admin",
-  "sycope_pass": "qwerty",
+  "sycope_pass": "",
   "api_base": "/npm/api/v1/",
   "lookup_name": "hosts & subnets",
   "sync_mode": "addresses",
