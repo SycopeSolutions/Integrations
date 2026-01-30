@@ -207,6 +207,22 @@ Or run as a service (recommended)
 
 ---
 
+## Troubleshooting
+
+If you encounter any issues while running the integration scripts, enable debug logging to get more detailed information:
+
+1. Open the `config.json` file
+2. Change the `log_level` setting from `"info"` to `"debug"`:
+   ```json
+   {
+     "log_level": "debug",
+     ...
+   }
+   ```
+3. Run the script again and review the detailed output in the log file (e.g., `zabbix_statistics.log` or `zabbix_lookup_sync.log`)
+
+---
+
 ## Notice
 
 This integration **does not install or configure Zabbix for you**.
