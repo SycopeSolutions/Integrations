@@ -16,7 +16,6 @@ Finally, the example below shows how **inventory data** from **phpIPAM** can be 
 
 <img width="1919" height="1168" alt="image" src="https://github.com/user-attachments/assets/4d7c3416-8bb2-4113-a345-7166e85067fb" />
 
-
 ---
 
 ## Requirements
@@ -30,10 +29,7 @@ Finally, the example below shows how **inventory data** from **phpIPAM** can be 
   ```bash
   pip3 install requests
   ```
-- `pandas` module:
-  ```bash
-  pip3 install pandas
-  ```
+
 - `urllib3` module:
   ```bash
   pip3 install urllib3
@@ -41,8 +37,9 @@ Finally, the example below shows how **inventory data** from **phpIPAM** can be 
 You can install all dependencies in a single command:
 
 ```bash
-pip3 install requests pandas urllib3
+pip3 install requests urllib3
 ```
+
 
 ---
 
@@ -72,4 +69,18 @@ pip3 install -r requirements.txt
 Edit the `config.json`.
 
 ---
+
+## Troubleshooting
+
+If you encounter any issues while running the integration scripts, enable debug logging to get more detailed information:
+
+1. Open the `config.json` file
+2. Change the `log_level` setting from `"info"` to `"debug"`:
+   ```json
+   {
+     "log_level": "debug",
+     ...
+   }
+   ```
+3. Run the script again and review the detailed output in the log file (`phpipam_sync.log`)
 
