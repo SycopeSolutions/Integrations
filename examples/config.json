@@ -1,4 +1,5 @@
 {
+  "log_level": "info",
   "user_number": 1,
   "sycope_host": "https://192.168.1.14",
   "api_base": "/npm/api/v1/",
