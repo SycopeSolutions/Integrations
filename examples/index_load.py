@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import time
 import json
 import logging
 import os
 import sys
+import time
+from logging.handlers import RotatingFileHandler
 
 import requests
 import urllib3
-from requests import Session
 
 # setting path
-sys.path.append('../sycope')
+sys.path.append("../sycope")
 from api import SycopeApi
 
 # --- Disable SSL warnings (self-signed certs) ---
@@ -22,15 +22,19 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
-    handlers=[logging.FileHandler("create_index.log"), logging.StreamHandler(sys.stdout)],
+    handlers=[
+        RotatingFileHandler("create_index.log", maxBytes=10 * 1024 * 1024, backupCount=5),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 
 SCRIPT_DIR = os.getcwd()  # use current directory
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
 
+
 def main():
     try:
-        with open(CONFIG_FILE, 'r') as f:
+        with open(CONFIG_FILE, "r") as f:
             cfg = json.load(f)
     except Exception as e:
         logging.error(f"ERROR loading config: {e}")
@@ -62,29 +66,38 @@ def main():
             entry[0] += delta
 
         # Optional: Save the updated data back to file
-        #with open("new_data_shifted.json", "w") as f:
+        # with open("new_data_shifted.json", "w") as f:
         #    json.dump(new_data, f, indent=2)
 
         payload = {
-        "columns": ["timestamp","ip", "hostname", "response_time", "cpu_load", "memory_usage", "packet_loss",],
-        "indexName": cfg["index_name"]+"_"+str(cfg["user_number"]),
-        "sortTimestamp": True,
-        "rows": new_data
+            "columns": [
+                "timestamp",
+                "ip",
+                "hostname",
+                "response_time",
+                "cpu_load",
+                "memory_usage",
+                "packet_loss",
+            ],
+            "indexName": cfg["index_name"] + "_" + str(cfg["user_number"]),
+            "sortTimestamp": True,
+            "rows": new_data,
         }
 
         r = s.post(cfg["sycope_host"].rstrip("/") + "/npm/api/v1/index/inject", json=payload, verify=False)
         data = r.json()
-        if data['status'] == 200:
-            print(f'Sycope API successfully saved new data.')
+        if data["status"] == 200:
+            print("Sycope API successfully saved new data.")
         else:
-            #For debugging
-            print(f'Sycope API encountered an issue. Error message:')
+            # For debugging
+            print("Sycope API encountered an issue. Error message:")
             print(r.json())
 
         # Closing the REST API session
         # Session should be automatically closed in session context manager
         api.log_out()
         s.close()
+
 
 if __name__ == "__main__":
     main()
