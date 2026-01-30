@@ -5,18 +5,17 @@
 # Script version: 1.0
 # Tested on Sycope 3.1
 
-import time
 import json
 import logging
 import os
 import sys
+from logging.handlers import RotatingFileHandler
 
 import requests
 import urllib3
-from requests import Session
 
 # setting path
-sys.path.append('../sycope')
+sys.path.append("../sycope")
 from api import SycopeApi
 
 # --- Disable SSL warnings (self-signed certs) ---
@@ -26,7 +25,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
-    handlers=[logging.FileHandler("create_index.log"), logging.StreamHandler(sys.stdout)],
+    handlers=[
+        RotatingFileHandler("create_index.log", maxBytes=10 * 1024 * 1024, backupCount=5),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 
 SCRIPT_DIR = os.getcwd()  # use current directory
@@ -68,9 +70,10 @@ FIELDS = [
     },
 ]
 
+
 def main():
     try:
-        with open(CONFIG_FILE, 'r') as f:
+        with open(CONFIG_FILE, "r") as f:
             cfg = json.load(f)
     except Exception as e:
         logging.error(f"ERROR loading config: {e}")
@@ -80,12 +83,13 @@ def main():
     ### Creating new session
     with requests.Session() as s:
         api = SycopeApi(s, cfg["sycope_host"].rstrip("/"), cfg["sycope_login"], cfg["sycope_pass"])
-        r = api.create_index(cfg["index_name"]+"_"+str(cfg["user_number"]), FIELDS, cfg["index_rotation"])
+        r = api.create_index(cfg["index_name"] + "_" + str(cfg["user_number"]), FIELDS, cfg["index_rotation"])
 
         # Closing the REST API session
         # Session should be automatically closed in session context manager
         api.log_out()
         s.close()
+
 
 if __name__ == "__main__":
     main()
