@@ -1,4 +1,4 @@
-# phpIPAM Integration with Sycope - Beta
+# phpIPAM Integration with Sycope
 
 Integration between **Sycope** and **phpIPAM** enables zero-configuration of the primary Lookup **Hosts & Subnets**, delivering inventory details of network infrastructure used by Host & Subnet dashboards, filters, rules, and many other features.
 
@@ -45,6 +45,20 @@ pip3 install requests urllib3
 
 ##  Configuring phpIPAM
 
+Before starting the integration, configure API access in your **phpIPAM** instance.
+
+1. Log in to **phpIPAM**.
+2. Navigate to **Administration** → **Server management** → **API**.
+3. Click **Create API key** and configure it using the following parameters:
+
+```text
+App ID:           **sycope** (or any name of your choice)
+App Code:         _Automatically generated_
+App Permissions:  **Read**
+App Security:     **User token**
+
+All other settings can be left at their default values or adjusted to meet your specific security and operational requirements.
+
 <img width="1277" height="829" alt="image" src="https://github.com/user-attachments/assets/aec8cd62-3b52-4d30-8af7-668f34ea0d6c" />
 
 
@@ -55,6 +69,9 @@ root@integration:~# curl -X POST -u Admin:ipamadmin123 "http://192.168.1.87/api/
 {"code":200,"success":true,"data":{"token":"YOUR_TOKEN","expires":"2026-01-21 15:23:24"},"time":0.005}
 root@integration:~#
 ```
+
+Your **phpIPAM** instance uses a username and password to generate a **temporary authentication token**.  
+This token is then used to authenticate all subsequent API requests for the duration of the session.
 
 ---
 
