@@ -108,7 +108,7 @@ Edit the `config.json`.
 
   // List of phpIPAM instances to synchronize data from
   // The integration supports multiple instances
-  // In case of duplicates, the instance higher on the list takes priority
+  // In case of address or subnet duplicates, the instance higher on the list takes priority
   "phpipam_hosts": [
     {
       // Base URL of the phpIPAM instance
