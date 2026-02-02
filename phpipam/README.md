@@ -74,18 +74,6 @@ This token is then used to authenticate all subsequent API requests for the dura
 
 ---
 
-##  Installation
-
-```bash
-git clone https://github.com/SycopeSolutions/Integrations.git
-cd Integrations/phpipam
-pip3 install -r requirements.txt
-```
-
-Edit the `config.json`.
-
----
-
 ##  User & Role Setup in Sycope
 
 After creating new index, add a dedicated user and role in Sycope for log ingestion:
@@ -96,6 +84,18 @@ After creating new index, add a dedicated user and role in Sycope for log ingest
 
 2. **Create a User**  
    Go to **Configuration → Users**, create a user (e.g., `phpIPAM_ingestor`) and assign the above role.
+
+---
+
+##  Installation
+
+```bash
+git clone https://github.com/SycopeSolutions/Integrations.git
+cd Integrations/phpipam
+pip3 install -r requirements.txt
+```
+
+Edit the `config.json`.
 
 ---
 
