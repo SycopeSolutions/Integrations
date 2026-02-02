@@ -58,7 +58,7 @@ Before starting the integration, configure API access in your **phpIPAM** instan
 
 All other settings can be left at their default values or adjusted to meet your specific security and operational requirements.
 
-<img width="1277" height="829" alt="image" src="https://github.com/user-attachments/assets/aec8cd62-3b52-4d30-8af7-668f34ea0d6c" />
+<img width="1254" height="829" alt="image" src="https://github.com/user-attachments/assets/319390c0-ec66-451b-bdb1-a3c120f76da7" />
 
 
 You can verify phpIPAM API using the following `curl` command:
@@ -86,6 +86,144 @@ Edit the `config.json`.
 
 ---
 
+##  User & Role Setup in Sycope
+
+After creating new index, add a dedicated user and role in Sycope for log ingestion:
+
+1. **Create a Role**  
+   Go to **Configuration → Roles**, create a role (e.g., `phpIPAMInject`) with:
+   - Permission to Edit and View Lookup values: Settings -> Configuration -> Mapping -> Lookups
+
+2. **Create a User**  
+   Go to **Configuration → Users**, create a user (e.g., `phpIPAM_ingestor`) and assign the above role.
+
+---
+
+##  Configuration (`config.json`)
+
+```jsonc
+{
+  // Logging verbosity level - info or debug
+  "log_level": "info",
+
+  // List of phpIPAM instances to synchronize data from
+  // The integration supports multiple instances
+  // In case of duplicates, the instance higher on the list takes priority
+  "phpipam_hosts": [
+    {
+      // Base URL of the phpIPAM instance
+      // HTTPS is strongly recommended in production environments
+      "host": "http://192.168.1.87/",
+
+      // phpIPAM API application ID
+      // Must match the App ID configured in phpIPAM API settings
+      "app_id": "sycope",
+
+      // phpIPAM username used to generate a temporary API token
+      "username": "Admin",
+
+      // Password for the above phpIPAM user
+      "password": "",
+
+      // Base path of the phpIPAM API endpoint
+      "api_base": "/api"
+    },
+    {
+      // Base URL of an additional phpIPAM instance
+      "host": "http://192.168.1.88/",
+
+      // phpIPAM API application ID
+      "app_id": "sycope",
+
+      // phpIPAM API username
+      "username": "Admin",
+
+      // Password for the above phpIPAM user
+      "password": "",
+
+      // Base path of the phpIPAM API endpoint
+      "api_base": "/api"
+    }
+  ],
+
+  // URL of the Sycope API endpoint
+  // HTTPS is strongly recommended
+  "sycope_host": "https://192.168.1.14",
+
+  // Sycope API user
+  // Must have permissions to create and update Lookup entries
+  "sycope_login": "admin",
+
+  // Password for the above Sycope API user
+  "sycope_pass": "",
+
+  // Base path of the Sycope API
+  "api_base": "/npm/api/v1/",
+
+  // Name of the Lookup in Sycope
+  // Used for synchronizing phpIPAM inventory data
+  "lookup_name": "hosts & subnets",
+
+  // Synchronization mode
+  "sync_mode": "addresses",
+
+  // List of phpIPAM section names or IDs to explicitly include
+  // Empty array means all sections are included
+  "include_sections": [],
+
+  // List of phpIPAM section names or IDs to exclude from synchronization
+  "exclude_sections": [],
+
+  // Exclude objects whose description starts with any of the defined prefixes
+  // Useful for filtering technical, temporary, or reserved entries
+  "exclude_description": [
+    "prefix1",
+    "prefix2"
+  ],
+
+  // Include inactive IP addresses in synchronization
+  "include_inactive": false,
+
+  // Include reserved IP addresses
+  "include_reserved": true,
+
+  // Include DHCP-managed addresses
+  "include_dhcp": true
+}
+
+
+```
+
+>  JSON does not support comments natively — this format is shown for documentation purposes only. Use a standard `config.json` file without comments in production.
+
+---
+
+##  Script Usage
+
+| Script               | Purpose                                      | Example                                   |
+|----------------------|----------------------------------------------|-------------------------------------------|
+| **phpipam_api.py**   | Contains shared phpIPAM API helper functions | n/a                                       |
+| **phpipam_sync.py**  | Synchronizes IPAM data from phpIPAM to Sycope | `python3 phpipam_sync.py` (e.g. via systemd) |
+
+---
+
+##  Running the Script
+
+Run manually:
+```bash
+python3 phpipam_sync.py
+```
+Or run as a service (recommended)
+
+---
+
+##  Notes
+
+- The script **does not overwrite** Hosts & Subnets Lookup entries that are not managed by the IPAM configuration.
+- Running the script directly on the Sycope appliance is not supported due to security isolation constraints.
+
+---
+
 ## Troubleshooting
 
 If you encounter any issues while running the integration scripts, enable debug logging to get more detailed information:
@@ -100,3 +238,10 @@ If you encounter any issues while running the integration scripts, enable debug 
    ```
 3. Run the script again and review the detailed output in the log file (`phpipam_sync.log`)
 
+---
+
+## Notice
+
+This integration **does not install or configure phpIPAM for you**.
+You must install, configure, and run phpIPAM **independently**.
+The provided Python scripts are intended **only for integrating** phpIPAM data with **Sycope** using its REST API.
