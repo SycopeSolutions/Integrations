@@ -79,7 +79,7 @@ This token is then used to authenticate all subsequent API requests for the dura
 After creating new index, add a dedicated user and role in Sycope for log ingestion:
 
 1. **Create a Role**  
-   Go to **Configuration → Roles**, create a role (e.g., `phpIPAMInject`) with:
+   Go to **Configuration → Roles**, create a role (e.g., `phpIPAM_Inject`) with:
    - Permission to Edit and View Lookup values: Settings -> Configuration -> Mapping -> Lookups
 
 2. **Create a User**  
