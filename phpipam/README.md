@@ -51,11 +51,10 @@ Before starting the integration, configure API access in your **phpIPAM** instan
 2. Navigate to **Administration** → **Server management** → **API**.
 3. Click **Create API key** and configure it using the following parameters:
 
-```text
-App ID:           **sycope** (or any name of your choice)
-App Code:         _Automatically generated_
-App Permissions:  **Read**
-App Security:     **User token**
+- App ID:           **sycope** (or any name of your choice)
+- App Code:         _Automatically generated_
+- App Permissions:  **Read**
+- App Security:     **User token**
 
 All other settings can be left at their default values or adjusted to meet your specific security and operational requirements.
 
