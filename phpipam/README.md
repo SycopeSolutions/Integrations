@@ -74,7 +74,9 @@ This token is then used to authenticate all subsequent API requests for the dura
 
 ---
 
-##  User & Role Setup in Sycope
+##  Configuring Sycope
+
+###  User & Role Setup in Sycope
 
 After creating new index, add a dedicated user and role in Sycope for log ingestion:
 
@@ -84,6 +86,18 @@ After creating new index, add a dedicated user and role in Sycope for log ingest
 
 2. **Create a User**  
    Go to **Configuration → Users**, create a user (e.g., `phpIPAM_ingestor`) and assign the above role.
+
+### Changing Lookup Mode
+
+If you are using Master subnets or nested subnets, it is strongly recommended to set the **Hosts & Subnets Lookup Mode** to **Overlapping**.  
+This ensures that entries do not conflict with each other during synchronization.
+
+To change the setting, navigate in the Sycope UI:  
+
+**Settings → Mapping → Lookups → Edit Hosts & Subnets**
+
+<img width="915" height="709" alt="image" src="https://github.com/user-attachments/assets/44f87a5a-df7b-47f6-b6ca-3ff7554204b0" />
+
 
 ---
 
