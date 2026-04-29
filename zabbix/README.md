@@ -4,6 +4,7 @@ This integration enables sending monitoring statistics and inventory data from Z
 
 > **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and probes monitoring availability.
 
+
 An example of the Zabbix Statistics Dashboard
 
 <img width="1870" alt="image" src="https://github.com/user-attachments/assets/4c16e0d5-91c2-41a4-8a9a-877e06085b30" />
