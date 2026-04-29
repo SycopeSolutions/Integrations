@@ -368,6 +368,71 @@ Component tag values used in this template:
 | `alerts` | Sycope - Active Alerts (all severity items) |
 | `asset_discovery` | Active Services, Matched/Unmatched IPs, Connections |
 
+## Screenshots
+
+### All Sycope monitoring items in Zabbix Latest Data
+
+All 33 items collected from a single host, tagged with `source: sycope` and grouped by component. The `source: sycope` tag makes it easy to filter Sycope items on hosts that have multiple templates assigned.
+
+<img width="2032" height="1282" alt="Zabbix - All Sycope monitoring items" src="https://github.com/user-attachments/assets/f44f1f48-2690-4091-a281-ac0a4266d075" />
+
+---
+
+### Active alert detail with severity breakdown
+
+The `Sycope - Active Alerts (detail)` item shows a full human-readable breakdown of all active alerts — total count, per-severity counts, and per-alert-name counts with severity labels. Hovering the item in Latest Data reveals the full message string.
+
+<img width="1400" height="371" alt="Zabbix - Show Sycope Alerts 2" src="https://github.com/user-attachments/assets/0c8ae2db-7665-49f9-916b-f8285e63fb44" />
+
+---
+
+### Sycope alerts surfaced in Zabbix Problems
+
+Sycope security and visibility alerts appear directly in the Zabbix Problems view with severity mapping — WARNING for first detection, HIGH when the count exceeds the threshold. Alerts are tagged with `component: visibility`, `component: security`, and `source: sycope` for easy filtering.
+
+<img width="1319" height="537" alt="Zabbix - Show Sycope Alerts" src="https://github.com/user-attachments/assets/8ebf3d2a-34c3-4c5b-aa76-e00082d37cee" />
+
+---
+
+### Acknowledging alerts from Zabbix
+
+Active Sycope-sourced triggers appear in the Zabbix global problems view alongside all other infrastructure alerts. They can be acknowledged, commented, and escalated using the standard Zabbix workflow — no need to switch to the Sycope UI for alert triage.
+
+<img width="1215" height="136" alt="Zabbix - View acknowledge alerts" src="https://github.com/user-attachments/assets/5858e32d-60ea-49ff-b41d-6333b27e4a28" />
+
+---
+
+### Built-in graphs and trigger thresholds
+
+The template includes pre-built graphs for Security Alerts, Performance Alerts, Matched IPs, Connections, and Active Services. Trigger threshold lines are rendered directly on the graphs, making it easy to see how current values compare to WARNING and HIGH thresholds over time.
+
+<img width="1985" height="1317" alt="Zabbix - Builtin graphs and triggers in Sycope template" src="https://github.com/user-attachments/assets/2ffcce07-2151-4f6b-b7ce-2109c9d8d229" />
+
+---
+
+### Verify listening ports and application names without port scanning
+
+The `Asset Discovery - Active Services` items show which TCP ports are actively receiving connections on a host, enriched with application names from Sycope's application lookup. This provides passive port visibility equivalent to a port scan — without generating any scan traffic.
+
+<img width="1085" height="230" alt="Zabbix - Verify listening ports and defined applications without port scanning" src="https://github.com/user-attachments/assets/5249db2c-3c85-4d2e-81bf-417dc8644f45" />
+
+---
+
+### Verify traffic policies and internet access
+
+Connection count items (`Public Connections From/To Node`, `Private Connections From/To Node`) show whether a host is communicating with public internet IPs. This can be used to verify firewall policies — for example, confirming that a server which should not have internet access shows 0 public connections.
+
+<img width="1916" height="628" alt="Zabbix - Verify Sycope traffic policies and if server has Internet access" src="https://github.com/user-attachments/assets/ad7e2d9e-e693-4508-b7ab-ee1eecff7660" />
+
+---
+
+### Custom dashboard with Sycope KPIs and graphs
+
+A custom Zabbix dashboard combining Sycope alert counts, security graphs, connection graphs, and performance alerts into a single view. The dashboard can be built using the included API script or manually via the Zabbix UI.
+
+<img width="1920" height="860" alt="Zabbix - Create custom dashboard using statistics and alerts from Sycope" src="https://github.com/user-attachments/assets/824afde4-f0ba-4955-a881-63ba2aa3558d" />
+
+
 ## Architecture
 
 ```
