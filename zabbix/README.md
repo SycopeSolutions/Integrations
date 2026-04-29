@@ -91,6 +91,9 @@ The `zabbix_lookup_sync.py` script:
 
 ```
 .
+├── template/               # Sycope Monitoring Template for Zabbix (Sycope → Zabbix)
+│   ├── sycope_check.py              # External check script for Zabbix
+│   └── zbx_sycope_monitoring.yaml   # Zabbix 7.x template
 ├── dashboards                       # Optional dashboards to import into Sycope
 ├── drilldowns                       # Optional drilldown action to import into Sycope
 ├── fields                           # Optional custom fields to import into Sycope
