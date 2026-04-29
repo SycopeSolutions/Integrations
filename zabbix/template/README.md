@@ -15,7 +15,7 @@ For each monitored host, the script authenticates against the Sycope API, runs t
 | File | Description |
 |---|---|
 | `sycope_check.py` | External check script — place in Zabbix ExternalScripts directory |
-| `zbx_sycope_monitoring.yaml` | Zabbix 7.0 template — import via Configuration → Templates |
+| `zbx_sycope_monitoring.yaml` | Zabbix 7.x template — import via Configuration → Templates |
 
 ---
 
