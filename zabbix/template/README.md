@@ -317,9 +317,6 @@ Key rules when writing NQL queries:
 
 ---
 
-
----
-
 ## Disabling Checks for Unlicensed Modules
 
 Sycope is modular — not all installations include every module. If a module is not licensed or enabled, the corresponding NQL queries will return empty results and items will show `0` or `error`. To avoid noise, disable the relevant items on the host.
@@ -374,7 +371,7 @@ Component tag values used in this template:
 
 All 33 items collected from a single host, tagged with `source: sycope` and grouped by component. The `source: sycope` tag makes it easy to filter Sycope items on hosts that have multiple templates assigned.
 
-<img width="2032" height="1282" alt="Zabbix - All Sycope monitoring items" src="https://github.com/user-attachments/assets/f44f1f48-2690-4091-a281-ac0a4266d075" />
+<img width="1921" height="1170" alt="Zabbix - All Sycope monitoring items copy" src="https://github.com/user-attachments/assets/677c5a6f-1f30-4e1e-8dfe-dec2783ffb7d" />
 
 ---
 
@@ -406,7 +403,7 @@ Active Sycope-sourced triggers appear in the Zabbix global problems view alongsi
 
 The template includes pre-built graphs for Security Alerts, Performance Alerts, Matched IPs, Connections, and Active Services. Trigger threshold lines are rendered directly on the graphs, making it easy to see how current values compare to WARNING and HIGH thresholds over time.
 
-<img width="1985" height="1317" alt="Zabbix - Builtin graphs and triggers in Sycope template" src="https://github.com/user-attachments/assets/2ffcce07-2151-4f6b-b7ce-2109c9d8d229" />
+<img width="1872" height="1203" alt="Zabbix - Builtin graphs and triggers in Sycope template copy" src="https://github.com/user-attachments/assets/2e562f6b-e60d-42d9-8076-7d58418634b2" />
 
 ---
 
