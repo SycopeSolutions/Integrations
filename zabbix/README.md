@@ -1,9 +1,17 @@
 # Zabbix Integration with Sycope
 
+This directory contains two complementary integrations between Zabbix and Sycope, covering both directions of data flow.
+
 This integration enables sending monitoring statistics and inventory data from Zabbix to a custom index and dedicated Lookup in **Sycope** for further correlation, search and visualization.
+Directory also includes Zabbix Teamplate to provide both directions of data flow, including Sycope statistics and alerts presenting in Zabbix.
 
 > **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and probes monitoring availability.
 
+## Zabbix Statistics & Inventory Sync
+
+**Direction: Zabbix → Sycope**
+
+This integration enables sending monitoring statistics and inventory data from Zabbix to a custom index and dedicated Lookup in **Sycope** for further correlation, search, and visualization.
 
 An example of the Zabbix Statistics Dashboard
 
@@ -13,6 +21,37 @@ An example of the Zabbix Statistics Dashboard
 An example of the Zabbix Inventory Dashboard
 
 <img width="1865" alt="image" src="https://github.com/user-attachments/assets/44f602c4-821e-478b-88c3-15aa4e256f73" />
+
+---
+
+## Sycope Monitoring Template for Zabbix
+
+**Direction: Sycope → Zabbix**
+
+Bring Sycope's network visibility, security alerts, and asset discovery data directly into Zabbix — without any additional middleware, lookup services, or data pipeline. The template uses only the **Sycope REST API and NQL** to query traffic and alert data for each monitored host.
+
+This means you get Sycope's deep network intelligence — scan detection, anomaly alerts, passive port discovery, connection profiling — surfaced as native Zabbix items, triggers, graphs, and dashboards, fully integrated with your existing Zabbix monitoring workflow.
+
+### What's included
+
+- **33 monitoring items** per host covering security alerts, performance, visibility, asset discovery, and active alert severity breakdown
+- **Built-in graphs** with trigger threshold lines for Security Alerts, Performance Alerts, Connections, Matched IPs, and Active Services
+- **Triggers** with configurable WARNING and HIGH thresholds, plus DISASTER trigger for critical severity alerts
+- **Multi-host dashboard** importable via Zabbix API script
+- **No agent, no SNMP, no port scanning** — all data is collected passively via NQL queries
+
+### Screenshots
+
+**All Sycope monitoring items collected per host, tagged and filterable by `source: sycope`:**
+
+<img width="2032" height="1282" alt="Zabbix - All Sycope monitoring items" src="https://github.com/user-attachments/assets/0177b434-7513-4254-a4bf-fc59527979b8" />
+
+
+**Custom dashboard with live security KPIs, alert graphs, connection trends, and performance monitoring:**
+
+<img width="1920" height="860" alt="Zabbix - Create custom dashboard using statistics and alerts from Sycope" src="https://github.com/user-attachments/assets/8bcf7bfb-7656-4168-aab1-c7bdc3aad9ef" />
+
+See [SYCOPE_MONITORING_README.md](SYCOPE_MONITORING_README.md) for full documentation.
 
 ---
 
