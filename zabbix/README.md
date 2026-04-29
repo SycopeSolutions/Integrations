@@ -50,7 +50,7 @@ This means you get Sycope's deep network intelligence — scan detection, anomal
 
 <img width="1920" height="860" alt="Zabbix - Create custom dashboard using statistics and alerts from Sycope" src="https://github.com/user-attachments/assets/8bcf7bfb-7656-4168-aab1-c7bdc3aad9ef" />
 
-See [template folder]([https://free.sycope.com/](https://github.com/SycopeSolutions/Integrations/tree/main/zabbix/template)) for full documentation.
+See [template folder](https://github.com/SycopeSolutions/Integrations/tree/main/zabbix/template) for full documentation.
 
 ---
 
