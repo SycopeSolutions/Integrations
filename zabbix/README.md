@@ -44,8 +44,7 @@ This means you get Sycope's deep network intelligence — scan detection, anomal
 
 **All Sycope monitoring items collected per host, tagged and filterable by `source: sycope`:**
 
-<img width="2032" height="1282" alt="Zabbix - All Sycope monitoring items" src="https://github.com/user-attachments/assets/0177b434-7513-4254-a4bf-fc59527979b8" />
-
+<img width="1921" height="1170" alt="Zabbix - All Sycope monitoring items copy" src="https://github.com/user-attachments/assets/0f19fc9f-0140-4f6d-a544-79f5976ab3c5" />
 
 **Custom dashboard with live security KPIs, alert graphs, connection trends, and performance monitoring:**
 
