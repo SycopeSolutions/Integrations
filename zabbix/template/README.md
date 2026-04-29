@@ -6,7 +6,7 @@ Sycope collects and analyzes network flow data, providing visibility into traffi
 
 For each monitored host, the script authenticates against the Sycope API, runs targeted NQL queries filtered by the host's IP address, and returns structured JSON results. Zabbix collects these via external checks every 5 minutes and evaluates them against configurable thresholds to generate alerts.
 
-> **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and probes monitoring availability.
+> **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and performance monitoring availability.
 
 ---
 
@@ -15,7 +15,7 @@ For each monitored host, the script authenticates against the Sycope API, runs t
 | File | Description |
 |---|---|
 | `sycope_check.py` | External check script — place in Zabbix ExternalScripts directory |
-| `zbx_sycope_monitoring.yaml` | Zabbix 7.x template — import via Configuration → Templates |
+| `zbx_sycope_monitoring.yaml` | Zabbix 7.0 template — import via Configuration → Templates |
 
 ---
 
@@ -316,6 +316,57 @@ Key rules when writing NQL queries:
 - Always return a dict with at least a `value` key (numeric) so Zabbix can graph it
 
 ---
+
+
+---
+
+## Disabling Checks for Unlicensed Modules
+
+Sycope is modular — not all installations include every module. If a module is not licensed or enabled, the corresponding NQL queries will return empty results and items will show `0` or `error`. To avoid noise, disable the relevant items on the host.
+
+### Which items belong to which module
+
+| Sycope Module | Template Items |
+|---|---|
+| **Visibility** | Visibility, Sycope - Active Alerts |
+| **Asset Discovery** | Asset Discovery - Active Services, Matched/Unmatched IPs, Connections From/To Node |
+| **Performance** | Performance - High Server/Client Network Latency |
+| **Security** | Security - Horizontal Scan/Vertical Scan |
+
+### How to disable items in Zabbix
+
+**Per host (recommended)** — disables items only on a specific host without affecting others:
+
+1. Go to **Data Collection → Hosts → [host] → Items**
+2. Filter by `sycope` in the search box
+3. Select all items you want to disable
+4. Click **Mass update → Status → Disabled**
+
+**Per template** — disables items for all hosts using the template:
+
+1. Go to **Data Collection → Templates → Sycope Monitoring → Items**
+2. Select the items to disable
+3. Click **Mass update → Status → Disabled**
+
+> **Note:** Disabled items are not collected and do not trigger alerts, but they remain in the template and can be re-enabled at any time.
+
+### Disabling entire item groups by tag
+
+Since all items have a `component` tag, you can filter and bulk-disable by component:
+
+1. Go to **Data Collection → Hosts → [host] → Items**
+2. Use the **Tags** filter: `component = asset_discovery`
+3. Select all → **Mass update → Status → Disabled**
+
+Component tag values used in this template:
+
+| Tag value | Items |
+|---|---|
+| `visibility` | Only SYN TCP Flag, Initial connections from Public IPs |
+| `security` | Horizontal Scan, Vertical Scan |
+| `performance` | High Server/Client Network Latency |
+| `alerts` | Sycope - Active Alerts (all severity items) |
+| `asset_discovery` | Active Services, Matched/Unmatched IPs, Connections |
 
 ## Architecture
 
