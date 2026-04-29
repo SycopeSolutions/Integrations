@@ -1,0 +1,866 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+  - uuid: 5c4bf6e37439437cbf003b9d42418832
+    name: Templates/Applications
+  templates:
+  - uuid: 14cd875fb21e4933b418863e9724c8d1
+    template: Sycope Monitoring
+    name: Sycope Monitoring
+    description: "Monitors Sycope NTA/Security platform via REST API (NQL queries).\n\
+      Requirements:\n  -\
+      \ sycope_check.py in ExternalScripts dir\n  - /etc/zabbix/sycope.conf with SYCOPE_USER\
+      \ and SYCOPE_PASSWORD\n  - Set macro {$SYCOPE_IP} to your Sycope appliance IP\n"
+    groups:
+    - name: Templates/Applications
+    macros:
+    - macro: '{$SYCOPE_IP}'
+      value: 192.168.1.14
+      description: Sycope appliance IP
+    - macro: '{$SYCOPE_ALERT_MINUTES}'
+      value: '15'
+      description: Alert query lookback (minutes)
+    - macro: '{$SYCOPE_ASSET_DAYS}'
+      value: '7'
+      description: Active services lookback (days)
+    - macro: '{$SYCOPE_MATCHED_MINUTES}'
+      value: '60'
+      description: Matched IPs lookback (minutes)
+    - macro: '{$SYCOPE_CONN_MINUTES}'
+      value: '30'
+      description: Connections lookback (minutes)
+    - macro: '{$SYCOPE_ALERT_WARN}'
+      value: '1'
+      description: 'Warning threshold: alert count'
+    - macro: '{$SYCOPE_ALERT_HIGH}'
+      value: '5'
+      description: 'High threshold: alert count'
+    items:
+    - uuid: bd17475f1227487ea58552e9f2a0c89f
+      name: Visibility - Only SYN Client TCP Flag
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Only SYN Client
+        TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: visibility
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: 93e1a759894b4fc98c05e8a34c0381c1
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Only
+          SYN Client TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Only SYN TCP Flag alerts HIGH on {HOST.NAME}'
+        priority: HIGH
+      - uuid: 734bc79f0c3f4bd7a2421b9f4021095d
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Only
+          SYN Client TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN}
+          and last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Only
+          SYN Client TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"])<={$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Only SYN TCP Flag alerts detected on {HOST.NAME}'
+        priority: WARNING
+    - uuid: 8535721701af4a7295daf0cb3b80c6be
+      name: Visibility - Only SYN Client TCP Flag (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Only SYN
+        Client TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: visibility
+      - tag: source
+        value: sycope
+    - uuid: 3d4d3e722cf9432684a6703fcf8854b6
+      name: Visibility - Initial connections from Public IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Initial connections
+        from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: visibility
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: 20eb6fc3a42a42e09ce17a4930379f43
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Initial
+          connections from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Initial connections from public IPs HIGH on {HOST.NAME}'
+        priority: HIGH
+      - uuid: 01e3d93fd92e4b53b76c4199f9fa3b64
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Initial
+          connections from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN}
+          and last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Initial
+          connections from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"])<={$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Initial connections from public IPs detected on {HOST.NAME}'
+        priority: WARNING
+    - uuid: d7a329766fc74564addf71668852e26b
+      name: Visibility - Initial connections from Public IPs (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Initial connections
+        from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: visibility
+      - tag: source
+        value: sycope
+    - uuid: f1d3124989b444b297a772d9e488fbe2
+      name: Security - Horizontal Scan
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Horizontal Scan","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: security
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: c8aecede44844d98970bc8a088f7710e
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Horizontal
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Horizontal scan HIGH on {HOST.NAME}'
+        priority: HIGH
+      - uuid: 219329e03eea4e7fb9a623c206578039
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Horizontal
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN} and last(/Sycope
+          Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Horizontal
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"])<={$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Horizontal scan detected on {HOST.NAME}'
+        priority: WARNING
+    - uuid: 387ba0739e7a4589af8272365b9b2e03
+      name: Security - Horizontal Scan (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Horizontal
+        Scan","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: security
+      - tag: source
+        value: sycope
+    - uuid: 7921eeee3dee4b3a9e33ee07aebf4663
+      name: Security - Vertical Scan
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Vertical Scan","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: security
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: 3fa5ffeb421c4ff5b4e5f0022c8ed658
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Vertical
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Vertical scan HIGH on {HOST.NAME}'
+        priority: HIGH
+      - uuid: d5a1bb126cc147ef8f0e756dae72812d
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Vertical
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN} and last(/Sycope
+          Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Vertical
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"])<={$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Vertical scan detected on {HOST.NAME}'
+        priority: WARNING
+    - uuid: 90dc58489cb44ab6be844099609c3fcf
+      name: Security - Vertical Scan (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Vertical
+        Scan","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: security
+      - tag: source
+        value: sycope
+    - uuid: 7531b66a944c4dbcbd35bf24bbd82569
+      name: Performance - High Server Network Latency
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High Server Network
+        Latency","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: performance
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: c3da2530e1084dd0a5f49c90ac6411ec
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High
+          Server Network Latency","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN}
+        name: 'Sycope: High server network latency on {HOST.NAME}'
+        priority: WARNING
+    - uuid: e48bc56c712d4a97acb1e495e5a1ccf8
+      name: Performance - High Server Network Latency (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","High Server
+        Network Latency","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: performance
+      - tag: source
+        value: sycope
+    - uuid: 0578c5b92e444533ac1df06045ee5e9b
+      name: Performance - High Client Network Latency
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High Client Network
+        Latency","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: performance
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: bfe57afebf20479f88e595b1d35bb5d1
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High
+          Client Network Latency","true","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN}
+        name: 'Sycope: High client network latency on {HOST.NAME}'
+        priority: WARNING
+    - uuid: 55e902fa26534c13bed840557c5b7de8
+      name: Performance - High Client Network Latency (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","High Client
+        Network Latency","true","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: performance
+      - tag: source
+        value: sycope
+    - uuid: 5b264d2ffb23472e8a7fc06b8b26dab5
+      name: Asset Discovery - Active Services (count)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","active_services","{HOST.IP}","{$SYCOPE_ASSET_DAYS}","true"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: b20b7747830640d38887fd88786cb589
+      name: Asset Discovery - Active Services (port list)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","active_services_msg","{HOST.IP}","{$SYCOPE_ASSET_DAYS}","true"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: e5b686fa1e7848c681c93e7afe26eaa7
+      name: Asset Discovery - Matched Client Public IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Client_Public_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Matched_Client_Public_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: 3adaf948d44b48da8ff95ea7e070c07d
+      name: Asset Discovery - Matched Client Private IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Client_Private_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Matched_Client_Private_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: 494b0f76faf346d7b54ecd2b057df5be
+      name: Asset Discovery - Matched Server Public IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Server_Public_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Matched_Server_Public_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: e4638aa521fd402ea249b6e9db905b13
+      name: Asset Discovery - Matched Server Private IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Server_Private_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Matched_Server_Private_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: 745d17b120324fb4a07dba21c02676c0
+      name: Asset Discovery - Unmatched Client Public IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Client_Public_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Unmatched_Client_Public_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: b1683851e63d43f89b68583d63158a1d
+      name: Asset Discovery - Unmatched Client Private IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Client_Private_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Unmatched_Client_Private_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: ef8ff7e41b2841628776c0b9121d1004
+      name: Asset Discovery - Unmatched Server Public IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Server_Public_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Unmatched_Server_Public_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: 2adb3cabfa174f58b52421f36b6d734c
+      name: Asset Discovery - Unmatched Server Private IPs
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Server_Private_IPs"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Unmatched_Server_Private_IPs
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: 21f2c020094c4e88bd05cbfdb87f2735
+      name: Asset Discovery - Private Connections From Node
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_From_Node"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Private_Connections_From_Node
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: b842f7906e5749f7a80de3d6461b6553
+      name: Asset Discovery - Public Connections From Node
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Public_Connections_From_Node"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Public_Connections_From_Node
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: 02df953d475e4053b76b6ebd29f9a74f
+      name: Asset Discovery - Private Connections To Node
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_To_Node"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Private_Connections_To_Node
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: bde0893a65c54bdf9107768ba3f92bc9
+      name: Asset Discovery - Public Connections To Node
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Public_Connections_To_Node"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.Public_Connections_To_Node
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: asset_discovery
+      - tag: source
+        value: sycope
+    - uuid: ebf2d16f6c5b4f86acb82dc297efe9ac
+      name: Sycope - Active Alerts (total)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      description: Total number of active Sycope alerts for this host across all alert
+        types and severities.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: 2d0eb5f2563f48538c95b332219dddd4
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: High number of active alerts on {HOST.NAME}'
+        priority: HIGH
+      - uuid: 003042ebb7ea4d50869b3101ffd00591
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"])>{$SYCOPE_ALERT_WARN}
+          and last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"])<={$SYCOPE_ALERT_HIGH}
+        name: 'Sycope: Active alerts detected on {HOST.NAME}'
+        priority: WARNING
+    - uuid: ce3accad185f451e80496ed0c26803c6
+      name: Sycope - Active Alerts (critical)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","critical"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_critical
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: a88855e7b1b54de1a51507bc26656068
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","critical"])>=1
+        name: 'Sycope: CRITICAL severity alerts on {HOST.NAME}'
+        priority: DISASTER
+    - uuid: d849e5ca0a4c4ae1a2b22714b68132fd
+      name: Sycope - Active Alerts (high)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","high"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_high
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+      triggers:
+      - uuid: 1484dbd1499f495eb305499a23190ae4
+        expression: last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","high"])>=1
+        name: 'Sycope: HIGH severity alerts on {HOST.NAME}'
+        priority: HIGH
+    - uuid: 7d6d90ad7c4e492d8464924c6e9b968a
+      name: Sycope - Active Alerts (medium)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","medium"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_medium
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+    - uuid: 0885197c2aa345d88165803400418b52
+      name: Sycope - Active Alerts (low)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","low"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_low
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+    - uuid: b9307fd528f24ccc8f7ca7f051c04825
+      name: Sycope - Active Alerts (info)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","info"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_info
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+    - uuid: eeb1d146a07542e79c2612906c68602f
+      name: Sycope - Active Alerts (detail)
+      type: EXTERNAL
+      key: sycope_check.py["{$SYCOPE_IP}","any_alerts_msg","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"]
+      delay: 5m
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      description: 'Full alert breakdown: total, severity counts, and per-alert-name
+        counts.'
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      tags:
+      - tag: component
+        value: alerts
+      - tag: source
+        value: sycope
+  graphs:
+  - uuid: baa9e2ea11c44c5581b6ce7ef9c784f1
+    name: 'Sycope: Security Alerts'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Horizontal
+          Scan","true","{$SYCOPE_ALERT_MINUTES}"]
+    - color: FF0000
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Vertical Scan","true","{$SYCOPE_ALERT_MINUTES}"]
+    - color: 0000FF
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Only SYN Client
+          TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"]
+    - color: FF8800
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Initial connections
+          from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"]
+  - uuid: 759c9ec0bc364a00a737863d1dd58891
+    name: 'Sycope: Performance Alerts'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High Server
+          Network Latency","true","{$SYCOPE_ALERT_MINUTES}"]
+    - color: FF0000
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High Client
+          Network Latency","true","{$SYCOPE_ALERT_MINUTES}"]
+  - uuid: b37a104b5f76411ab9fe1b778e01cf26
+    name: 'Sycope: Connections From Node'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_From_Node"]
+    - color: FF0000
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Public_Connections_From_Node"]
+  - uuid: 84c3f4f5de8b48b4980ec17531d99885
+    name: 'Sycope: Connections To Node'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_To_Node"]
+    - color: FF0000
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Public_Connections_To_Node"]
+  - uuid: 88e3d138f6204112a838ee878f4cd151
+    name: 'Sycope: Matched IPs'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Client_Public_IPs"]
+    - color: FF0000
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Client_Private_IPs"]
+    - color: 0000FF
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Server_Public_IPs"]
+    - color: FF8800
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Server_Private_IPs"]
+  - uuid: 1a8dc1ab0f6f44e4854704e4943d0e0c
+    name: 'Sycope: Unmatched IPs'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Client_Public_IPs"]
+    - color: FF0000
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Client_Private_IPs"]
+    - color: 0000FF
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Server_Public_IPs"]
+    - color: FF8800
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Server_Private_IPs"]
+  - uuid: bc06a465d54045a3ae5cfaa55077d39b
+    name: 'Sycope: Active Services Count'
+    graph_items:
+    - color: 00AA00
+      item:
+        host: Sycope Monitoring
+        key: sycope_check.py["{$SYCOPE_IP}","active_services","{HOST.IP}","{$SYCOPE_ASSET_DAYS}","true"]
