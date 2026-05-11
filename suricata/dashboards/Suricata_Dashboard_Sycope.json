@@ -1,0 +1,4187 @@
+{
+  "name": "Suricata Overview",
+  "type": "dashboard",
+  "tags": [],
+  "createdBy": "admin",
+  "modifiedBy": "admin",
+  "created": 1770830109512,
+  "modified": 1770830109512,
+  "dashboardConfig": {
+    "cols": 24,
+    "gridType": "proportional",
+    "rows": 18,
+    "compactType": null,
+    "widgetSpacing": 8,
+    "disableVisAnimations": false,
+    "dashboardType": "standard",
+    "type": "standard",
+    "related": [],
+    "requireFilters": {},
+    "requireTimerange": {
+      "maxRange": "30m"
+    }
+  },
+  "items": [
+    {
+      "layout": {
+        "id": "3ef3793b-c4b6-4d4a-b1db-c6b3d52bdd57",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 4,
+        "h": 2,
+        "x": 0,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc3-d89d1b5f-28fdb9b0",
+        "id": "67136cc3-d89d1b5f-28fdb9b0",
+        "name": "Suricata - Total Events",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830105719,
+        "modified": 1770830105719,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "countEvents",
+            "dataKeys": [
+              "countEvents"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Total Events"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Total Events",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countEvents=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countEvents"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "aggr countEvents=count(event_type) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc3-d89d1b5f-28fdb9b0",
+        "permissions": {
+          "entityId": "67136cc3-d89d1b5f-28fdb9b0",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "9a0fb656-c7cd-41c1-8830-af643341c3da",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 4,
+        "h": 2,
+        "x": 4,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc3-d89d1b5f-28fdb9b4",
+        "id": "67136cc3-d89d1b5f-28fdb9b4",
+        "name": "Suricata - Alert Count",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830106004,
+        "modified": 1770830106004,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "countAlerts",
+            "dataKeys": [
+              "countAlerts"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Alerts"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Alerts",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "event_type = \"alert\"",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countAlerts=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countAlerts"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"alert\" | aggr countAlerts=count(event_type) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc3-d89d1b5f-28fdb9b4",
+        "permissions": {
+          "entityId": "67136cc3-d89d1b5f-28fdb9b4",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "592e9d6c-0511-4633-b50c-5bf13dbc53cc",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 4,
+        "h": 2,
+        "x": 8,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc3-d89d1b5f-28fdb9b8",
+        "id": "67136cc3-d89d1b5f-28fdb9b8",
+        "name": "Suricata - Anomaly Count",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830106252,
+        "modified": 1770830106252,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "countAnomalies",
+            "dataKeys": [
+              "countAnomalies"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Anomalies"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Anomalies",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "event_type = \"anomaly\"",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countAnomalies=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countAnomalies"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"anomaly\" | aggr countAnomalies=count(event_type) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc3-d89d1b5f-28fdb9b8",
+        "permissions": {
+          "entityId": "67136cc3-d89d1b5f-28fdb9b8",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "67b76e7d-a227-47cd-92f8-8b379d5061fb",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 3,
+        "h": 2,
+        "x": 12,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc4-d89d1b5f-28fdb9c0",
+        "id": "67136cc4-d89d1b5f-28fdb9c0",
+        "name": "Suricata - HTTP Count",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830106751,
+        "modified": 1770830106751,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "countHttp",
+            "dataKeys": [
+              "countHttp"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "HTTP"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "HTTP",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "event_type = \"http\"",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countHttp=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countHttp"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"http\" | aggr countHttp=count(event_type) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc4-d89d1b5f-28fdb9c0",
+        "permissions": {
+          "entityId": "67136cc4-d89d1b5f-28fdb9c0",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "63f4b92f-b7ef-4bdf-8789-ced2f09f6802",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 3,
+        "h": 2,
+        "x": 15,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc4-d89d1b5f-28fdb9c4",
+        "id": "67136cc4-d89d1b5f-28fdb9c4",
+        "name": "Suricata - TLS Count",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830106990,
+        "modified": 1770830106990,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "countTls",
+            "dataKeys": [
+              "countTls"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "TLS"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "TLS",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "event_type = \"tls\"",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countTls=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countTls"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"tls\" | aggr countTls=count(event_type) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc4-d89d1b5f-28fdb9c4",
+        "permissions": {
+          "entityId": "67136cc4-d89d1b5f-28fdb9c4",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "a2711ad4-36ed-46b0-96e9-e56755384719",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 3,
+        "h": 2,
+        "x": 18,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc4-d89d1b5f-28fdb9c8",
+        "id": "67136cc4-d89d1b5f-28fdb9c8",
+        "name": "Suricata - Unique Sources",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830107242,
+        "modified": 1770830107242,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "uniqueSrc",
+            "dataKeys": [
+              "uniqueSrc"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Unique Sources"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Unique Sources",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "src_ip",
+                "metricName": "Src IP",
+                "useAggr": true,
+                "field": "src_ip",
+                "fieldType": "field",
+                "aggregation": "dc",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "uniqueSrc=dc(src_ip)",
+                  "postAggr": ""
+                },
+                "alias": "uniqueSrc"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "aggr uniqueSrc=dc(src_ip) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc4-d89d1b5f-28fdb9c8",
+        "permissions": {
+          "entityId": "67136cc4-d89d1b5f-28fdb9c8",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "777954be-222f-429f-aa59-2b7048dbd10d",
+        "header": {
+          "hideTitle": true
+        },
+        "w": 3,
+        "h": 2,
+        "x": 21,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc4-d89d1b5f-28fdb9cc",
+        "id": "67136cc4-d89d1b5f-28fdb9cc",
+        "name": "Suricata - Unique Signatures",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830107504,
+        "modified": 1770830107504,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "uniqueSigs",
+            "dataKeys": [
+              "uniqueSigs"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Unique Sigs"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Unique Sigs",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                },
+                "iconOptions": {
+                  "icon": ""
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": []
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            },
+            "query": "",
+            "advanced": false
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_signature",
+                "metricName": "Event Signature",
+                "useAggr": true,
+                "field": "event_signature",
+                "fieldType": "field",
+                "aggregation": "dc",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "uniqueSigs=dc(event_signature)",
+                  "postAggr": ""
+                },
+                "alias": "uniqueSigs"
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "aggr uniqueSigs=dc(event_signature) unwind=true | limit 1000",
+              "subpipes": []
+            }
+          ],
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc4-d89d1b5f-28fdb9cc",
+        "permissions": {
+          "entityId": "67136cc4-d89d1b5f-28fdb9cc",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "3db1c32d-e90c-4a7d-9202-b9e007a9ac7c",
+        "header": null,
+        "w": 24,
+        "h": 5,
+        "x": 0,
+        "y": 2,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc5-d89d1b5f-28fdb9d0",
+        "id": "67136cc5-d89d1b5f-28fdb9d0",
+        "name": "Suricata - Events Over Time",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830107769,
+        "modified": 1770890370440,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "countEvent_type",
+            "dataKeys": [
+              "countEvent_type"
+            ],
+            "categoryKey": "srcEventTimestamp",
+            "categoryKeys": [
+              "srcEventTimestamp",
+              "event_type"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "date",
+                  "formattingPattern": "yyyy-MM-dd HH:mm"
+                },
+                null
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": false,
+                  "value": "count(Event Type)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": false,
+                  "value": "Time"
+                },
+                {
+                  "custom": false,
+                  "value": "Event Type"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata",
+              "suricata"
+            ],
+            "isCategoryDate": true,
+            "categoryDateInterval": "1h",
+            "autoBucket": true,
+            "timeKeys": [
+              "srcEventTimestamp"
+            ],
+            "splitKeys": [
+              "event_type"
+            ],
+            "splitChartsKeys": [],
+            "splitSeriesKeys": [
+              "event_type"
+            ],
+            "joinDataCategories": [
+              "srcEventTimestamp"
+            ],
+            "gridIndexes": [
+              0
+            ],
+            "markers": [
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              }
+            ],
+            "stack": {
+              "metrics": [
+                "Type"
+              ]
+            },
+            "valueConfigs": {
+              "metrics": [
+                {
+                  "showLabels": false
+                }
+              ]
+            },
+            "active": {
+              "metrics": [
+                true
+              ]
+            },
+            "sort": "desc",
+            "includeTotal": {
+              "hidden": false
+            },
+            "type": "bar",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "displayValuesOnXAxis": false,
+            "yAxes": [
+              {
+                "series": [
+                  0
+                ],
+                "position": "default",
+                "useCustomName": false,
+                "showAxisLabels": true,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "width": 100,
+                "labelAngle": 0,
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "logScale": false,
+                "inverse": false,
+                "barCategoryGapCustom": false,
+                "axisLine": {
+                  "custom": false
+                },
+                "splitLine": {
+                  "custom": false
+                },
+                "axisPointerConfig": {
+                  "show": false,
+                  "snap": false,
+                  "type": "shadow"
+                }
+              }
+            ],
+            "xAxes": [
+              {
+                "series": [
+                  0
+                ],
+                "position": "default",
+                "useCustomName": false,
+                "showAxisLabels": true,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "width": 100,
+                "labelAngle": 0,
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "logScale": false,
+                "inverse": false,
+                "barCategoryGapCustom": false,
+                "axisLine": {
+                  "custom": false
+                },
+                "splitLine": {
+                  "custom": false
+                },
+                "axisPointerConfig": {
+                  "show": true,
+                  "snap": true,
+                  "type": "shadow"
+                }
+              }
+            ],
+            "showLegend": true,
+            "legendPosition": "top",
+            "showLegendMetricName": false,
+            "legendIcons": "radio",
+            "showInSingleMode": false,
+            "showSimpleChartTitle": true,
+            "chartAreaConfig": {
+              "active": false
+            }
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countEvent_type=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countEvent_type",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "timeAggr",
+                "useFn": false,
+                "bucket": "timestamp",
+                "field": "timestamp",
+                "alias": "srcEventTimestamp",
+                "preFn": "timestamp",
+                "autoBucket": true,
+                "interval": "1h",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": true,
+                  "type": "top",
+                  "limit": 10,
+                  "byMetric": "",
+                  "byMetricSort": "desc",
+                  "byField": [],
+                  "inverted": false,
+                  "showOthers": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": false
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "event_type",
+                "field": "event_type",
+                "alias": "event_type",
+                "preFn": "event_type",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": true,
+                  "type": "top",
+                  "limit": 10,
+                  "byMetric": "",
+                  "byMetricSort": "desc",
+                  "byField": [],
+                  "inverted": false,
+                  "showOthers": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "splitChart": false
+              }
+            ]
+          },
+          "sorters": [],
+          "limit": {
+            "active": true,
+            "limit": 1000,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "(valInColl(event_type, \"${UNIQUE_ID_0}\", \"event_type\") OR event_type = null) | timeAggr countEvent_type=count(event_type) on timestamp by event_type as event_type interval=\"${AUTOBUCKET_INTERVAL}\" dir=\"desc\" unwind=true bucketAlias=\"srcEventTimestamp\" | limit 1000",
+              "subpipes": [
+                {
+                  "nql": "${LIMIT_SOURCE} | neq(null, event_type) | aggr countEvent_type=count(event_type) by event_type as event_type unwind=true | sort countEvent_type desc | limit 10 | dst \"${UNIQUE_ID_0}\""
+                }
+              ]
+            }
+          ],
+          "includeTotal": {
+            "hidden": false
+          },
+          "columns": []
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc5-d89d1b5f-28fdb9d0",
+        "permissions": {
+          "entityId": "67136cc5-d89d1b5f-28fdb9d0",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "ad60bfd6-f527-471c-a3d6-6e5fe3abe493",
+        "header": null,
+        "w": 8,
+        "h": 5,
+        "x": 0,
+        "y": 7,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc5-d89d1b5f-28fdb9d5",
+        "id": "67136cc5-d89d1b5f-28fdb9d5",
+        "name": "Suricata - Alerts by Severity",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830108003,
+        "modified": 1770830108003,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "countSeverity",
+            "dataKeys": [
+              "countSeverity"
+            ],
+            "categoryKey": "alert_severity",
+            "categoryKeys": [
+              "alert_severity"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": false,
+                  "value": "count(Alert Severity)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": false,
+                  "value": "Alert Severity"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata"
+            ],
+            "isCategoryDate": false,
+            "autoBucket": true,
+            "timeKeys": [],
+            "splitKeys": [],
+            "splitChartsKeys": [],
+            "splitSeriesKeys": [],
+            "joinDataCategories": [],
+            "gridIndexes": [
+              0
+            ],
+            "markers": [
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              }
+            ],
+            "stack": {
+              "metrics": [
+                null
+              ]
+            },
+            "valueConfigs": {
+              "metrics": [
+                {
+                  "showLabels": false
+                }
+              ]
+            },
+            "active": {
+              "metrics": [
+                true
+              ]
+            },
+            "sort": "desc",
+            "includeTotal": {
+              "hidden": false
+            },
+            "type": "bar",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "displayValuesOnXAxis": false,
+            "yAxes": [
+              {
+                "series": [
+                  0
+                ],
+                "position": "default",
+                "useCustomName": false,
+                "showAxisLabels": true,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "width": 100,
+                "labelAngle": 0,
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "logScale": false,
+                "inverse": false,
+                "barCategoryGapCustom": false,
+                "axisLine": {
+                  "custom": false
+                },
+                "splitLine": {
+                  "custom": false
+                },
+                "axisPointerConfig": {
+                  "show": false,
+                  "snap": false,
+                  "type": "shadow"
+                }
+              }
+            ],
+            "xAxes": [
+              {
+                "series": [
+                  0
+                ],
+                "position": "default",
+                "useCustomName": false,
+                "showAxisLabels": true,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "width": 100,
+                "labelAngle": 0,
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "logScale": false,
+                "inverse": false,
+                "barCategoryGapCustom": false,
+                "axisLine": {
+                  "custom": false
+                },
+                "splitLine": {
+                  "custom": false
+                },
+                "axisPointerConfig": {
+                  "show": true,
+                  "snap": true,
+                  "type": "shadow"
+                }
+              }
+            ],
+            "showLegend": true,
+            "legendPosition": "top",
+            "showLegendMetricName": false,
+            "legendIcons": "radio",
+            "showInSingleMode": false,
+            "showSimpleChartTitle": true,
+            "chartAreaConfig": {
+              "active": false
+            }
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "alert_severity",
+                "metricName": "Alert Severity",
+                "useAggr": true,
+                "field": "alert_severity",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countSeverity=count(alert_severity)",
+                  "postAggr": ""
+                },
+                "alias": "countSeverity",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "alert_severity",
+                "field": "alert_severity",
+                "alias": "alert_severity",
+                "preFn": "alert_severity",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "countSeverity",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 10,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"alert\" | aggr countSeverity=count(alert_severity) by alert_severity as alert_severity unwind=true | sort countSeverity desc | limit 10",
+              "subpipes": []
+            }
+          ],
+          "columns": [],
+          "includeTotal": {
+            "hidden": false
+          }
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc5-d89d1b5f-28fdb9d5",
+        "permissions": {
+          "entityId": "67136cc5-d89d1b5f-28fdb9d5",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "d51b0486-6640-4da7-9c95-d1a5edd2e2cd",
+        "header": null,
+        "w": 8,
+        "h": 5,
+        "x": 8,
+        "y": 7,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc5-d89d1b5f-28fdb9d9",
+        "id": "67136cc5-d89d1b5f-28fdb9d9",
+        "name": "Suricata - Event Type Breakdown",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830108255,
+        "modified": 1770830108255,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "countType",
+            "dataKeys": [
+              "countType"
+            ],
+            "categoryKey": "event_type",
+            "categoryKeys": [
+              "event_type"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": false,
+                  "value": "count(Event Type)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": false,
+                  "value": "Event Type"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata"
+            ],
+            "isCategoryDate": false,
+            "autoBucket": true,
+            "timeKeys": [],
+            "splitKeys": [],
+            "splitChartsKeys": [],
+            "splitSeriesKeys": [],
+            "joinDataCategories": [],
+            "gridIndexes": [
+              0
+            ],
+            "markers": [
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              }
+            ],
+            "stack": {
+              "metrics": [
+                null
+              ]
+            },
+            "valueConfigs": {
+              "metrics": [
+                {
+                  "showLabels": false
+                }
+              ]
+            },
+            "active": {
+              "metrics": [
+                true
+              ]
+            },
+            "sort": "desc",
+            "includeTotal": {
+              "hidden": false
+            },
+            "type": "pie",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "displayValuesOnXAxis": false,
+            "showLegend": true,
+            "legendPosition": "top",
+            "showLegendMetricName": false,
+            "legendIcons": "radio",
+            "showInSingleMode": false,
+            "showSimpleChartTitle": true,
+            "chartAreaConfig": {
+              "active": false
+            }
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_type",
+                "metricName": "Event Type",
+                "useAggr": true,
+                "field": "event_type",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countType=count(event_type)",
+                  "postAggr": ""
+                },
+                "alias": "countType",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "event_type",
+                "field": "event_type",
+                "alias": "event_type",
+                "preFn": "event_type",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "countType",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 10,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "aggr countType=count(event_type) by event_type as event_type unwind=true | sort countType desc | limit 10",
+              "subpipes": []
+            }
+          ],
+          "columns": [],
+          "includeTotal": {
+            "hidden": false
+          }
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc5-d89d1b5f-28fdb9d9",
+        "permissions": {
+          "entityId": "67136cc5-d89d1b5f-28fdb9d9",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "16986d70-5780-4256-88e9-f5ebe72f5b8c",
+        "header": null,
+        "w": 8,
+        "h": 5,
+        "x": 16,
+        "y": 7,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc5-d89d1b5f-28fdb9dd",
+        "id": "67136cc5-d89d1b5f-28fdb9dd",
+        "name": "Suricata - Alert Actions",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830108502,
+        "modified": 1770830108502,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "countAction",
+            "dataKeys": [
+              "countAction"
+            ],
+            "categoryKey": "alert_action",
+            "categoryKeys": [
+              "alert_action"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": false,
+                  "value": "count(Alert Action)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": false,
+                  "value": "Alert Action"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata"
+            ],
+            "isCategoryDate": false,
+            "autoBucket": true,
+            "timeKeys": [],
+            "splitKeys": [],
+            "splitChartsKeys": [],
+            "splitSeriesKeys": [],
+            "joinDataCategories": [],
+            "gridIndexes": [
+              0
+            ],
+            "markers": [
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              }
+            ],
+            "stack": {
+              "metrics": [
+                null
+              ]
+            },
+            "valueConfigs": {
+              "metrics": [
+                {
+                  "showLabels": false
+                }
+              ]
+            },
+            "active": {
+              "metrics": [
+                true
+              ]
+            },
+            "sort": "desc",
+            "includeTotal": {
+              "hidden": false
+            },
+            "type": "pie",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "displayValuesOnXAxis": false,
+            "showLegend": true,
+            "legendPosition": "top",
+            "showLegendMetricName": false,
+            "legendIcons": "radio",
+            "showInSingleMode": false,
+            "showSimpleChartTitle": true,
+            "chartAreaConfig": {
+              "active": false
+            }
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "alert_action",
+                "metricName": "Alert Action",
+                "useAggr": true,
+                "field": "alert_action",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countAction=count(alert_action)",
+                  "postAggr": ""
+                },
+                "alias": "countAction",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "alert_action",
+                "field": "alert_action",
+                "alias": "alert_action",
+                "preFn": "alert_action",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "countAction",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 10,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"alert\" | aggr countAction=count(alert_action) by alert_action as alert_action unwind=true | sort countAction desc | limit 10",
+              "subpipes": []
+            }
+          ],
+          "columns": [],
+          "includeTotal": {
+            "hidden": false
+          }
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc5-d89d1b5f-28fdb9dd",
+        "permissions": {
+          "entityId": "67136cc5-d89d1b5f-28fdb9dd",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "14d85d86-1f3b-4f51-93b7-338cb4061354",
+        "header": null,
+        "w": 10,
+        "h": 6,
+        "x": 0,
+        "y": 12,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc6-d89d1b5f-28fdb9e1",
+        "id": "67136cc6-d89d1b5f-28fdb9e1",
+        "name": "Suricata - Top Alert Signatures",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830108762,
+        "modified": 1770830108762,
+        "visualizationConfig": {
+          "type": "table",
+          "concreteVisualizationConfig": {
+            "dataKey": "event_category",
+            "dataKeys": [
+              "event_category",
+              "minSeverity",
+              "countSig"
+            ],
+            "categoryKey": "event_signature",
+            "categoryKeys": [
+              "event_signature"
+            ],
+            "formatting": {
+              "metrics": [
+                null,
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "value": "first(event_category)"
+                },
+                {
+                  "value": "min(alert_severity)"
+                },
+                {
+                  "custom": false,
+                  "value": "count(Signature)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Signature"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null,
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata"
+            ],
+            "columns": [
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "event_signature",
+                "aggregation": "terms",
+                "field": "event_signature",
+                "fieldName": "event_signature",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "event_signature",
+                "preFn": "event_signature",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": true,
+                "interval": "5m",
+                "visualOptions": {
+                  "label": "Signature",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "countBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "event_signature"
+              },
+              {
+                "active": true,
+                "columnType": "column",
+                "alias": "event_category",
+                "field": "event_category",
+                "fieldName": "event_category",
+                "fieldType": "field",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "preFn": "event_category",
+                "column": "event_category",
+                "visualOptions": {
+                  "label": "Category",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "countBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "event_category",
+                "isStringFieldType": true,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "alert_severity",
+                "alias": "minSeverity",
+                "aggregation": "min",
+                "useAggr": true,
+                "metricName": "Alert Severity",
+                "field": "alert_severity",
+                "fieldName": "min(alert_severity)",
+                "fieldType": "field",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "minSeverity=min(alert_severity)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Severity",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": false,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "minSeverity"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "event_signature",
+                "alias": "countSig",
+                "aggregation": "count",
+                "useAggr": true,
+                "metricName": "Signature",
+                "field": "event_signature",
+                "fieldName": "count(event_signature)",
+                "fieldType": "field",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countSig=count(event_signature)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Count",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": false,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "countSig"
+              }
+            ],
+            "includeTotal": {
+              "active": false,
+              "hidden": false
+            },
+            "groupRowsByOrder": 1,
+            "type": "table",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "globalFilter": true,
+            "filterable": true,
+            "sortable": true,
+            "displayValuesOnXAxis": false,
+            "rowGroupMode": null,
+            "groupRowsBy": null
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_category",
+                "field": "event_category",
+                "aggregation": "first",
+                "fn": {
+                  "aggr": "event_category=first(event_category)"
+                },
+                "alias": "event_category"
+              },
+              {
+                "metric": "alert_severity",
+                "field": "alert_severity",
+                "aggregation": "min",
+                "fn": {
+                  "aggr": "minSeverity=min(alert_severity)"
+                },
+                "alias": "minSeverity"
+              },
+              {
+                "metric": "event_signature",
+                "metricName": "Signature",
+                "useAggr": true,
+                "field": "event_signature",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countSig=count(event_signature)",
+                  "postAggr": ""
+                },
+                "alias": "countSig",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "event_signature",
+                "field": "event_signature",
+                "alias": "event_signature",
+                "preFn": "event_signature",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "countSig",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 50,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "src event_type = \"alert\" | aggr event_category=first(event_category), minSeverity=min(alert_severity), countSig=count(event_signature) by event_signature as event_signature unwind=true | sort countSig desc | limit 50",
+              "subpipes": []
+            }
+          ],
+          "columns": [
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "event_signature",
+              "aggregation": "terms",
+              "field": "event_signature",
+              "fieldName": "event_signature",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "event_signature",
+              "preFn": "event_signature",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": true,
+              "interval": "5m",
+              "visualOptions": {
+                "label": "Signature",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "countBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "event_signature"
+            },
+            {
+              "active": true,
+              "columnType": "column",
+              "alias": "event_category",
+              "field": "event_category",
+              "fieldName": "event_category",
+              "fieldType": "field",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "preFn": "event_category",
+              "column": "event_category",
+              "visualOptions": {
+                "label": "Category",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "countBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "event_category",
+              "isStringFieldType": true,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "alert_severity",
+              "alias": "minSeverity",
+              "aggregation": "min",
+              "useAggr": true,
+              "metricName": "Alert Severity",
+              "field": "alert_severity",
+              "fieldName": "min(alert_severity)",
+              "fieldType": "field",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "minSeverity=min(alert_severity)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Severity",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": false,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "minSeverity"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "event_signature",
+              "alias": "countSig",
+              "aggregation": "count",
+              "useAggr": true,
+              "metricName": "Signature",
+              "field": "event_signature",
+              "fieldName": "count(event_signature)",
+              "fieldType": "field",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "countSig=count(event_signature)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Count",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": false,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "countSig"
+            }
+          ],
+          "includeTotal": {
+            "active": false,
+            "hidden": false
+          }
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc6-d89d1b5f-28fdb9e1",
+        "permissions": {
+          "entityId": "67136cc6-d89d1b5f-28fdb9e1",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "d3203d1e-b3e9-4fc9-984b-14f5f4dc1521",
+        "header": null,
+        "w": 7,
+        "h": 6,
+        "x": 10,
+        "y": 12,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc6-d89d1b5f-28fdb9e5",
+        "id": "67136cc6-d89d1b5f-28fdb9e5",
+        "name": "Suricata - Top Source IPs",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830109032,
+        "modified": 1770830109032,
+        "visualizationConfig": {
+          "type": "table",
+          "concreteVisualizationConfig": {
+            "dataKey": "uniqueSigs",
+            "dataKeys": [
+              "uniqueSigs",
+              "countSrc"
+            ],
+            "categoryKey": "src_ip",
+            "categoryKeys": [
+              "src_ip"
+            ],
+            "formatting": {
+              "metrics": [
+                null,
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "value": "dc(event_signature)"
+                },
+                {
+                  "custom": false,
+                  "value": "count(Src IP)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Source IP"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata"
+            ],
+            "columns": [
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "src_ip",
+                "aggregation": "terms",
+                "field": "src_ip",
+                "fieldName": "src_ip",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "src_ip",
+                "preFn": "src_ip",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": false,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": true,
+                "interval": "5m",
+                "visualOptions": {
+                  "label": "Source IP",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "countBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "src_ip"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "event_signature",
+                "alias": "uniqueSigs",
+                "aggregation": "dc",
+                "useAggr": true,
+                "metricName": "Event Signature",
+                "field": "event_signature",
+                "fieldName": "dc(event_signature)",
+                "fieldType": "field",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "uniqueSigs=dc(event_signature)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Unique Sigs",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": false,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "uniqueSigs"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "src_ip",
+                "alias": "countSrc",
+                "aggregation": "count",
+                "useAggr": true,
+                "metricName": "Src IP",
+                "field": "src_ip",
+                "fieldName": "count(src_ip)",
+                "fieldType": "field",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countSrc=count(src_ip)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Count",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": false,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "countSrc"
+              }
+            ],
+            "includeTotal": {
+              "active": false,
+              "hidden": false
+            },
+            "groupRowsByOrder": 1,
+            "type": "table",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "globalFilter": true,
+            "filterable": true,
+            "sortable": true,
+            "displayValuesOnXAxis": false,
+            "rowGroupMode": null,
+            "groupRowsBy": null
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_signature",
+                "field": "event_signature",
+                "aggregation": "dc",
+                "fn": {
+                  "aggr": "uniqueSigs=dc(event_signature)"
+                },
+                "alias": "uniqueSigs"
+              },
+              {
+                "metric": "src_ip",
+                "metricName": "Src IP",
+                "useAggr": true,
+                "field": "src_ip",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countSrc=count(src_ip)",
+                  "postAggr": ""
+                },
+                "alias": "countSrc",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "src_ip",
+                "field": "src_ip",
+                "alias": "src_ip",
+                "preFn": "src_ip",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "countSrc",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 50,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "aggr uniqueSigs=dc(event_signature), countSrc=count(src_ip) by src_ip as src_ip unwind=true | sort countSrc desc | limit 50",
+              "subpipes": []
+            }
+          ],
+          "columns": [
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "src_ip",
+              "aggregation": "terms",
+              "field": "src_ip",
+              "fieldName": "src_ip",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "src_ip",
+              "preFn": "src_ip",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": false,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": true,
+              "interval": "5m",
+              "visualOptions": {
+                "label": "Source IP",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "countBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "src_ip"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "event_signature",
+              "alias": "uniqueSigs",
+              "aggregation": "dc",
+              "useAggr": true,
+              "metricName": "Event Signature",
+              "field": "event_signature",
+              "fieldName": "dc(event_signature)",
+              "fieldType": "field",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "uniqueSigs=dc(event_signature)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Unique Sigs",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": false,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "uniqueSigs"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "src_ip",
+              "alias": "countSrc",
+              "aggregation": "count",
+              "useAggr": true,
+              "metricName": "Src IP",
+              "field": "src_ip",
+              "fieldName": "count(src_ip)",
+              "fieldType": "field",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "countSrc=count(src_ip)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Count",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": false,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "countSrc"
+            }
+          ],
+          "includeTotal": {
+            "active": false,
+            "hidden": false
+          }
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc6-d89d1b5f-28fdb9e5",
+        "permissions": {
+          "entityId": "67136cc6-d89d1b5f-28fdb9e5",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "5214e58b-a312-4eec-b5ee-07563b3ed899",
+        "header": null,
+        "w": 7,
+        "h": 6,
+        "x": 17,
+        "y": 12,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "67136cc6-d89d1b5f-28fdb9e9",
+        "id": "67136cc6-d89d1b5f-28fdb9e9",
+        "name": "Suricata - Top Destination IPs",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1770830109272,
+        "modified": 1770830109272,
+        "visualizationConfig": {
+          "type": "table",
+          "concreteVisualizationConfig": {
+            "dataKey": "uniqueSigs",
+            "dataKeys": [
+              "uniqueSigs",
+              "countDst"
+            ],
+            "categoryKey": "dest_ip",
+            "categoryKeys": [
+              "dest_ip"
+            ],
+            "formatting": {
+              "metrics": [
+                null,
+                {
+                  "formattingType": "off"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "value": "dc(event_signature)"
+                },
+                {
+                  "custom": false,
+                  "value": "count(Dest IP)"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Destination IP"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "suricata"
+            ],
+            "columns": [
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "dest_ip",
+                "aggregation": "terms",
+                "field": "dest_ip",
+                "fieldName": "dest_ip",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "dest_ip",
+                "preFn": "dest_ip",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": false,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": true,
+                "interval": "5m",
+                "visualOptions": {
+                  "label": "Destination IP",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "countBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "dest_ip"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "event_signature",
+                "alias": "uniqueSigs",
+                "aggregation": "dc",
+                "useAggr": true,
+                "metricName": "Event Signature",
+                "field": "event_signature",
+                "fieldName": "dc(event_signature)",
+                "fieldType": "field",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "uniqueSigs=dc(event_signature)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Unique Sigs",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": false,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "uniqueSigs"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "dest_ip",
+                "alias": "countDst",
+                "aggregation": "count",
+                "useAggr": true,
+                "metricName": "Dest IP",
+                "field": "dest_ip",
+                "fieldName": "count(dest_ip)",
+                "fieldType": "field",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countDst=count(dest_ip)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Count",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "defaultColAutoWidth": false,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "limit": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "suricata",
+                "dataField": "countDst"
+              }
+            ],
+            "includeTotal": {
+              "active": false,
+              "hidden": false
+            },
+            "groupRowsByOrder": 1,
+            "type": "table",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect the browser performance, a limit of output records has been imposed on the widget. Please apply filters or narrow down the analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "globalFilter": true,
+            "filterable": true,
+            "sortable": true,
+            "displayValuesOnXAxis": false,
+            "rowGroupMode": null,
+            "groupRowsBy": null
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "suricata",
+            "type": "stream",
+            "isRaw": true,
+            "base": "suricata",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-24hours",
+              "to": "now",
+              "roundTo": "hour"
+            }
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "event_signature",
+                "field": "event_signature",
+                "aggregation": "dc",
+                "fn": {
+                  "aggr": "uniqueSigs=dc(event_signature)"
+                },
+                "alias": "uniqueSigs"
+              },
+              {
+                "metric": "dest_ip",
+                "metricName": "Dest IP",
+                "useAggr": true,
+                "field": "dest_ip",
+                "fieldType": "field",
+                "aggregation": "count",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "countDst=count(dest_ip)",
+                  "postAggr": ""
+                },
+                "alias": "countDst",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "dest_ip",
+                "field": "dest_ip",
+                "alias": "dest_ip",
+                "preFn": "dest_ip",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "countDst",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 50,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "aggr uniqueSigs=dc(event_signature), countDst=count(dest_ip) by dest_ip as dest_ip unwind=true | sort countDst desc | limit 50",
+              "subpipes": []
+            }
+          ],
+          "columns": [
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "dest_ip",
+              "aggregation": "terms",
+              "field": "dest_ip",
+              "fieldName": "dest_ip",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "dest_ip",
+              "preFn": "dest_ip",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": false,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": true,
+              "interval": "5m",
+              "visualOptions": {
+                "label": "Destination IP",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "countBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "dest_ip"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "event_signature",
+              "alias": "uniqueSigs",
+              "aggregation": "dc",
+              "useAggr": true,
+              "metricName": "Event Signature",
+              "field": "event_signature",
+              "fieldName": "dc(event_signature)",
+              "fieldType": "field",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "uniqueSigs=dc(event_signature)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Unique Sigs",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": false,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "uniqueSigs"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "dest_ip",
+              "alias": "countDst",
+              "aggregation": "count",
+              "useAggr": true,
+              "metricName": "Dest IP",
+              "field": "dest_ip",
+              "fieldName": "count(dest_ip)",
+              "fieldType": "field",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "countDst=count(dest_ip)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Count",
+                "showLabel": true,
+                "align": "left"
+              },
+              "formatting": {
+                "formattingType": "off"
+              },
+              "defaultColAutoWidth": false,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "limit": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "suricata",
+              "dataField": "countDst"
+            }
+          ],
+          "includeTotal": {
+            "active": false,
+            "hidden": false
+          }
+        },
+        "version": 31,
+        "options": {},
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "67136cc6-d89d1b5f-28fdb9e9",
+        "permissions": {
+          "entityId": "67136cc6-d89d1b5f-28fdb9e9",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      }
+    }
+  ],
+  "version": 5,
+  "acl": {
+    "permissions": [],
+    "privacy": "private",
+    "publicPermissions": [],
+    "entityId": "67136cc6-d89d1b5f-28fdb9ed",
+    "entityType": "COMPONENT.dashboard",
+    "owner": "admin",
+    "availPerms": [
+      "VIEW",
+      "EDIT",
+      "ADD",
+      "DELETE",
+      "EXECUTE",
+      "MODIFY_OWNERSHIP",
+      "GRANT_PERMISSIONS"
+    ],
+    "isOwner": true,
+    "aclEdit": true
+  },
+  "entitySet": "COMPONENT",
+  "entityType": "dashboard",
+  "annotations": null,
+  "permissions": {
+    "entityId": "67136cc6-d89d1b5f-28fdb9ed",
+    "entityType": "COMPONENT.dashboard",
+    "canAdd": true,
+    "canView": true,
+    "canEdit": true,
+    "canDelete": true,
+    "canExecute": true,
+    "canModifyOwner": true,
+    "canGrantPermissions": true
+  },
+  "aclEdit": true
+}
