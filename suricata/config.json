@@ -6,10 +6,18 @@
   "api_base": "/npm/api/v1/",
   "index_name": "suricata",
   "suricata_eve_json_path": "/var/log/suricata/eve.json",
+  "state_file": "state.json",
   "last_timestamp_file": "last_timestamp.txt",
-  "event_types": ["anomaly", "alert"],
+  "event_types": ["anomaly", "alert", "ldap", "pop3", "mdns", "websocket", "doh2"],
+  "filter_keys": {
+    "alert": ["alert", "signature_id"],
+    "anomaly": ["anomaly", "event"],
+    "smb": ["smb", "command"]
+  },
   "anomaly_whitelist": [],
   "alert_whitelist": [],
+  "smb_whitelist": [],
   "anomaly_blacklist": [],
-  "alert_blacklist": []
+  "alert_blacklist": [],
+  "smb_blacklist": ["SMB2_COMMAND_CREATE", "SMB2_COMMAND_CLOSE", "SMB2_COMMAND_FIND"]
 }
