@@ -1,2 +1,7 @@
 requests>=2.20.0
 urllib3>=1.24.0
+
+# Optional: speeds up JSON parsing on large eve.json files. Falls back to
+# stdlib json automatically if not installed - see README "JSON parsing
+# performance" section.
+orjson>=3.9.0

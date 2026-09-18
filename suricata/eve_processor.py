@@ -9,14 +9,14 @@ It continuously reads from Suricata's eve.json file, filters events based on con
 and sends them to the Sycope API for indexing and analysis.
 
 Features:
-- Incremental processing using timestamp tracking
-- Configurable event type filtering (alerts, anomalies, etc.)
-- Whitelist/blacklist support for alerts and anomalies
+- Incremental processing using byte-offset tracking (survives log rotation)
+- Configurable event type filtering (alert, anomaly, and any protocol with a filter_keys entry)
+- Per-event-type whitelist/blacklist support
 - Automatic client/server IP determination based on port numbers
-- Column mapping and data type conversion
+- Column mapping and data type conversion, including list-indexed paths and value flattening
 - Comprehensive logging and error handling
 
-Script version: 2.1
+Script version: 3.0
 Author: Sycope Integration Team
 """
 
@@ -28,6 +28,11 @@ import sys
 from datetime import datetime, timezone
 
 import requests
+
+try:
+    import orjson
+except ImportError:
+    orjson = None
 
 # Add parent directory to path for importing sycope modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -43,44 +48,102 @@ logger = logging.getLogger(__name__)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(SCRIPT_DIR, "config.json")
 
+# Default per-event-type field path used for whitelist/blacklist filtering.
+DEFAULT_FILTER_KEYS = {
+    "alert": ["alert", "signature_id"],
+    "anomaly": ["anomaly", "event"],
+    "smb": ["smb", "command"],
+}
 
-def load_last_ts(path):
+
+def json_loads(line):
+    """Parse a JSON line using orjson if available, otherwise stdlib json."""
+    if orjson is not None:
+        return orjson.loads(line)
+    return json.loads(line)
+
+
+def load_state(path):
     """
-    Load the last processed timestamp from a file.
+    Load the file-tracking state (dev, inode, offset, size, last_timestamp).
 
     Args:
-        path (str): Path to the timestamp file
+        path (str): Path to the state JSON file
 
     Returns:
-        datetime: The last processed timestamp in UTC, or epoch if file doesn't exist
+        dict or None: Parsed state, or None if the file doesn't exist / is invalid
     """
-    logger.debug(f"Loading last timestamp from: {path}")
+    logger.debug(f"Loading processing state from: {path}")
 
     if not os.path.exists(path):
-        logger.debug("Timestamp file does not exist, using epoch")
-        return datetime.fromtimestamp(0, tz=timezone.utc)
+        logger.debug("State file does not exist")
+        return None
 
-    txt = open(path).read().strip()
-    logger.debug(f"Read timestamp text: {txt}")
+    try:
+        with open(path, "r", encoding="utf-8") as fp:
+            state = json.load(fp)
+        logger.debug(f"Loaded state: {state}")
+        return state
+    except (json.JSONDecodeError, OSError) as e:
+        logger.debug(f"Failed to load state file: {e}")
+        return None
 
-    result = datetime.fromisoformat(txt) if txt else datetime.fromtimestamp(0, tz=timezone.utc)
-    logger.debug(f"Parsed timestamp: {result}")
-    return result
 
-
-def save_last_ts(path, dt):
+def save_state(path, state):
     """
-    Save the last processed timestamp to a file.
+    Save the file-tracking state to disk atomically.
+
+    Writes to a temp file in the same directory and renames it over the
+    target path, so a crash mid-write can never leave a truncated/corrupt
+    state.json - os.rename is atomic on the same filesystem, and the reader
+    either sees the old file or the new one, never a partial one.
 
     Args:
-        path (str): Path to the timestamp file
-        dt (datetime): Timestamp to save
+        path (str): Path to the state JSON file
+        state (dict): State to persist
     """
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+    logger.debug(f"Saving processing state to {path}: {state}")
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, "w", encoding="utf-8") as fp:
+        json.dump(state, fp)
+        fp.flush()
+        os.fsync(fp.fileno())
+    os.replace(tmp_path, path)
 
-    logger.debug(f"Saving timestamp to {path}: {dt.isoformat()}")
-    open(path, "w").write(dt.isoformat())
+
+def migrate_legacy_timestamp_state(eve_path, legacy_ts_path):
+    """
+    Build an initial state when upgrading from timestamp-based tracking.
+
+    There is no way to map an old timestamp back to a byte offset safely,
+    so processing resumes from the current end of the file. Events written
+    between the last processed timestamp and now may be skipped once.
+
+    Args:
+        eve_path (str): Path to the live eve.json file
+        legacy_ts_path (str): Path to the old last_timestamp.txt file
+
+    Returns:
+        dict: Initial state positioned at the end of the current file
+    """
+    st = os.stat(eve_path)
+    logging.warning(
+        "Migrating from timestamp-based tracking to offset-based tracking. "
+        f"Starting from the current end of {eve_path} (offset={st.st_size}). "
+        "Events logged between the last processed timestamp and now may be skipped."
+    )
+    try:
+        os.remove(legacy_ts_path)
+    except OSError as e:
+        logger.debug(f"Could not remove legacy timestamp file: {e}")
+
+    return {
+        "dev": st.st_dev,
+        "inode": st.st_ino,
+        "offset": st.st_size,
+        "size": st.st_size,
+        "last_timestamp": None,
+    }
 
 
 def parse_eve_ts(s):
@@ -109,77 +172,86 @@ def parse_eve_ts(s):
     return result
 
 
+def build_prefilter_needles(event_types):
+    """Build the raw-string markers used to cheaply reject uninteresting lines."""
+    return [f'"event_type":"{et}"' for et in event_types]
+
+
+def line_passes_prefilter(line, needles):
+    """
+    Cheap pre-json.loads check: does the raw line contain any of the
+    configured event_type markers? Skips a full parse for lines we would
+    discard anyway (e.g. the bulk of blacklisted SMB traffic).
+    """
+    return any(needle in line for needle in needles)
+
+
 def should_process(ev, cfg, last_dt):
     """
     Determine if an event should be processed based on configuration filters.
 
     Filters events based on:
     - Event type inclusion
-    - Timestamp (only process newer events)
-    - Alert whitelist/blacklist (for alert events)
-    - Anomaly whitelist/blacklist (for anomaly events)
+    - Generic per-event-type whitelist/blacklist (see cfg["filter_keys"])
 
     Args:
         ev (dict): Event dictionary from EVE JSON
         cfg (dict): Configuration dictionary
-        last_dt (datetime): Last processed timestamp
+        last_dt (datetime): Last processed timestamp (telemetry only)
 
     Returns:
         tuple: (should_process: bool, event_timestamp: datetime or None)
     """
+    if not isinstance(ev, dict):
+        logger.debug(f"Event is not a dict, rejecting: {type(ev).__name__}")
+        return False, None
+
     et, ts = ev.get("event_type"), ev.get("timestamp", False)
 
     if not et or not ts:
         logger.debug(f"Missing event_type or timestamp: event_type={et}, timestamp={ts}")
         return False, None
 
-    dt = parse_eve_ts(ts)
-
-    if dt <= last_dt:
-        logger.debug(f"Event too old: {dt} <= {last_dt}")
-        return False, dt
+    try:
+        dt = parse_eve_ts(ts)
+    except (ValueError, TypeError) as e:
+        # A malformed timestamp must not crash the whole run - that would
+        # stop the offset from ever advancing past this line, wedging
+        # ingestion at this exact byte offset on every subsequent cycle.
+        # Treat it like any other invalid/unusable event instead.
+        logger.debug(f"Unparseable timestamp, rejecting event: {ts!r} - {e}")
+        return False, None
 
     if et not in cfg["event_types"]:
         logger.debug(f"Event type not in allowed types: {et} not in {cfg['event_types']}")
         return False, dt
 
-    # Check alert filtering rules
-    if et == "alert":
-        sid = ev.get("alert", {}).get("signature_id")
-        logger.debug(f"Alert event: signature_id={sid}")
+    filter_path = cfg.get("filter_keys", {}).get(et)
+    if filter_path:
+        val = ev
+        for key in filter_path:
+            if not isinstance(val, dict):
+                val = None
+                break
+            val = val.get(key)
+        logger.debug(f"{et} filter value at {filter_path}: {val}")
 
-        if sid is None:
-            logger.debug("Alert rejected: signature_id is None")
+        if val is None:
+            logger.debug(f"{et} rejected: filter value is None")
             return False, dt
 
-        if cfg["alert_whitelist"] and sid not in cfg["alert_whitelist_set"]:
-            logger.debug(f"Alert rejected: sid {sid} not in whitelist")
+        whitelist_set = cfg.get(f"{et}_whitelist_set")
+        blacklist_set = cfg.get(f"{et}_blacklist_set")
+
+        if whitelist_set and val not in whitelist_set:
+            logger.debug(f"{et} rejected: {val} not in whitelist")
             return False, dt
 
-        if not cfg["alert_whitelist"] and sid in cfg["alert_blacklist_set"]:
-            logger.debug(f"Alert rejected: sid {sid} in blacklist")
+        if not whitelist_set and blacklist_set and val in blacklist_set:
+            logger.debug(f"{et} rejected: {val} in blacklist")
             return False, dt
 
-        logger.debug(f"Alert accepted: sid={sid}")
-
-    # Check anomaly filtering rules
-    if et == "anomaly":
-        name = ev.get("anomaly", {}).get("event")
-        logger.debug(f"Anomaly event: name={name}")
-
-        if name is None:
-            logger.debug("Anomaly rejected: event name is None")
-            return False, dt
-
-        if cfg["anomaly_whitelist"] and name not in cfg["anomaly_whitelist_set"]:
-            logger.debug(f"Anomaly rejected: name {name} not in whitelist")
-            return False, dt
-
-        if not cfg["anomaly_whitelist"] and name in cfg["anomaly_blacklist_set"]:
-            logger.debug(f"Anomaly rejected: name {name} in blacklist")
-            return False, dt
-
-        logger.debug(f"Anomaly accepted: name={name}")
+        logger.debug(f"{et} accepted: filter value={val}")
 
     logger.debug(f"Event accepted: type={et}, timestamp={dt}")
     return True, dt
@@ -224,6 +296,62 @@ def action_convert_time(val):
         return None
 
 
+def flatten_value(val):
+    """
+    Flatten a value into something the Sycope custom index can store.
+
+    Lists become comma-joined strings, booleans become "true"/"false",
+    and dicts (nested structures aren't supported by index columns) become
+    None. Everything else passes through unchanged.
+
+    Args:
+        val: Raw value extracted from the event
+
+    Returns:
+        A scalar value safe to insert as a column value.
+    """
+    if isinstance(val, bool):
+        return "true" if val else "false"
+    if isinstance(val, list):
+        return ",".join(str(v) for v in val)
+    if isinstance(val, dict):
+        return None
+    return val
+
+
+def resolve_path(ev, path):
+    """
+    Navigate a nested dict/list structure following a path of keys/indices.
+
+    A string segment is a dict key lookup; an int segment is a list index.
+    Any missing key, out-of-range index, or type mismatch along the way
+    returns None instead of raising.
+
+    Args:
+        ev: Root object to navigate (typically the event dict)
+        path (list): Sequence of str (dict key) or int (list index) segments
+
+    Returns:
+        The resolved value, or None if the path can't be fully followed.
+    """
+    val = ev
+    for key in path:
+        if isinstance(key, int):
+            if not isinstance(val, list):
+                return None
+            try:
+                val = val[key]
+            except IndexError:
+                return None
+        else:
+            if not isinstance(val, dict):
+                return None
+            val = val.get(key)
+        if val is None:
+            return None
+    return val
+
+
 def build_row(ev, column_names, column_mapping, cols_idxs, column_actions=None):
     """
     Build a row for database insertion from an EVE event.
@@ -258,20 +386,16 @@ def build_row(ev, column_names, column_mapping, cols_idxs, column_actions=None):
     for col in column_names:
         if col in row_map:
             if row_map[col]:
-                # Navigate nested dictionary structure
-                val = ev
-                path = row_map[col]
-                for key in path:
-                    val = val.get(key, None)
-                    if val is None:
-                        break
-                logger.debug(f"  Column {col}: path={path} -> {val}")
+                val = resolve_path(ev, row_map[col])
+                logger.debug(f"  Column {col}: path={row_map[col]} -> {val}")
             else:
                 val = None
                 logger.debug(f"  Column {col}: computed field (empty path)")
         else:
             val = ev.get(col) or None
             logger.debug(f"  Column {col}: direct lookup -> {val}")
+
+        val = flatten_value(val)
 
         # Apply column-specific transformations
         if col in column_actions:
@@ -280,7 +404,14 @@ def build_row(ev, column_names, column_mapping, cols_idxs, column_actions=None):
                 val = column_actions[col](val)
                 logger.debug(f"  Column {col}: action applied: {old_val} -> {val}")
             except Exception as e:
-                logging.debug(f"Column action failed for {col}: {val} - {e}")
+                # Visible at the default log level - a column action
+                # failing systemically (e.g. a Suricata field changing
+                # shape) would otherwise only show up as a rising
+                # "Invalid" count in the summary line, with no clue which
+                # column or value caused it short of enabling debug logs.
+                logging.warning(
+                    f"Column action failed for '{col}' (event_type={et}): value={val!r} - {e}"
+                )
                 raise
 
         row.append(val)
@@ -348,23 +479,24 @@ def initialize_config():
                 "suricata_eve_json_path",
                 "event_types",
             ],
-            list_to_set_fields=[
-                "alert_whitelist",
-                "alert_blacklist",
-                "anomaly_whitelist",
-                "anomaly_blacklist",
-            ],
         )
+
+        cfg.setdefault("filter_keys", DEFAULT_FILTER_KEYS)
+
+        # Build a whitelist/blacklist set for every event type that has a
+        # filter_keys entry and a corresponding list in config.json.
+        for et in cfg["filter_keys"]:
+            for kind in ("whitelist", "blacklist"):
+                list_key = f"{et}_{kind}"
+                set_key = f"{list_key}_set"
+                cfg[set_key] = set(cfg.get(list_key, []))
 
         logger.debug("Configuration loaded successfully:")
         logger.debug(f"  Sycope host: {cfg['sycope_host']}")
         logger.debug(f"  Index name: {cfg['index_name']}")
         logger.debug(f"  EVE JSON path: {cfg['suricata_eve_json_path']}")
         logger.debug(f"  Event types: {cfg['event_types']}")
-        logger.debug(f"  Alert whitelist count: {len(cfg.get('alert_whitelist', []))}")
-        logger.debug(f"  Alert blacklist count: {len(cfg.get('alert_blacklist', []))}")
-        logger.debug(f"  Anomaly whitelist count: {len(cfg.get('anomaly_whitelist', []))}")
-        logger.debug(f"  Anomaly blacklist count: {len(cfg.get('anomaly_blacklist', []))}")
+        logger.debug(f"  Filter keys: {cfg['filter_keys']}")
 
     except Exception as e:
         logging.error(f"Failed to load config: {e}")
@@ -455,11 +587,88 @@ def setup_column_mapping(fields):
             "event_category": ["alert", "category"],
             "alert_severity": ["alert", "severity"],
         },
+        "tls": {
+            "tls_ja4": ["tls", "ja4"],
+            "tls_client_alpns": ["tls", "client_alpns"],
+            "tls_subjectaltname": ["tls", "subjectaltname"],
+        },
+        "smb": {
+            "smb_command": ["smb", "command"],
+            "smb_status": ["smb", "status"],
+            "smb_dialect": ["smb", "dialect"],
+            "smb_session_id": ["smb", "session_id"],
+            "smb_tree_id": ["smb", "tree_id"],
+            "smb_access": ["smb", "access"],
+            "smb_filename": ["smb", "filename"],
+        },
+        "krb5": {
+            "krb5_msg_type": ["krb5", "msg_type"],
+            "krb5_cname": ["krb5", "cname"],
+            "krb5_realm": ["krb5", "realm"],
+            "krb5_sname": ["krb5", "sname"],
+            "krb5_encryption": ["krb5", "encryption"],
+            "krb5_weak_encryption": ["krb5", "weak_encryption"],
+        },
+        "dhcp": {
+            "dhcp_type": ["dhcp", "dhcp_type"],
+            "dhcp_client_mac": ["dhcp", "client_mac"],
+            "dhcp_assigned_ip": ["dhcp", "assigned_ip"],
+            "dhcp_hostname": ["dhcp", "hostname"],
+        },
+        "snmp": {
+            "snmp_version": ["snmp", "version"],
+            "snmp_pdu_type": ["snmp", "pdu_type"],
+            "snmp_community": ["snmp", "community"],
+        },
+        "dcerpc": {
+            "dcerpc_request": ["dcerpc", "request"],
+            "dcerpc_call_id": ["dcerpc", "call_id"],
+            "dcerpc_interfaces": ["dcerpc", "interfaces"],
+        },
+        "ssh": {
+            "ssh_client_software": ["ssh", "client", "software_version"],
+            "ssh_server_software": ["ssh", "server", "software_version"],
+        },
+        "smtp": {
+            "smtp_helo": ["smtp", "helo"],
+            "smtp_mail_from": ["smtp", "mail_from"],
+            "smtp_rcpt_to": ["smtp", "rcpt_to"],
+        },
+        "rdp": {
+            "rdp_protocol": ["rdp", "protocol"],
+            "rdp_cookie": ["rdp", "cookie"],
+        },
+        "sip": {
+            "sip_method": ["sip", "method"],
+            "sip_uri": ["sip", "uri"],
+        },
+        "nfs": {
+            "nfs_procedure": ["nfs", "procedure"],
+            "nfs_filename": ["nfs", "filename"],
+        },
+        "ftp": {
+            "ftp_command": ["ftp", "command"],
+            "ftp_reply": ["ftp", "reply"],
+        },
+        "tftp": {
+            "tftp_packet": ["tftp", "packet"],
+            "tftp_file": ["tftp", "file"],
+        },
+        "telnet": {
+            "telnet_data": ["telnet", "data"],
+        },
+        "ldap": {
+            "ldap_operation": ["ldap", "request", "operation"],
+            "ldap_bind_name": ["ldap", "request", "bind_request", "name"],
+            "ldap_bind_sasl_mechanism": ["ldap", "request", "bind_request", "sasl", "mechanism"],
+            "ldap_bind_result_code": ["ldap", "responses", 0, "bind_response", "result_code"],
+        },
+        "pop3": {
+            "pop3_command": ["pop3", "command"],
+        },
     }
 
-    logger.debug(
-        f"Column mapping defined: common={len(column_map['common'])}, anomaly={len(column_map['anomaly'])}, alert={len(column_map['alert'])}"
-    )
+    logger.debug(f"Column mapping defined for types: {list(column_map.keys())}")
 
     # Get column indices for client/server determination
     cols_idxs = [
@@ -489,75 +698,311 @@ def setup_column_mapping(fields):
     return columns, column_map, cols_idxs, column_actions
 
 
-def process_log_file(cfg, columns, column_map, cols_idxs, column_actions, last_dt):
-    """Process EVE JSON log file and return rows and statistics."""
-    eve_path = cfg["suricata_eve_json_path"]
-    logger.debug(f"Processing EVE log file: {eve_path}")
-    logger.debug(f"Last processed timestamp: {last_dt}")
+def stat_or_none(path):
+    """os.stat() that returns None instead of raising when the path is missing."""
+    try:
+        return os.stat(path)
+    except OSError:
+        return None
 
-    max_dt = last_dt
+
+MAX_ROTATION_DEPTH = 5
+
+
+def find_matching_rotated_file(eve_path, dev, inode, max_depth=MAX_ROTATION_DEPTH):
+    """
+    Find which numbered rotated file (eve.json.1 .. eve.json.N) has the
+    given (dev, inode), i.e. is the file we were previously tracking
+    before one or more logrotate cycles moved it along the .1, .2, ...
+    chain.
+
+    Args:
+        eve_path (str): Path to the live eve.json file
+        dev, inode: Identity of the file to find
+        max_depth (int): How many numbered files to check before giving up
+
+    Returns:
+        tuple: (path, stat) of the matching file, or (None, None) if not found
+    """
+    for n in range(1, max_depth + 1):
+        candidate = f"{eve_path}.{n}"
+        candidate_stat = stat_or_none(candidate)
+        if candidate_stat and candidate_stat.st_ino == inode and candidate_stat.st_dev == dev:
+            return candidate, candidate_stat
+    return None, None
+
+
+def is_rotation(prev_state, st):
+    """
+    Decide whether the current file stat indicates a rotation relative to
+    the previously saved state.
+
+    Different inode -> rotated via 'create'. Same inode but smaller size
+    -> truncated in place ('copytruncate').
+    """
+    if prev_state is None:
+        return False
+    if st.st_ino != prev_state["inode"] or st.st_dev != prev_state["dev"]:
+        return True
+    if st.st_size < prev_state["offset"]:
+        return True
+    return False
+
+
+DEFAULT_MAX_BYTES_PER_CYCLE = 256 * 1024 * 1024  # 256 MB
+
+
+def read_new_lines(path, start_offset, max_bytes=DEFAULT_MAX_BYTES_PER_CYCLE):
+    """
+    Read whole lines from `path` starting at `start_offset`, capped at
+    `max_bytes` per call.
+
+    Reading the entire unprocessed tail in one shot has no upper bound - if
+    the processor falls behind (crashed, API down, disk full) for long
+    enough, the backlog can grow to multiple GB, and reading all of it at
+    once risks exhausting memory and building a single inject_data payload
+    too large for the API. Capping the read means a large backlog is
+    drained gradually over several cycles instead of in one attempt.
+
+    Any trailing partial line (no terminating newline, e.g. a write still
+    in progress) is not returned and not counted towards the new offset.
+
+    Args:
+        path (str): File to read
+        start_offset (int): Byte offset to seek to before reading
+        max_bytes (int): Upper bound on bytes read in this call
+
+    Returns:
+        tuple: (list of decoded lines without newline, new_offset)
+    """
+    with open(path, "rb") as f:
+        f.seek(start_offset)
+        data = f.read(max_bytes)
+
+    lines = []
+    consumed = 0
+    start = 0
+    while True:
+        nl = data.find(b"\n", start)
+        if nl == -1:
+            break
+        raw_line = data[start:nl]
+        lines.append(raw_line.decode("utf-8", errors="replace"))
+        consumed = nl + 1
+        start = nl + 1
+
+    offset = start_offset + consumed
+    return lines, offset
+
+
+def process_file_from(path, start_offset, cfg, columns, column_map, cols_idxs, column_actions, prefilter_needles):
+    """
+    Read and process all complete lines in `path` starting at `start_offset`.
+
+    Returns:
+        tuple: (rows, counts dict, new_offset, max_timestamp or None)
+    """
+    lines, new_offset = read_new_lines(path, start_offset)
+
     rows = []
-    counts = {"processed": 0, "skipped": 0, "invalid": 0}
-    line_count = 0
+    counts = {"processed": 0, "skipped": 0, "invalid": 0, "prefiltered": 0}
+    max_dt = None
 
-    with open(eve_path) as f:
-        for line in f:
-            line_count += 1
-            line = line.strip()
-            if not line:
-                continue
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
 
-            # Parse JSON event
-            try:
-                ev = json.loads(line)
-            except json.JSONDecodeError as e:
-                counts["skipped"] += 1
-                logger.debug(f"Line {line_count}: JSON decode error: {e}")
-                continue
+        if not line_passes_prefilter(line, prefilter_needles):
+            counts["prefiltered"] += 1
+            continue
 
-            # Apply filters and timestamp checks
-            ok, dt = should_process(ev, cfg, last_dt)
-            if dt and dt > max_dt:
-                max_dt = dt
-            if not ok:
-                counts["skipped"] += 1
-                continue
+        try:
+            ev = json_loads(line)
+        except ValueError as e:
+            counts["skipped"] += 1
+            logger.debug(f"JSON decode error: {e}")
+            continue
 
-            # Build database row from event
-            try:
-                row = build_row(ev, columns, column_map, cols_idxs, column_actions)
-            except Exception as e:
-                counts["invalid"] += 1
-                logger.debug(f"Line {line_count}: Row build failed: {e}")
-            else:
-                rows.append(row)
-                counts["processed"] += 1
+        try:
+            ok, dt = should_process(ev, cfg, max_dt or datetime.fromtimestamp(0, tz=timezone.utc))
+        except Exception as e:
+            # Any unexpected shape (e.g. a valid JSON line that isn't a
+            # dict) must not crash the run - see the poison-pill note on
+            # parse_eve_ts above for why: a crash here would wedge the
+            # offset at this line forever.
+            counts["skipped"] += 1
+            logger.debug(f"should_process failed unexpectedly: {e}")
+            continue
+        if dt and (max_dt is None or dt > max_dt):
+            max_dt = dt
+        if not ok:
+            counts["skipped"] += 1
+            continue
 
-            # Log progress every 1000 lines
-            if line_count % 1000 == 0:
-                logger.debug(
-                    f"Progress: {line_count} lines read, {counts['processed']} processed, {counts['skipped']} skipped"
-                )
+        try:
+            row = build_row(ev, columns, column_map, cols_idxs, column_actions)
+        except Exception as e:
+            counts["invalid"] += 1
+            logger.debug(f"Row build failed: {e}")
+        else:
+            rows.append(row)
+            counts["processed"] += 1
 
-    logger.debug("File processing complete:")
-    logger.debug(f"  Total lines read: {line_count}")
-    logger.debug(f"  Processed: {counts['processed']}")
-    logger.debug(f"  Skipped: {counts['skipped']}")
-    logger.debug(f"  Invalid: {counts['invalid']}")
-    logger.debug(f"  Max timestamp: {max_dt}")
-
-    return rows, counts, max_dt
+    return rows, counts, new_offset, max_dt
 
 
-def update_timestamp(last_ts_file, max_dt, last_dt):
-    """Update timestamp tracking file if needed."""
-    logger.debug(f"Checking timestamp update: max_dt={max_dt}, last_dt={last_dt}")
+def process_log_file(cfg, columns, column_map, cols_idxs, column_actions, state):
+    """
+    Process the EVE JSON log file (and, on rotation, the tail of the
+    previous file) starting from the saved offset.
 
-    if max_dt > last_dt:
-        save_last_ts(last_ts_file, max_dt)
-        logging.info(f"Saved new timestamp: {max_dt.isoformat()}")
+    Args:
+        cfg (dict): Configuration dictionary
+        columns, column_map, cols_idxs, column_actions: from setup_column_mapping()
+        state (dict): Previously saved {dev, inode, offset, size, last_timestamp}
+
+    Returns:
+        tuple: (rows, counts, new_state)
+    """
+    eve_path = cfg["suricata_eve_json_path"]
+    prefilter_needles = build_prefilter_needles(cfg["event_types"])
+
+    all_rows = []
+    total_counts = {"processed": 0, "skipped": 0, "invalid": 0, "prefiltered": 0}
+    max_dt = None
+
+    def merge_counts(c):
+        for k in total_counts:
+            total_counts[k] += c.get(k, 0)
+
+    def track_max_dt(dt):
+        nonlocal max_dt
+        if dt and (max_dt is None or dt > max_dt):
+            max_dt = dt
+
+    def process_one_file(path, start_offset, is_backlog_entry):
+        """
+        Read one file (bounded by the per-cycle byte cap) and merge its
+        results into the running totals.
+
+        Returns True if the file was fully drained (reached EOF within
+        the cap), False if there's more left to read next cycle.
+        """
+        rows, counts, new_offset, dt = process_file_from(
+            path, start_offset, cfg, columns, column_map, cols_idxs, column_actions, prefilter_needles
+        )
+        all_rows.extend(rows)
+        merge_counts(counts)
+        track_max_dt(dt)
+        current_size = os.stat(path).st_size if is_backlog_entry else None
+        return new_offset, current_size
+
+    # backlog: files queued from a previous cycle that didn't finish within
+    # the read cap, in the order they must be read (oldest rotated file
+    # first, ending with the live eve.json). Persisted in state so a large
+    # multi-rotation backlog drains gradually across cycles instead of
+    # trying to read everything in one shot.
+    backlog = list((state or {}).get("pending_backlog", []))
+
+    # Drain queued backlog files in order. Each file is still read through
+    # the per-call byte cap (process_one_file -> read_new_lines), so a
+    # single huge file can't blow the cycle's memory budget; but once a
+    # file is *fully* consumed we move straight on to the next queued file
+    # in the same cycle instead of waiting a full extra cycle to notice
+    # there was nothing left in it (e.g. a rotated file already drained by
+    # a previous run's tail-read).
+    while backlog:
+        entry = backlog[0]
+        entry_stat = stat_or_none(entry["path"])
+        if entry_stat and entry_stat.st_ino == entry["inode"] and entry_stat.st_dev == entry["dev"]:
+            new_offset, size = process_one_file(entry["path"], entry["offset"], is_backlog_entry=True)
+            if new_offset < size:
+                backlog[0]["offset"] = new_offset
+                break
+            backlog.pop(0)
+        else:
+            logging.warning(
+                f"Queued backlog file {entry['path']} no longer matches what was being drained "
+                "(rotated again before we finished it). Dropping it from the backlog; some events "
+                "may be lost."
+            )
+            backlog.pop(0)
+
+    if backlog:
+        # Still work queued - persist progress and stop; don't touch
+        # the live file's own state until the backlog is empty.
+        new_state = dict(state)
+        new_state["pending_backlog"] = backlog
+        new_state["last_timestamp"] = max_dt.isoformat() if max_dt else state.get("last_timestamp")
+        return all_rows, total_counts, new_state
+    elif (state or {}).get("pending_backlog"):
+        # Backlog fully drained - fall through to check/process the live file.
+        state = dict(state)
+        state.pop("pending_backlog", None)
+
+    st = os.stat(eve_path)
+    rotated = is_rotation(state, st)
+
+    if rotated and state is not None:
+        match_path, match_stat = find_matching_rotated_file(eve_path, state["dev"], state["inode"])
+        if match_path:
+            # Figure out which numbered rotated files sit between the one
+            # we were tracking and the live file, and queue them in order
+            # (oldest first) so nothing in between is skipped.
+            depth = int(match_path.rsplit(".", 1)[-1])
+            new_backlog = [{"path": match_path, "dev": match_stat.st_dev, "inode": match_stat.st_ino, "offset": state["offset"]}]
+            for n in range(depth - 1, 0, -1):
+                p = f"{eve_path}.{n}"
+                p_stat = stat_or_none(p)
+                if p_stat:
+                    new_backlog.append({"path": p, "dev": p_stat.st_dev, "inode": p_stat.st_ino, "offset": 0})
+
+            while new_backlog:
+                entry = new_backlog[0]
+                new_offset, size = process_one_file(entry["path"], entry["offset"], is_backlog_entry=True)
+                if new_offset < size:
+                    new_backlog[0]["offset"] = new_offset
+                    break
+                new_backlog.pop(0)
+
+            if new_backlog:
+                new_state = {
+                    "dev": state["dev"],
+                    "inode": state["inode"],
+                    "offset": state["offset"],
+                    "size": state["size"],
+                    "pending_backlog": new_backlog,
+                    "last_timestamp": max_dt.isoformat() if max_dt else state.get("last_timestamp"),
+                }
+                return all_rows, total_counts, new_state
+            # Whole backlog drained in this one cycle - fall through to the live file.
+        else:
+            logging.warning(
+                f"Rotation detected but no eve.json.1..{MAX_ROTATION_DEPTH} matches the previously "
+                "tracked file (processor may have missed more rotations than that). Skipping to the "
+                "current file; some events may be lost."
+            )
+        start_offset = 0
     else:
-        logger.debug("No timestamp update needed (max_dt <= last_dt)")
+        start_offset = state["offset"] if state else 0
+
+    rows, counts, new_offset, dt = process_file_from(
+        eve_path, start_offset, cfg, columns, column_map, cols_idxs, column_actions, prefilter_needles
+    )
+    all_rows.extend(rows)
+    merge_counts(counts)
+    track_max_dt(dt)
+
+    new_state = {
+        "dev": st.st_dev,
+        "inode": st.st_ino,
+        "offset": new_offset,
+        "size": st.st_size,
+        "last_timestamp": max_dt.isoformat() if max_dt else (state or {}).get("last_timestamp"),
+    }
+
+    return all_rows, total_counts, new_state
 
 
 def main():
@@ -580,11 +1025,16 @@ def main():
     logger.debug(f"Config path: {CONFIG_PATH}")
     logger.debug("=" * 60)
 
-    # Initialize timestamp tracking
-    last_ts_file = os.path.join(SCRIPT_DIR, cfg.get("last_timestamp_file", "last_timestamp.txt"))
-    logger.debug(f"Timestamp file: {last_ts_file}")
-    last_dt = load_last_ts(last_ts_file)
-    logger.debug(f"Last processed timestamp: {last_dt}")
+    # Initialize offset-based state, migrating from the legacy timestamp file if needed
+    state_file = os.path.join(SCRIPT_DIR, cfg.get("state_file", "state.json"))
+    legacy_ts_file = os.path.join(SCRIPT_DIR, cfg.get("last_timestamp_file", "last_timestamp.txt"))
+
+    state = load_state(state_file)
+    if state is None and os.path.exists(legacy_ts_file):
+        state = migrate_legacy_timestamp_state(cfg["suricata_eve_json_path"], legacy_ts_file)
+        save_state(state_file, state)
+
+    logger.debug(f"Processing state: {state}")
 
     # Setup API connection
     session, api = setup_api_connection(cfg)
@@ -601,11 +1051,12 @@ def main():
 
         # Process log file
         logger.debug("Starting log file processing...")
-        rows, counts, max_dt = process_log_file(cfg, columns, column_map, cols_idxs, column_actions, last_dt)
+        rows, counts, new_state = process_log_file(cfg, columns, column_map, cols_idxs, column_actions, state)
 
         # Log processing statistics
         logging.info(
-            f"Processed={counts['processed']} Skipped={counts['skipped']} Invalid={counts['invalid']}"
+            f"Processed={counts['processed']} Skipped={counts['skipped']} "
+            f"Invalid={counts['invalid']} Prefiltered={counts['prefiltered']}"
         )
 
         # Inject data using API method
@@ -617,8 +1068,9 @@ def main():
             logging.info("No valid rows to inject")
             logger.debug("Skipping injection - no rows")
 
-        # Update timestamp
-        update_timestamp(last_ts_file, max_dt, last_dt)
+        # Persist new state only after a successful injection
+        save_state(state_file, new_state)
+        logger.debug(f"Saved new state: {new_state}")
 
     except SycopeError as e:
         logging.error(f"Sycope API error: {e}")
