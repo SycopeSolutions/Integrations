@@ -74,6 +74,19 @@ SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword python3 sycope_check.py ...
 
 > **Note:** The config file is read at script startup via `load_config_file()`. Environment variables set before the script runs take precedence over the config file (`os.environ.setdefault` is used, so existing env vars are never overwritten).
 
+**Session reuse (version 1.1)**
+
+All checks share one Sycope session instead of logging in and out on every check. With 33 items per host, this saves dozens of logins per host per polling cycle and keeps checks within the Zabbix `Timeout`. The session cookie is cached in a file readable only by the Zabbix user. When Sycope invalidates the session (for example after a restart), the script logs in again and repeats the check once.
+
+Optional settings, in `/etc/zabbix/sycope.conf` or the environment:
+
+| Setting | Default | Description |
+|---|---|---|
+| `SYCOPE_SESSION_TTL` | `600` | Seconds a session is reused. `0` restores the version 1.0 behaviour (log in and out on every check). |
+| `SYCOPE_SESSION_DIR` | system temp directory | Directory of the cache file `sycope_check_<hash>.session`. Must be writable by the Zabbix user. |
+
+If the credentials are wrong, every item returns `{"error": "Sycope login failed (HTTP 400) Invalid username or password."}`.
+
 ### 3. Import the Zabbix template
 
 In Zabbix: **Data Collection → Templates → Import**

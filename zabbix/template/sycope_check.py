@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Sycope Monitoring - Zabbix External Check Script
-Version: 1.0
+Version: 1.1
 Tested with Sycope 3.x API
 
 Usage:
@@ -13,9 +13,14 @@ Check types:
   matched_ips       <last_minutes>
   connections       <last_minutes>
 
-Credentials via environment variables:
+Credentials via environment variables (or /etc/zabbix/sycope.conf):
   SYCOPE_USER
   SYCOPE_PASSWORD
+
+Session reuse (optional settings, same places):
+  SYCOPE_SESSION_TTL   seconds a Sycope session is reused by all checks (default 600, 0 = log in
+                       and out on every check, the behaviour of version 1.0)
+  SYCOPE_SESSION_DIR   directory of the session cache file (default: system temp directory)
 
 Returns JSON: {"value": <int>, "message": "<str>"}
 """
@@ -24,6 +29,8 @@ import sys
 import os
 import json
 import time
+import hashlib
+import tempfile
 import urllib.request
 import urllib.error
 import ssl
@@ -85,12 +92,75 @@ def api_get(base_url, path, cookie=None):
 
 def login(base_url, user, password):
     payload = {"username": user, "password": password}
-    resp, set_cookie = api_post(base_url, "/npm/api/v1/login", payload)
+    try:
+        resp, set_cookie = api_post(base_url, "/npm/api/v1/login", payload)
+    except urllib.error.HTTPError as e:
+        try:
+            detail = json.loads(e.read().decode('utf-8', 'replace')).get('message', '')
+        except Exception:
+            detail = ''
+        raise RuntimeError(f"Sycope login failed (HTTP {e.code}) {detail}".strip())
     # Extract session cookie
     cookie = None
     if set_cookie:
         cookie = set_cookie.split(';')[0]
     return cookie
+
+def session_ttl():
+    try:
+        return max(0, int(os.environ.get('SYCOPE_SESSION_TTL', '600')))
+    except ValueError:
+        return 600
+
+def session_cache_path(base_url, user):
+    key = hashlib.sha256(f"{base_url}|{user}".encode('utf-8')).hexdigest()[:16]
+    directory = os.environ.get('SYCOPE_SESSION_DIR') or tempfile.gettempdir()
+    return os.path.join(directory, f"sycope_check_{key}.session")
+
+def load_cached_cookie(path, ttl):
+    """Session cookie saved by a previous check, or None when missing/expired/unreadable."""
+    try:
+        if time.time() - os.path.getmtime(path) >= ttl:
+            return None
+        with open(path) as f:
+            return f.read().strip() or None
+    except OSError:
+        return None
+
+def save_cookie(path, cookie):
+    """Store the cookie atomically, readable only by the Zabbix user (it is a session token)."""
+    tmp = f"{path}.{os.getpid()}.tmp"
+    try:
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, 'w') as f:
+            f.write(cookie)
+        os.replace(tmp, path)
+    except OSError:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+def drop_cookie(path):
+    try:
+        os.unlink(path)
+    except OSError:
+        pass
+
+def is_auth_error(exc):
+    """True when Sycope rejected the request because the session is no longer valid.
+    An expired session gets HTTP 401; the first request after it was invalidated may get
+    HTTP 400 "Invalid username or password."."""
+    if not isinstance(exc, urllib.error.HTTPError):
+        return False
+    if exc.code == 401:
+        return True
+    if exc.code == 400:
+        try:
+            return 'invalid username or password' in exc.read().decode('utf-8', 'replace').lower()
+        except Exception:
+            return False
+    return False
 
 def logout(base_url, cookie):
     try:
@@ -258,6 +328,41 @@ def check_connections(base_url, cookie, ip, last_minutes):
         results[f"Public_{name}"] = pub
     return results
 
+def run_check(base_url, cookie, check_type, monitored_ip, extra):
+    if check_type in ("alert_count", "alert_count_msg"):
+        alert_name = extra[0] if len(extra) > 0 else ""
+        include_client = extra[1] if len(extra) > 1 else "true"
+        last_minutes = int(extra[2]) if len(extra) > 2 else 15
+        result = check_alert_count(base_url, cookie, monitored_ip, alert_name, include_client, last_minutes)
+        return result
+
+    elif check_type in ("active_services", "active_services_msg"):
+        last_days = int(extra[0]) if len(extra) > 0 else 7
+        disable_nat = extra[1] if len(extra) > 1 else "true"
+        result = check_active_services(base_url, cookie, monitored_ip, last_days, disable_nat)
+        return result
+
+    elif check_type == "matched_ips":
+        last_minutes = int(extra[0]) if len(extra) > 0 else 60
+        result = check_matched_ips(base_url, cookie, monitored_ip, last_minutes)
+        return result
+
+    elif check_type == "connections":
+        last_minutes = int(extra[0]) if len(extra) > 0 else 30
+        result = check_connections(base_url, cookie, monitored_ip, last_minutes)
+        return result
+
+    elif check_type in ("any_alerts", "any_alerts_msg"):
+        # extra[0] = minutes, extra[1] = optional severity suffix (ignored - preprocessing handles extraction)
+        last_minutes = int(extra[0]) if len(extra) > 0 and extra[0].isdigit() else 15
+        result = check_any_alerts(base_url, cookie, monitored_ip, last_minutes)
+        return result
+
+    else:
+        raise ValueError(f"Unknown check_type: {check_type}")
+
+
+
 def main():
     if len(sys.argv) < 4:
         print(json.dumps({"error": "Usage: sycope_check.py <sycope_ip> <check_type> <monitored_ip> [args...]"}))
@@ -271,47 +376,35 @@ def main():
     base_url = f"https://{sycope_ip}"
     user, password = get_credentials()
 
+    ttl = session_ttl()
+    cache = session_cache_path(base_url, user)
     cookie = None
     try:
-        cookie = login(base_url, user, password)
-        if check_type in ("alert_count", "alert_count_msg"):
-            alert_name = extra[0] if len(extra) > 0 else ""
-            include_client = extra[1] if len(extra) > 1 else "true"
-            last_minutes = int(extra[2]) if len(extra) > 2 else 15
-            result = check_alert_count(base_url, cookie, monitored_ip, alert_name, include_client, last_minutes)
-            print(json.dumps(result))
-
-        elif check_type in ("active_services", "active_services_msg"):
-            last_days = int(extra[0]) if len(extra) > 0 else 7
-            disable_nat = extra[1] if len(extra) > 1 else "true"
-            result = check_active_services(base_url, cookie, monitored_ip, last_days, disable_nat)
-            print(json.dumps(result))
-
-        elif check_type == "matched_ips":
-            last_minutes = int(extra[0]) if len(extra) > 0 else 60
-            result = check_matched_ips(base_url, cookie, monitored_ip, last_minutes)
-            print(json.dumps(result))
-
-        elif check_type == "connections":
-            last_minutes = int(extra[0]) if len(extra) > 0 else 30
-            result = check_connections(base_url, cookie, monitored_ip, last_minutes)
-            print(json.dumps(result))
-
-        elif check_type in ("any_alerts", "any_alerts_msg"):
-            # extra[0] = minutes, extra[1] = optional severity suffix (ignored - preprocessing handles extraction)
-            last_minutes = int(extra[0]) if len(extra) > 0 and extra[0].isdigit() else 15
-            result = check_any_alerts(base_url, cookie, monitored_ip, last_minutes)
-            print(json.dumps(result))
-
-        else:
-            print(json.dumps({"error": f"Unknown check_type: {check_type}"}))
-            sys.exit(1)
+        cookie = load_cached_cookie(cache, ttl) if ttl else None
+        cached = cookie is not None
+        if not cached:
+            cookie = login(base_url, user, password)
+            if ttl and cookie:
+                save_cookie(cache, cookie)
+        try:
+            result = run_check(base_url, cookie, check_type, monitored_ip, extra)
+        except Exception as e:
+            if not (cached and is_auth_error(e)):
+                raise
+            # cached session expired or was invalidated: log in again once and repeat the check
+            drop_cookie(cache)
+            cookie = login(base_url, user, password)
+            if cookie:
+                save_cookie(cache, cookie)
+            result = run_check(base_url, cookie, check_type, monitored_ip, extra)
+        print(json.dumps(result))
 
     except Exception as e:
         print(json.dumps({"error": str(e)}))
         sys.exit(1)
     finally:
-        if cookie:
+        # a cached session stays open for the next checks; without caching, log out as before
+        if cookie and not ttl:
             logout(base_url, cookie)
 
 if __name__ == "__main__":
