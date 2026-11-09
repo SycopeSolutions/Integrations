@@ -39,7 +39,8 @@ def request(api: SycopeApi, method: str, path: str, payload: Any = None, ok=(200
     if method in ("POST", "PUT") and not isinstance(payload, dict):
         # SycopeApi._make_request only accepts dict payloads; send lists directly.
         logger.debug(f"{method} {url} (list payload)")
-        resp = getattr(api.session, method.lower())(url, json=payload, verify=False)
+        resp = getattr(api.session, method.lower())(url, json=payload, verify=False,
+                                                  timeout=getattr(api, "timeout", (5, 60)))
     else:
         resp = api._make_request(method, url, json_payload=payload, operation_name=f"{method} {path}")
     if resp.status_code not in ok:

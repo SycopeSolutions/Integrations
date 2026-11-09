@@ -15,6 +15,25 @@ from .exceptions import SycopeApiError, SycopeAuthError
 
 logger = logging.getLogger(__name__)
 
+# Header and body keys whose values carry credentials or session tokens. Their
+# values are replaced before anything is written to the debug log.
+_SENSITIVE_KEY_PARTS = ("cookie", "authorization", "token", "session", "csrf",
+                        "xsrf", "jwt", "password", "secret")
+_REDACTED = "<redacted>"
+
+
+def _redact(value: Any) -> Any:
+    """Copy of ``value`` with every token-bearing dict entry replaced, recursively."""
+    if isinstance(value, dict):
+        return {
+            k: _REDACTED if any(p in str(k).lower() for p in _SENSITIVE_KEY_PARTS)
+            else _redact(v)
+            for k, v in value.items()
+        }
+    if isinstance(value, list):
+        return [_redact(v) for v in value]
+    return value
+
 
 class SycopeApi:
     """
@@ -43,6 +62,7 @@ class SycopeApi:
         password: str,
         api_endpoint: str = "/npm/api/v1/",
         api_endpoint_lookup: str = "config-element-lookup/csvFile",
+        timeout: Tuple[float, float] = (5, 60),
     ) -> None:
         """
         Initialize Sycope API client and authenticate.
@@ -54,6 +74,7 @@ class SycopeApi:
             password: Password for authentication
             api_endpoint: Base API path (default: '/npm/api/v1/')
             api_endpoint_lookup: Lookup API endpoint suffix
+            timeout: (connect, read) timeout in seconds applied to every request
 
         Raises:
             SycopeAuthError: If authentication fails
@@ -62,28 +83,46 @@ class SycopeApi:
         self.session = session
         self.api_endpoint = api_endpoint if api_endpoint.endswith("/") else f"{api_endpoint}/"
         self.api_endpoint_lookup = api_endpoint_lookup
+        # (connect, read) seconds on every call: a stalled connection to the
+        # appliance must not block the script forever.
+        self.timeout = timeout
 
         logger.debug(f"Initializing SycopeApi with host={self.host}")
         logger.debug(f"API endpoint: {self.api_endpoint}")
         logger.debug(f"Lookup endpoint: {self.api_endpoint_lookup}")
         logger.debug(f"Authenticating user: {login}")
 
-        # Authenticate
-        payload = {"username": login, "password": password}
+        # Credentials are kept so an expired session can be re-authenticated
+        # transparently on HTTP 401 (see _make_request).
+        self._login = login
+        self._password = password
+        self._authenticate()
+
+    def _authenticate(self) -> None:
+        """(Re)authenticate the session against the Sycope API.
+
+        Called once at construction and again by ``_make_request`` when a
+        request comes back 401 (expired session, e.g. after a Sycope restart).
+
+        Raises:
+            SycopeAuthError: If authentication fails
+        """
+        payload = {"username": self._login, "password": self._password}
         login_url = f"{self.host}/npm/api/v1/login"
         logger.debug(f"POST {login_url}")
-        logger.debug(f"Request payload: username={login}, password=***")
+        logger.debug(f"Request payload: username={self._login}, password=***")
 
         try:
-            response = session.post(
+            response = self.session.post(
                 login_url,
                 json=payload,
                 verify=False,
+                timeout=self.timeout,
             )
             logger.debug(f"Response status code: {response.status_code}")
-            logger.debug(f"Response headers: {dict(response.headers)}")
+            logger.debug(f"Response headers: {_redact(dict(response.headers))}")
             data = response.json()
-            logger.debug(f"Response body: {data}")
+            logger.debug(f"Response body: {_redact(data)}")
         except requests.RequestException as e:
             logger.debug(f"Connection error: {e}")
             raise SycopeAuthError(f"Failed to connect to Sycope API: {e}")
@@ -98,7 +137,43 @@ class SycopeApi:
             raise SycopeAuthError(f"Login failed: {error_msg}")
 
         logger.info("Login to Sycope API successful")
-        logger.debug(f"Session cookies: {dict(session.cookies)}")
+        # Cookie names only: the values are the session token.
+        logger.debug(f"Session cookies: {sorted(self.session.cookies.keys())}")
+
+    @staticmethod
+    def _is_auth_failure(response: requests.Response) -> bool:
+        """True when Sycope rejected the request because the session is no longer valid.
+
+        An expired session is answered with HTTP 401, but the first request after
+        the session was invalidated may get HTTP 400 "Invalid username or password."
+        """
+        if response.status_code == 401:
+            return True
+        if response.status_code == 400:
+            try:
+                return "invalid username or password" in str(response.json().get("message", "")).lower()
+            except (ValueError, AttributeError):
+                return False
+        return False
+
+    def _send(
+        self,
+        method: str,
+        url: str,
+        json_payload: Optional[Dict[str, Any]],
+        timeout: Optional[Tuple[float, float]] = None,
+    ) -> requests.Response:
+        """Dispatch a single HTTP request (no re-authentication, no logging)."""
+        timeout = timeout or self.timeout
+        if method == "GET":
+            return self.session.get(url, verify=False, timeout=timeout)
+        if method == "POST":
+            return self.session.post(url, json=json_payload, verify=False, timeout=timeout)
+        if method == "PUT":
+            return self.session.put(url, json=json_payload, verify=False, timeout=timeout)
+        if method == "DELETE":
+            return self.session.delete(url, verify=False, timeout=timeout)
+        raise ValueError(f"Unsupported HTTP method: {method}")
 
     def _make_request(
         self,
@@ -106,6 +181,7 @@ class SycopeApi:
         url: str,
         json_payload: Optional[Dict[str, Any]] = None,
         operation_name: str = "API request",
+        timeout: Optional[Tuple[float, float]] = None,
     ) -> requests.Response:
         """
         Make an HTTP request with debug logging.
@@ -115,6 +191,7 @@ class SycopeApi:
             url: Full URL for the request
             json_payload: Optional JSON payload for POST/PUT requests
             operation_name: Description of the operation for logging
+            timeout: Optional (connect, read) timeout overriding the client default
 
         Returns:
             Response object
@@ -130,19 +207,19 @@ class SycopeApi:
             else:
                 logger.debug(f"Request payload: {json_payload}")
 
-        if method == "GET":
-            response = self.session.get(url, verify=False)
-        elif method == "POST":
-            response = self.session.post(url, json=json_payload, verify=False)
-        elif method == "PUT":
-            response = self.session.put(url, json=json_payload, verify=False)
-        elif method == "DELETE":
-            response = self.session.delete(url, verify=False)
-        else:
-            raise ValueError(f"Unsupported HTTP method: {method}")
+        response = self._send(method, url, json_payload, timeout)
+
+        # Expired session (e.g. after a Sycope restart): re-authenticate once and
+        # retry, instead of returning an auth-error body that looks like "no data".
+        if self._is_auth_failure(response) and not url.endswith("/logout"):
+            logger.warning(
+                f"Request got HTTP {response.status_code} (session expired) - re-authenticating and retrying once"
+            )
+            self._authenticate()
+            response = self._send(method, url, json_payload, timeout)
 
         logger.debug(f"Response status code: {response.status_code}")
-        logger.debug(f"Response headers: {dict(response.headers)}")
+        logger.debug(f"Response headers: {_redact(dict(response.headers))}")
 
         # Log response body with truncation for large responses
         try:
@@ -180,7 +257,7 @@ class SycopeApi:
             SycopeApiError: If the API request fails
         """
         logger.info("Searching in existing custom indexes...")
-        url = f'{self.host}{self.api_endpoint}config-elements?filter=category="userIndex.index"'
+        url = f'{self.host}{self.api_endpoint}config-elements?offset=0&limit=2147483647&filter=category="userIndex.index"'
         response = self._make_request("GET", url, operation_name="Get user indexes")
 
         try:
@@ -769,7 +846,11 @@ class SycopeApi:
         logger.info(f"Running NQL query: {nql[:100]}...")
 
         url = f"{self.host}{self.api_endpoint}pipeline/run"
-        response = self._make_request("POST", url, json_payload=payload, operation_name="Run NQL query")
+        # the server may hold the request up to wait_time before answering
+        query_timeout = (self.timeout[0], max(self.timeout[1], wait_time / 1000 + 30))
+        response = self._make_request(
+            "POST", url, json_payload=payload, operation_name="Run NQL query", timeout=query_timeout
+        )
 
         try:
             data = response.json()

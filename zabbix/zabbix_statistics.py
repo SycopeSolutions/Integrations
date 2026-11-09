@@ -152,28 +152,35 @@ def zabbix_logout(cfg: dict) -> None:
 
 
 def get_all_host_ips(cfg: dict, headers: dict) -> list:
-    """Get all primary host interface IPs from Zabbix."""
+    """Get all primary host interface IPs from Zabbix (enabled hosts only)."""
     url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"]
     logger.debug(f"Getting all host IPs from: {url}")
 
     payload = {
         "jsonrpc": "2.0",
-        "method": "hostinterface.get",
+        "method": "host.get",
         "params": {
-            "output": ["ip"],
-            "filter": {"main": "1"},
+            "output": ["hostid"],
+            "selectInterfaces": ["ip", "main", "type"],
+            "filter": {"status": "0"},  # 0 = enabled hosts only
         },
         "id": 1001,
     }
-    logger.debug("Zabbix request: method=hostinterface.get, filter=main:1")
+    logger.debug("Zabbix request: method=host.get, filter=status:0 (enabled), selectInterfaces")
 
     response = requests.post(url, headers=headers, json=payload, verify=False)
     logger.debug(f"Response status: {response.status_code}")
 
     result = response.json()["result"]
-    logger.debug(f"Received {len(result)} host interfaces")
+    logger.debug(f"Received {len(result)} enabled hosts")
 
-    ips = sorted(set([x["ip"] for x in result if "ip" in x]))
+    ips = set()
+    for host in result:
+        for iface in host.get("interfaces", []):
+            if iface.get("main") == "1" and iface.get("ip", "").strip():
+                ips.add(iface["ip"].strip())
+
+    ips = sorted(ips)
     logger.debug(f"Unique IPs found: {len(ips)}")
     logger.debug(f"First 10 IPs: {ips[:10]}")
 
@@ -407,7 +414,11 @@ def collect_metrics_for_ip(
         logger.debug(f"  Column {col}: {len(vals)} values")
 
         z = pl.DataFrame(vals, schema=["timestamp", col], orient="row").with_columns(
-            datetime=pl.from_epoch("timestamp", time_unit="ms").dt.convert_time_zone(time_zone="UTC")
+            # cast_time_unit: polars >= 2.0 returns datetime[us] from from_epoch(..., "ms"),
+            # which no longer matches the datetime[ms] minute grid in join_asof below.
+            datetime=pl.from_epoch("timestamp", time_unit="ms")
+            .dt.convert_time_zone(time_zone="UTC")
+            .dt.cast_time_unit("ms")
         )
         df = df_time_range.sort("datetime").join_asof(
             z.sort("datetime").drop("timestamp"),
