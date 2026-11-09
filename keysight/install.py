@@ -10,7 +10,7 @@ Steps (each one is idempotent - re-running the script only adds what is missing)
 2. Traffic profile         - "Template Based Settings" profile with those fields (default "Keysight IxFlow")
 3. Exporter binding        - assigns the profile to the exporter IPs listed in config.json
 4. Saved fields            - millisecond versions of the latency fields, fields/saved_fields/*.json
-5. Dashboards              - 5 dashboards from dashboards/sycope-<version>/
+5. Dashboards              - 5 dashboards from dashboards/ (imported through the API, Sycope 3.2 and 3.3)
 
 A JSON backup of the NetFlow configuration is written to backups/ before any change.
 
@@ -57,11 +57,10 @@ def load_ixflow_fields():
         return json.load(fp)["fields"]
 
 
-def dashboard_files(version):
-    folder = os.path.join(DASHBOARDS_DIR, f"sycope-{version}")
-    files = sorted(glob.glob(os.path.join(folder, "*.json")))
+def dashboard_files():
+    files = sorted(glob.glob(os.path.join(DASHBOARDS_DIR, "*.json")))
     if not files:
-        raise SycopeError(f"No dashboard files in {folder} (check 'sycope_version' in config.json)")
+        raise SycopeError(f"No dashboard files in {DASHBOARDS_DIR}")
     return files
 
 
@@ -123,7 +122,6 @@ def main():
 
     profile = cfg.get("traffic_profile_name", "Keysight IxFlow")
     exporters = cfg.get("exporter_ips", [])
-    version = str(cfg.get("sycope_version", "3.3"))
     if args.dry_run:
         logging.info("DRY RUN - nothing will be written to Sycope")
 
@@ -184,19 +182,19 @@ def main():
                     logging.info(f"  {comp['name']}: {state}")
 
             # 5. dashboards
-            logging.info(f"Step 5/5: dashboards (Sycope {version} format)")
+            logging.info("Step 5/5: dashboards")
             if args.skip_dashboards:
                 logging.info("  skipped (--skip-dashboards)")
             else:
-                for path in dashboard_files(version):
-                    name, widgets = nf.dashboard_widget_names(path)
+                for path in dashboard_files():
+                    name, widgets = nf.dashboard_names(path)
                     if args.dry_run:
                         state = "exists" if ("dashboard", name) in existing else "would be created"
                         logging.info(f"  {name}: {state} ({len(widgets)} widgets)")
                         continue
                     did, state, n = nf.import_dashboard(api, path, existing)
                     logging.info(f"  {name}: {state} ({n} widgets) -> "
-                                 f"{cfg['sycope_host']}/panel/dashboards/view/x/{did}")
+                                 f"{cfg['sycope_host']}/panel/dashboards/edit/{did}")
 
             logging.info("Done. Run verify_flows.py once the exporter has sent templates and data.")
         except SycopeError as e:

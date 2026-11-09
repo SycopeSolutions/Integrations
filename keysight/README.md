@@ -15,7 +15,7 @@ This integration configures Sycope to decode those elements, provides five ready
 - **28 NetFlow custom fields** (`ix*`) for the IxFlow elements Sycope can store - application, KPIs, geolocation, device, DNS, TLS, DHCP, RADIUS
 - **Traffic profile** (*Template Based Settings*) `Keysight IxFlow`, created by a Python script and assigned to your IxFlow exporters
 - **Flow verification script** that checks templates, profile binding and the fill rate of every IxFlow field
-- **5 dashboards** in two formats: Sycope 3.2 and Sycope 3.3
+- **5 dashboards** in the Sycope 3.3 format; a converter in the shared library makes them importable into Sycope 3.2
 - **3 saved fields** with the latency metrics converted to milliseconds
 - **Replay tool** that re-exports an IxFlow pcap capture as live IPFIX, for labs and demos
 
@@ -59,8 +59,7 @@ keysight/
 │   ├── netflow_fields.json     # IxFlow element -> Sycope custom field definitions
 │   └── saved_fields/           # Saved fields (latency in ms), importable from the GUI as well
 ├── dashboards/
-│   ├── sycope-3.2/             # Dashboards in the Sycope 3.2 export format
-│   └── sycope-3.3/             # The same dashboards in the Sycope 3.3 export format
+│   └── *.json                  # 5 dashboards (Sycope 3.3 format)
 ├── docs/
 │   ├── field_reference.md      # Every IxFlow element: mapped, colliding, unsupported
 │   └── screenshots/
@@ -116,7 +115,7 @@ python3 install.py
 | 2. Traffic profile | Creates the traffic profile `Keysight IxFlow` with those fields and `sourceMacAddress`. If the profile exists, the script updates its field list. |
 | 3. Exporter binding | Assigns the profile to every IP in `exporter_ips`. An exporter that already uses another profile is **not** changed; the script reports it so you can decide in the GUI. |
 | 4. Saved fields | Imports `fields/saved_fields/*.json`. |
-| 5. Dashboards | Imports the 5 dashboards from `dashboards/sycope-<sycope_version>/`. |
+| 5. Dashboards | Imports the 5 dashboards from `dashboards/` through the API (works with Sycope 3.2 and 3.3). |
 
 Before changing anything the script saves the current fields, profiles and exporter bindings to `backups/netflow_config_<timestamp>.json`.
 
@@ -140,7 +139,6 @@ Then import the dashboards and saved fields as described in [Dashboards](#dashbo
   "api_base": "/npm/api/v1/",
   "sycope_login": "admin",
   "sycope_pass": "",
-  "sycope_version": "3.3",
   "traffic_profile_name": "Keysight IxFlow",
   "profile_extra_fields": [56],
   "exporter_ips": ["10.0.0.5"],
@@ -151,7 +149,6 @@ Then import the dashboards and saved fields as described in [Dashboards](#dashbo
 | Key | Description |
 |---|---|
 | `sycope_host`, `sycope_login`, `sycope_pass` | Sycope URL and API credentials |
-| `sycope_version` | `3.2` or `3.3`. Selects the dashboard folder. |
 | `traffic_profile_name` | Name of the traffic profile to create and assign |
 | `profile_extra_fields` | Extra IPFIX element ids added to the profile (default: `56` sourceMacAddress) |
 | `exporter_ips` | IxFlow exporter IP addresses as seen by Sycope |
@@ -264,15 +261,17 @@ Typical uses:
 
 The dashboards read the `netflow` stream and filter on `ixApplication != null`, so other flow sources do not affect them. Latency widgets show milliseconds.
 
-**Import with the script:** `install.py` (step 5) takes the folder that matches `sycope_version`.
+**Import with the script:** `install.py` (step 5) imports the dashboards through the API into Sycope 3.2 and 3.3.
 
-**Import from the GUI:** go to **Dashboards → Add dashboard ▾ → Import dashboard**, upload the files from the folder that matches your Sycope version:
-- **Sycope 3.2:** `dashboards/sycope-3.2/*.json`
-- **Sycope 3.3:** `dashboards/sycope-3.3/*.json`
+**Import from the GUI (Sycope 3.3):** go to **Dashboards → Add dashboard ▾ → Import dashboard** and upload a file from `dashboards/`. The dashboard opens in the editor; click **Save and close**. Import one file at a time.
 
-The dashboard opens in the editor; click **Save and close**. Import one file at a time.
+**Sycope 3.2 (legacy):** the files use the Sycope 3.3 export format. Convert them first, then import the converted files from the GUI. Run the command from the repository root:
 
-The two folders contain the same dashboards. The export format changed in 3.3 (widgets are stored next to the dashboard instead of inside it), so use the folder that matches your Sycope version. The script reads both formats.
+```bash
+python3 -m sycope.scripts.convert_dashboard --to 3.2 keysight/dashboards/*.json -o keysight/dashboards-3.2
+```
+
+Then import the files from `keysight/dashboards-3.2/` the same way.
 
 **Saved fields from the GUI:** go to **Settings → Objects → Fields → Import Field** and upload the files from `fields/saved_fields/`.
 

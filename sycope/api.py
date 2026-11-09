@@ -160,7 +160,7 @@ class SycopeApi:
         self,
         method: str,
         url: str,
-        json_payload: Optional[Dict[str, Any]],
+        json_payload: Any,
         timeout: Optional[Tuple[float, float]] = None,
     ) -> requests.Response:
         """Dispatch a single HTTP request (no re-authentication, no logging)."""
@@ -179,7 +179,7 @@ class SycopeApi:
         self,
         method: str,
         url: str,
-        json_payload: Optional[Dict[str, Any]] = None,
+        json_payload: Any = None,
         operation_name: str = "API request",
         timeout: Optional[Tuple[float, float]] = None,
     ) -> requests.Response:
@@ -233,6 +233,36 @@ class SycopeApi:
             logger.debug(f"Could not log response body: {e}")
 
         return response
+
+    def request(self, method: str, path: str, payload: Any = None, ok: Tuple[int, ...] = (200, 201, 204)) -> Any:
+        """
+        Call any REST endpoint relative to the API base and return the decoded JSON.
+
+        Args:
+            method: HTTP method (GET, POST, PUT, DELETE)
+            path: Path relative to api_endpoint, e.g. "components?offset=0&limit=100"
+            payload: JSON body (dict or list) for POST/PUT
+            ok: HTTP status codes treated as success
+
+        Returns:
+            Decoded JSON, the raw text for a non-JSON body, or None for an empty body
+
+        Raises:
+            SycopeApiError: If the response status is not in ``ok``
+        """
+        url = f"{self.host}{self.api_endpoint}{path.lstrip('/')}"
+        response = self._make_request(method, url, json_payload=payload, operation_name=f"{method} {path}")
+        if response.status_code not in ok:
+            raise SycopeApiError(
+                f"{method} {path} failed: {response.text[:500]}",
+                status_code=response.status_code,
+            )
+        if not response.text:
+            return None
+        try:
+            return response.json()
+        except ValueError:
+            return response.text
 
     def log_out(self) -> requests.Response:
         """

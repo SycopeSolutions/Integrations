@@ -234,9 +234,17 @@ Or run as a service (recommended)
 
 ##  Dashboard Import
 
-1. In Sycope UI, go to **Dashboards → Import**
-2. Upload `zabbix_statistics_dashboard.json`
-3. Upload `zabbix_inventory.json`
+1. In Sycope UI, go to **Dashboards → Add dashboard ▾ → Import dashboard**
+2. Upload `dashboards/zabbix_statistics_dashboard.json`, click **Save and close**
+3. Repeat for `dashboards/zabbix_inventory.json`
+
+**Sycope 3.2 (legacy):** the files use the Sycope 3.3 export format. Convert them first, then import the converted files from the GUI. Run the command from the repository root:
+
+```bash
+python3 -m sycope.scripts.convert_dashboard --to 3.2 zabbix/dashboards/*.json -o zabbix/dashboards-3.2
+```
+
+Then import the files from `zabbix/dashboards-3.2/`.
 
 ##  Fields Import
 

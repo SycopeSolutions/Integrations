@@ -36,7 +36,9 @@ The `eve_processor.py` script:
 
 ```
 .
-├── Suricata_Dashboard_Sycope.json   # Optional dashboard to import into Sycope
+├── dashboards/
+│   ├── Suricata_Dashboard_Sycope.json  # Suricata Overview dashboard (Sycope 3.3 format)
+│   └── Suricata_Protocols.json         # Suricata Protocols dashboard (Sycope 3.3 format)
 ├── config.json                      # Configuration file
 ├── eve_processor.py                 # Main processing script
 ├── install.py                       # Creates a new Sycope index with proper fields
@@ -397,9 +399,17 @@ sudo journalctl -u suricata-eve-processor.timer -f
 
 ##  Dashboard Import
 
-1. In Sycope UI, go to **Dashboards → Import**
-2. Upload `Suricata_Dashboard_Sycope.json`
-3. Link it to the `suricata` index
+1. In Sycope UI, go to **Dashboards → Add dashboard ▾ → Import dashboard**
+2. Upload `dashboards/Suricata_Dashboard_Sycope.json` (and `dashboards/Suricata_Protocols.json`)
+3. The dashboard opens in the editor; click **Save and close**. The widgets read the `suricata` index.
+
+**Sycope 3.2 (legacy):** the files use the Sycope 3.3 export format. Convert them first, then import the converted files from the GUI. Run the command from the repository root:
+
+```bash
+python3 -m sycope.scripts.convert_dashboard --to 3.2 suricata/dashboards/*.json -o suricata/dashboards-3.2
+```
+
+Then import the files from `suricata/dashboards-3.2/`.
 
 You get:
 - Alert trends over time

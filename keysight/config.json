@@ -4,9 +4,10 @@
   "api_base": "/npm/api/v1/",
   "sycope_login": "admin",
   "sycope_pass": "",
-  "sycope_version": "3.3",
   "traffic_profile_name": "Keysight IxFlow",
-  "profile_extra_fields": [56],
+  "profile_extra_fields": [
+    56
+  ],
   "exporter_ips": [],
   "verify_minutes": 15
 }

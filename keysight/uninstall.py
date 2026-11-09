@@ -72,10 +72,9 @@ def main():
 
             if not args.keep_dashboards:
                 comps = {(c["type"], c["name"]): c["id"] for c in nf.list_components(api)}
-                # widgets and dashboards of both export formats share names
                 names = set()
-                for path in glob.glob(os.path.join(DASHBOARDS_DIR, "sycope-*", "*.json")):
-                    dname, wnames = nf.dashboard_widget_names(path)
+                for path in glob.glob(os.path.join(DASHBOARDS_DIR, "*.json")):
+                    dname, wnames = nf.dashboard_names(path)
                     names.add(("dashboard", dname))
                     names.update(("visualization", w) for w in wnames)
                 for path in glob.glob(os.path.join(SAVED_FIELDS_DIR, "*.json")):
