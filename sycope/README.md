@@ -40,7 +40,7 @@ Tests: `python3 -m pytest sycope/tests`.
 - Every request has a timeout: `SycopeApi(..., timeout=(5, 60))` sets (connect, read) seconds. NQL queries wait at least `wait_time` + 30 s.
 - An expired session (for example after a Sycope restart) is detected: HTTP 401, or HTTP 400 "Invalid username or password.". The client logs in again and repeats the request once.
 - The debug log no longer contains session tokens: cookie values and token/password fields in headers and responses are replaced with `<redacted>`.
-- `get_user_indicies()` returns all custom indexes, not only the first page.
+- `get_user_indicies()` returns all custom indexes, not only the first page. The correctly spelled alias `get_user_indices()` is available.
 - The package exports its main classes and functions: `from sycope import SycopeApi, load_config, ...`.
 - `SycopeApi.request(method, path, payload)` calls any REST endpoint and returns decoded JSON.
 - New module `sycope.dashboards` and command `sycope.scripts.convert_dashboard` (3.3 <-> 3.2 dashboard conversion, API import).

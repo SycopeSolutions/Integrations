@@ -14,9 +14,10 @@ from logging.handlers import RotatingFileHandler
 import requests
 import urllib3
 
-# setting path
-sys.path.append("../sycope")
-from api import SycopeApi
+# Repository root on the import path, so the shared "sycope" package can be imported
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(SCRIPT_DIR, "..")))
+from sycope.api import SycopeApi  # noqa: E402
 
 # --- Disable SSL warnings (self-signed certs) ---
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -26,12 +27,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
     handlers=[
-        RotatingFileHandler("create_index.log", maxBytes=10 * 1024 * 1024, backupCount=5),
+        RotatingFileHandler(os.path.join(SCRIPT_DIR, "create_index.log"), maxBytes=10 * 1024 * 1024, backupCount=5),
         logging.StreamHandler(sys.stdout),
     ],
 )
 
-SCRIPT_DIR = os.getcwd()  # use current directory
 CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
 
 FIELDS = [

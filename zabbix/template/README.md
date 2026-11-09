@@ -24,6 +24,7 @@ For each monitored host, the script authenticates against the Sycope API, runs t
 - Zabbix 7.0+
 - Python 3.8+ on the Zabbix server/proxy
 - Sycope 3.x with REST API accessible from the Zabbix server
+- Tested with Zabbix 7.0.5 and Sycope 3.3.1
 - Zabbix server must be able to reach Sycope on HTTPS (port 443)
 
 ---
@@ -98,7 +99,7 @@ All macros can be overridden per-host via **Data Collection → Hosts → [host]
 
 | Macro | Default | Description |
 |---|---|---|
-| `{$SYCOPE_IP}` | `192.168.1.14` | IP or hostname of the Sycope appliance |
+| `{$SYCOPE_IP}` | `sycope.example.com` | IP or hostname of the Sycope appliance |
 | `{$SYCOPE_ALERT_MINUTES}` | `15` | Lookback window (minutes) for all alert queries |
 | `{$SYCOPE_ASSET_DAYS}` | `7` | Lookback window (days) for active services discovery |
 | `{$SYCOPE_MATCHED_MINUTES}` | `60` | Lookback window (minutes) for matched/unmatched IP queries |
@@ -180,7 +181,7 @@ Test the script manually on the Zabbix server. Always use the actual host IP as 
 ```bash
 SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
   python3 /usr/lib/zabbix/externalscripts/sycope_check.py \
-  192.168.1.14 any_alerts 10.0.0.5 15
+  sycope.example.com any_alerts 10.0.0.5 15
 ```
 
 Expected output:
@@ -200,28 +201,28 @@ Expected output:
 ```bash
 SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
   python3 /usr/lib/zabbix/externalscripts/sycope_check.py \
-  192.168.1.14 alert_count 10.0.0.5 "Horizontal Scan" true 15
+  sycope.example.com alert_count 10.0.0.5 "Horizontal Scan" true 15
 ```
 
 **Wider time window for infrequent alerts (24 hours):**
 ```bash
 SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
   python3 /usr/lib/zabbix/externalscripts/sycope_check.py \
-  192.168.1.14 alert_count 10.0.0.5 "High Server Network Latency" true 1440
+  sycope.example.com alert_count 10.0.0.5 "High Server Network Latency" true 1440
 ```
 
 **Active services discovery:**
 ```bash
 SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
   python3 /usr/lib/zabbix/externalscripts/sycope_check.py \
-  192.168.1.14 active_services 10.0.0.5 7 true
+  sycope.example.com active_services 10.0.0.5 7 true
 ```
 
 **Connection counts:**
 ```bash
 SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
   python3 /usr/lib/zabbix/externalscripts/sycope_check.py \
-  192.168.1.14 connections 10.0.0.5 30
+  sycope.example.com connections 10.0.0.5 30
 ```
 
 **Common error responses:**
@@ -250,7 +251,7 @@ The simplest approach requires no code changes — use the existing `alert_count
 
 ```bash
 SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
-  python3 sycope_check.py 192.168.1.14 any_alerts 10.0.0.5 1440
+  python3 sycope_check.py sycope.example.com any_alerts 10.0.0.5 1440
 ```
 
 This returns all alert names seen in the last 24 hours. Once you have the exact name, add it as a dedicated template item in `zbx_sycope_monitoring.yaml`:

@@ -15,7 +15,7 @@ zabbix_export:
     - name: Templates/Applications
     macros:
     - macro: '{$SYCOPE_IP}'
-      value: 192.168.1.14
+      value: sycope.example.com
       description: Sycope appliance IP
     - macro: '{$SYCOPE_ALERT_MINUTES}'
       value: '15'

@@ -64,9 +64,8 @@ All other settings can be left at their default values or adjusted to meet your 
 You can verify phpIPAM API using the following `curl` command:
 
 ```bash
-root@integration:~# curl -X POST -u Admin:ipamadmin123 "http://192.168.1.87/api/sycope/user/"
+$ curl -X POST -u <phpipam_user>:<phpipam_password> "http://phpipam.example.com/api/sycope/user/"
 {"code":200,"success":true,"data":{"token":"YOUR_TOKEN","expires":"2026-01-21 15:23:24"},"time":0.005}
-root@integration:~#
 ```
 
 Your **phpIPAM** instance uses a username and password to generate a **temporary authentication token**.  
@@ -127,7 +126,7 @@ Edit the `config.json`.
     {
       // Base URL of the phpIPAM instance
       // HTTPS is strongly recommended in production environments
-      "host": "http://192.168.1.87/",
+      "host": "https://phpipam1.example.com/",
 
       // phpIPAM API application ID
       // Must match the App ID configured in phpIPAM API settings
@@ -144,7 +143,7 @@ Edit the `config.json`.
     },
     {
       // Base URL of an additional phpIPAM instance
-      "host": "http://192.168.1.88/",
+      "host": "https://phpipam2.example.com/",
 
       // phpIPAM API application ID
       "app_id": "sycope",
@@ -162,7 +161,7 @@ Edit the `config.json`.
 
   // URL of the Sycope API endpoint
   // HTTPS is strongly recommended
-  "sycope_host": "https://192.168.1.14",
+  "sycope_host": "https://sycope.example.com",
 
   // Sycope API user
   // Must have permissions to create and update Lookup entries

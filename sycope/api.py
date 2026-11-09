@@ -302,6 +302,10 @@ class SycopeApi:
 
         return all_data if isinstance(all_data, list) else []
 
+    def get_user_indices(self) -> List[Dict[str, Any]]:
+        """Get all custom indexes (alias of ``get_user_indicies``, which is kept for compatibility)."""
+        return self.get_user_indicies()
+
     def get_lookups(self) -> List[Dict[str, Any]]:
         """
         Get all saved lookups.

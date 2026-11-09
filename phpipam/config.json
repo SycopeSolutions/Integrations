@@ -2,21 +2,21 @@
   "log_level": "info",
   "phpipam_hosts": [
     {
-      "host": "http://192.168.1.87/",
+      "host": "https://phpipam1.example.com/",
       "app_id": "sycope",
       "username": "Admin",
       "password": "",
       "api_base": "/api"
     },
     {
-      "host": "http://192.168.1.88/",
+      "host": "https://phpipam2.example.com/",
       "app_id": "sycope",
       "username": "Admin",
       "password": "",
       "api_base": "/api"
     }
   ],
-  "sycope_host": "https://192.168.1.14",
+  "sycope_host": "https://sycope.example.com",
   "sycope_login": "admin",
   "sycope_pass": "",
   "api_base": "/npm/api/v1/",

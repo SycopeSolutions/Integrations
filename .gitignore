@@ -1,0 +1,21 @@
+# OS / editor
+.DS_Store
+._*
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Runtime files written by the integrations
+*.log
+*.log.[0-9]*
+backups/
+suricata/state.json
+
+# Output of sycope.scripts.convert_dashboard --to 3.2 (see README)
+dashboards-3.2/

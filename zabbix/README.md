@@ -2,8 +2,8 @@
 
 This directory contains two complementary integrations between Zabbix and Sycope, covering both directions of data flow.
 
-This integration enables sending monitoring statistics and inventory data from Zabbix to a custom index and dedicated Lookup in **Sycope** for further correlation, search and visualization.
-Directory also includes Zabbix Teamplate to provide both directions of data flow, including Sycope statistics and alerts presenting in Zabbix.
+- **Zabbix → Sycope:** scripts that send Zabbix monitoring statistics and inventory data to a custom index and a dedicated Lookup in Sycope.
+- **Sycope → Zabbix:** a Zabbix template that shows Sycope statistics and alerts in Zabbix.
 
 > **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and probes monitoring availability.
 
@@ -110,6 +110,7 @@ The `zabbix_lookup_sync.py` script:
 - Python 3.8+
 - Zabbix 7.0+
 - Sycope >= 3.1 with API access
+- Tested with Zabbix 7.0.5 and Sycope 3.3.1, Python 3.10 and 3.15, polars 1.32 and 2.1
 - `requests` module:
   ```bash
   pip3 install requests
@@ -152,7 +153,7 @@ Edit the `config.json` as described below.
 ```jsonc
 {
     // URL of the Zabbix API endpoint (HTTPS strongly recommended)
-    "zabbix_host": "http://192.168.1.46:8080",
+    "zabbix_host": "https://zabbix.example.com",
 
     // Additional part of the Zabbix API endpoint
     "zabbix_api_base": "/api_jsonrpc.php",
@@ -164,7 +165,7 @@ Edit the `config.json` as described below.
     "zabbix_pass": "",
 
     // URL of the Sycope API endpoint (HTTPS strongly recommended)
-    "sycope_host": "https://192.168.1.14",
+    "sycope_host": "https://sycope.example.com",
 
     // Additional part of the Sycope API endpoint
     "api_base": "/npm/api/v1/",
@@ -192,8 +193,8 @@ Edit the `config.json` as described below.
     // The Zabbix API is quite fast, allowing you to synchronize all IPs;
     // however, it may be wise to consider limiting them for efficiency or control.
     "target_ips": [
-      "8.8.8.8",
-      "192.168.1.1"
+      "192.0.2.1",
+      "192.0.2.2"
     ]
 }
 
