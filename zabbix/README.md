@@ -249,14 +249,18 @@ Then import the files from `zabbix/dashboards-3.2/`.
 
 ##  Fields Import
 
-1. In Sycope UI, go to **Settings → Objects → Fields → Import Field**
-2. Upload `field_zabbix_graph_url.json` and others from fields directory
+1. In Sycope UI, go to **Settings → Objects → Fields → Add field ▾ → Import field**
+2. Upload a file from `fields/` (for example `field_zabbix_graph_url.json`). The field opens in the editor; click **Save**.
+3. Repeat for the other files in `fields/`
 
 ##  Drilldown Import
 
-1. In Sycope UI, go to **Configuration → Shortcuts → Import Shortcut**
-2. Upload `zabbix_inventory_drilldown_action.json`
-3. Upload `zabbix_inventory_drilldown_widget.json`
+Import the widget first, because the shortcut points to it:
+
+1. **Configuration → Widgets → Add widget ▾ → Import widget**: upload `drilldowns/zabbix_inventory_drilldown_widget.json` and save it
+2. **Configuration → Shortcuts → Add shortcut ▾ → Import shortcut**: upload `drilldowns/zabbix_inventory_drilldown_action.json`, check that **Widget** is set to *Zabbix Inventory - Drilldown*, and save it
+
+The field, widget and shortcut files work in Sycope 3.2 and 3.3 without conversion. GUI import was checked on 3.3.1.
 
 ---
 
