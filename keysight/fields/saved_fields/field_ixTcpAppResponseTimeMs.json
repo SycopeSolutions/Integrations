@@ -1,0 +1,39 @@
+{
+  "name": "ixTcpAppResponseTimeMs",
+  "type": "savedFields",
+  "tags": null,
+  "description": "Keysight IxFlow TCP application response time (PEN 3054:281) converted from microseconds to milliseconds.",
+  "visualOptions": {
+    "label": "Ix TCP App Response Time (ms)",
+    "showLabel": true
+  },
+  "sources": [
+    {
+      "streams": [
+        "netflow"
+      ],
+      "useFn": true,
+      "alias": "ixTcpAppResponseTimeMs",
+      "preFn": "div(ixTcpAppResponseTime, 1000)",
+      "filterFn": {
+        "custom": false
+      },
+      "postponeAggr": false
+    }
+  ],
+  "transformers": [],
+  "formatting": {
+    "formattingType": "number",
+    "formattingPattern": "0,0.[0]",
+    "formattingUnit": "off",
+    "formattingSimple": true
+  },
+  "version": 6,
+  "entitySet": "COMPONENT",
+  "entityType": "savedFields",
+  "annotations": null,
+  "displayName": "Ix TCP App Response Time (ms)",
+  "streams": [
+    "netflow"
+  ]
+}

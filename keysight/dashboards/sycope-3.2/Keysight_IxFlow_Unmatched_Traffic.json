@@ -1,0 +1,5775 @@
+{
+  "name": "Keysight IxFlow | Unmatched Traffic",
+  "type": "dashboard",
+  "tags": [],
+  "createdBy": "admin",
+  "modifiedBy": "admin",
+  "created": 1793714710615,
+  "modified": 1793715277684,
+  "description": "Traffic IxFlow could not classify (application \"unknown\", classification \"Unmatched traffic\").",
+  "dashboardConfig": {
+    "cols": 24,
+    "rowHeight": 50,
+    "disableVisAnimations": false,
+    "type": "standard",
+    "dashboardType": "standard",
+    "pageSettings": {},
+    "gridType": "fixed-height",
+    "compactType": null,
+    "widgetSpacing": 14,
+    "related": [],
+    "requireFilters": {},
+    "requireTimerange": {
+      "active": true,
+      "maxRange": "24h"
+    }
+  },
+  "items": [
+    {
+      "layout": {
+        "id": "63593718-5f51-4dcc-9beb-4e57ab8ae649",
+        "header": {
+          "title": "Unclassified Bytes",
+          "description": "Bytes of flows IxFlow could not classify (application \"unknown\")."
+        },
+        "w": 4,
+        "h": 3,
+        "x": 0,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e96-34b6c892-da3e2525",
+        "id": "68686e96-34b6c892-da3e2525",
+        "name": "IxFlow | UNM Unclassified Bytes",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714707231,
+        "modified": 1793715276700,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Unclassified Bytes"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Unclassified Bytes",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": [],
+            "defaultFilterStream": [
+              "netflow"
+            ]
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Unclassified Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes) unwind=true | limit 1000 | set ixBytes=add(ixCb,ixSb)"
+            }
+          ],
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Bytes of flows IxFlow could not classify (application \"unknown\").",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e96-34b6c892-da3e2525",
+        "permissions": {
+          "entityId": "68686e96-34b6c892-da3e2525",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "5d5b8634-3ef0-4a3d-91e8-4dafb4c24ae2",
+        "header": {
+          "title": "Unclassified Flows",
+          "description": "Flows with application \"unknown\"."
+        },
+        "w": 4,
+        "h": 3,
+        "x": 4,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e97-34b6c892-da3e2529",
+        "id": "68686e97-34b6c892-da3e2529",
+        "name": "IxFlow | UNM Unclassified Flows",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714707497,
+        "modified": 1793715276773,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixFlows",
+            "dataKeys": [
+              "ixFlows"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Unclassified Flows"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Unclassified Flows",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": [],
+            "defaultFilterStream": [
+              "netflow"
+            ]
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixFlows",
+                "metricName": "Unclassified Flows",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "alias": "ixFlows",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixFlows=sum(flows) unwind=true | limit 1000"
+            }
+          ],
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Flows with application \"unknown\".",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e97-34b6c892-da3e2529",
+        "permissions": {
+          "entityId": "68686e97-34b6c892-da3e2529",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "49f6b1ce-b12b-40db-a411-9237a51d3ce8",
+        "header": {
+          "title": "Clients",
+          "description": "Clients generating unclassified traffic."
+        },
+        "w": 4,
+        "h": 3,
+        "x": 8,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e97-34b6c892-da3e252d",
+        "id": "68686e97-34b6c892-da3e252d",
+        "name": "IxFlow | UNM Clients",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714707739,
+        "modified": 1793715276848,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixDcClientIp",
+            "dataKeys": [
+              "ixDcClientIp"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Clients"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Clients",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": [],
+            "defaultFilterStream": [
+              "netflow"
+            ]
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixDcClientIp",
+                "metricName": "Clients",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcClientIp=dc(clientIp)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcClientIp",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixDcClientIp=dc(clientIp) unwind=true | limit 1000"
+            }
+          ],
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Clients generating unclassified traffic.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e97-34b6c892-da3e252d",
+        "permissions": {
+          "entityId": "68686e97-34b6c892-da3e252d",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "c6e08d3c-2b0b-4746-9cbb-c040164803a4",
+        "header": {
+          "title": "Servers",
+          "description": "Servers receiving unclassified traffic."
+        },
+        "w": 4,
+        "h": 3,
+        "x": 12,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e97-34b6c892-da3e2531",
+        "id": "68686e97-34b6c892-da3e2531",
+        "name": "IxFlow | UNM Servers",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714707991,
+        "modified": 1793715276928,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixDcServerIp",
+            "dataKeys": [
+              "ixDcServerIp"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Servers"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Servers",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": [],
+            "defaultFilterStream": [
+              "netflow"
+            ]
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixDcServerIp",
+                "metricName": "Servers",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcServerIp=dc(serverIp)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcServerIp",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixDcServerIp=dc(serverIp) unwind=true | limit 1000"
+            }
+          ],
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Servers receiving unclassified traffic.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e97-34b6c892-da3e2531",
+        "permissions": {
+          "entityId": "68686e97-34b6c892-da3e2531",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "d28dc47f-0a42-4359-b2d6-fa7df9194849",
+        "header": {
+          "title": "Server Ports",
+          "description": "Distinct server ports of unclassified traffic."
+        },
+        "w": 4,
+        "h": 3,
+        "x": 16,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e97-34b6c892-da3e2535",
+        "id": "68686e97-34b6c892-da3e2535",
+        "name": "IxFlow | UNM Server Ports",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714708240,
+        "modified": 1793715277005,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixDcServerPort",
+            "dataKeys": [
+              "ixDcServerPort"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Server Ports"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Server Ports",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": [],
+            "defaultFilterStream": [
+              "netflow"
+            ]
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixDcServerPort",
+                "metricName": "Server Ports",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcServerPort=dc(serverPort)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcServerPort",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixDcServerPort=dc(serverPort) unwind=true | limit 1000"
+            }
+          ],
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Distinct server ports of unclassified traffic.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e97-34b6c892-da3e2535",
+        "permissions": {
+          "entityId": "68686e97-34b6c892-da3e2535",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "4befdfde-65ca-45a1-a52d-3694235e35cc",
+        "header": {
+          "title": "Classification Values",
+          "description": "Distinct values of IxFlow traffic classification (3054:288)."
+        },
+        "w": 4,
+        "h": 3,
+        "x": 20,
+        "y": 0,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e98-34b6c892-da3e2539",
+        "id": "68686e98-34b6c892-da3e2539",
+        "name": "IxFlow | UNM Classification Values",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714708499,
+        "modified": 1793715277077,
+        "visualizationConfig": {
+          "type": "kpi",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixDcIxTrafficClassification",
+            "dataKeys": [
+              "ixDcIxTrafficClassification"
+            ],
+            "categoryKey": "_bucket",
+            "categoryKeys": [
+              "_bucket"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": []
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Classifications"
+                }
+              ],
+              "buckets": []
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "dataConfigs": [
+              {
+                "label": "Classifications",
+                "fontSize": "md",
+                "align": "center",
+                "labelColor": {
+                  "useCustomColor": false
+                }
+              }
+            ],
+            "type": "kpi",
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "drilldown": [],
+            "defaultFilterStream": [
+              "netflow"
+            ]
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication != null"
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixDcIxTrafficClassification",
+                "metricName": "Classifications",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcIxTrafficClassification=dc(ixTrafficClassification)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcIxTrafficClassification",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": []
+          },
+          "limit": {
+            "active": true,
+            "othersShow": false,
+            "limit": 1000,
+            "from": "head"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication != null | aggr ixDcIxTrafficClassification=dc(ixTrafficClassification) unwind=true | limit 1000"
+            }
+          ],
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Distinct values of IxFlow traffic classification (3054:288).",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e98-34b6c892-da3e2539",
+        "permissions": {
+          "entityId": "68686e98-34b6c892-da3e2539",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "739b5c1b-7019-4e35-ac0d-8d5c2fba579d",
+        "header": {
+          "title": "Unclassified Traffic Volume",
+          "description": "Client and server bytes of unclassified flows over time."
+        },
+        "w": 12,
+        "h": 7,
+        "x": 0,
+        "y": 3,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e98-34b6c892-da3e253d",
+        "id": "68686e98-34b6c892-da3e253d",
+        "name": "IxFlow | UNM Unclassified Traffic Volume",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714708757,
+        "modified": 1793715277144,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixClientBytes",
+            "dataKeys": [
+              "ixClientBytes",
+              "ixServerBytes"
+            ],
+            "categoryKey": "srcEventTimestamp",
+            "categoryKeys": [
+              "srcEventTimestamp"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "date"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Client Bytes"
+                },
+                {
+                  "custom": true,
+                  "value": "Server Bytes"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Time"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                },
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "isCategoryDate": true,
+            "categoryDateInterval": "5m",
+            "autoBucket": true,
+            "timeKeys": [
+              "srcEventTimestamp"
+            ],
+            "splitKeys": [],
+            "splitChartsKeys": [],
+            "splitSeriesKeys": [],
+            "joinDataCategories": [
+              "srcEventTimestamp"
+            ],
+            "gridIndexes": [
+              0,
+              0
+            ],
+            "markers": [
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              },
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              }
+            ],
+            "stack": {
+              "metrics": [
+                null,
+                null
+              ]
+            },
+            "valueConfigs": {
+              "metrics": [
+                {
+                  "showDataPoints": false,
+                  "drawArea": false,
+                  "lineType": "solid",
+                  "lineWidth": 1.5
+                },
+                {
+                  "showDataPoints": false,
+                  "drawArea": false,
+                  "lineType": "solid",
+                  "lineWidth": 1.5
+                }
+              ]
+            },
+            "sort": "desc",
+            "includeTotal": {
+              "hidden": false
+            },
+            "type": "line",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "displayValuesOnXAxis": false,
+            "yAxes": [
+              {
+                "series": [
+                  0,
+                  1
+                ],
+                "position": "left",
+                "showAxisLabels": true,
+                "labelAngle": 0,
+                "width": 100,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                "useCustomName": false,
+                "name": "",
+                "nameLocation": "end",
+                "nameTextStyle": {
+                  "fontWeight": "normal",
+                  "fontSize": 12
+                },
+                "nameGap": 15,
+                "nameRotate": 0,
+                "splitLine": {
+                  "custom": false
+                },
+                "axisLine": {
+                  "custom": false
+                },
+                "axisPointerConfig": {
+                  "show": false,
+                  "snap": false,
+                  "type": "line"
+                },
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "logScale": false,
+                "inverse": false
+              }
+            ],
+            "xAxes": [
+              {
+                "series": [
+                  0,
+                  1
+                ],
+                "position": "bottom",
+                "showAxisLabels": true,
+                "labelAngle": 0,
+                "width": 100,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "useCustomName": false,
+                "splitLine": {
+                  "custom": false
+                },
+                "axisLine": {
+                  "custom": false
+                },
+                "axisPointerConfig": {
+                  "show": true,
+                  "snap": true,
+                  "type": "line"
+                },
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "logScale": false,
+                "inverse": false
+              }
+            ],
+            "nullValueHandling": "gap",
+            "showLegend": true,
+            "legendPosition": "top",
+            "showLegendMetricName": false,
+            "showInSingleMode": false,
+            "showSimpleChartTitle": true,
+            "active": {
+              "metrics": [
+                true,
+                true
+              ]
+            },
+            "legendIcons": "radio"
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-3hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixClientBytes",
+                "metricName": "Client Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixClientBytes=sum(clientBytes)",
+                  "postAggr": ""
+                },
+                "alias": "ixClientBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixServerBytes",
+                "metricName": "Server Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixServerBytes=sum(serverBytes)",
+                  "postAggr": ""
+                },
+                "alias": "ixServerBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "timeAggr",
+                "bucket": "timestamp",
+                "field": "timestamp",
+                "alias": "srcEventTimestamp",
+                "preFn": "timestamp",
+                "autoBucket": true,
+                "interval": "5m",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": true,
+                  "type": "top",
+                  "limit": 10,
+                  "byMetric": "",
+                  "byMetricSort": "desc",
+                  "byField": [],
+                  "inverted": false,
+                  "showOthers": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": false
+              }
+            ]
+          },
+          "sorters": [],
+          "limit": {
+            "active": true,
+            "limit": 500,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | timeAggr ixClientBytes=sum(clientBytes), ixServerBytes=sum(serverBytes) on timestamp interval=\"${AUTOBUCKET_INTERVAL}\" dir=\"desc\" unwind=true bucketAlias=\"srcEventTimestamp\" | limit 500"
+            }
+          ],
+          "includeTotal": {
+            "hidden": false
+          },
+          "columns": []
+        },
+        "version": 30,
+        "options": {},
+        "description": "Client and server bytes of unclassified flows over time.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e98-34b6c892-da3e253d",
+        "permissions": {
+          "entityId": "68686e98-34b6c892-da3e253d",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "9e31331c-1c3f-4043-805e-f5f77207a0ac",
+        "header": {
+          "title": "Classified vs Unknown",
+          "description": "Share of bytes per application - shows how much is \"unknown\"."
+        },
+        "w": 6,
+        "h": 7,
+        "x": 12,
+        "y": 3,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e98-34b6c892-da3e2541",
+        "id": "68686e98-34b6c892-da3e2541",
+        "name": "IxFlow | UNM Classified vs Unknown",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714709052,
+        "modified": 1793715277222,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes"
+            ],
+            "categoryKey": "ixApplication",
+            "categoryKeys": [
+              "ixApplication"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "value": "Bytes"
+                }
+              ],
+              "buckets": [
+                {
+                  "value": "Application"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "type": "pie",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "doughnut": true,
+            "showLegend": true,
+            "showLabels": true,
+            "trimLabels": 250,
+            "showLabelsOverlap": true,
+            "valueLabels": "percent",
+            "pieValueLabelPosition": "outside",
+            "radius": 80,
+            "doughnutCutout": 30,
+            "legendPosition": "right"
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication != null"
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "ixApplication",
+                "field": "ixApplication",
+                "alias": "ixApplication",
+                "preFn": "ixApplication",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "ixApplication",
+                "transformers": [],
+                "isSavedField": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "ixBytes",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 5,
+            "from": "head",
+            "othersShow": true,
+            "othersLabel": "Others"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication != null | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes) by ixApplication as ixApplication unwind=true | set ixBytes=add(ixCb,ixSb) | fork (sort ixBytes desc | limit 5), (sort ixBytes desc | limit 5, ALL | aggr ixBytes=sum(ixBytes), total=count(1) | set ixApplication=\"Others\", _isOtherRow=true)"
+            }
+          ],
+          "columns": []
+        },
+        "version": 24,
+        "options": {},
+        "description": "Share of bytes per application - shows how much is \"unknown\".",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e98-34b6c892-da3e2541",
+        "permissions": {
+          "entityId": "68686e98-34b6c892-da3e2541",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "47dbbe4a-4854-4746-8c6b-b14c6185d094",
+        "header": {
+          "title": "Protocols",
+          "description": "Unclassified bytes per IP protocol."
+        },
+        "w": 6,
+        "h": 7,
+        "x": 18,
+        "y": 3,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e98-34b6c892-da3e2545",
+        "id": "68686e98-34b6c892-da3e2545",
+        "name": "IxFlow | UNM Protocols",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714709342,
+        "modified": 1793715277304,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes"
+            ],
+            "categoryKey": "protocolName",
+            "categoryKeys": [
+              "protocolName"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "value": "Bytes"
+                }
+              ],
+              "buckets": [
+                {
+                  "value": "Protocol"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": false,
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "type": "pie",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "doughnut": true,
+            "showLegend": true,
+            "showLabels": true,
+            "trimLabels": 250,
+            "showLabelsOverlap": true,
+            "valueLabels": "percent",
+            "pieValueLabelPosition": "outside",
+            "radius": 80,
+            "doughnutCutout": 30,
+            "legendPosition": "right"
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "protocolName",
+                "field": "protocol",
+                "alias": "protocolName",
+                "preFn": "protocol",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": true,
+                "isStringFieldType": false,
+                "fieldName": "protocol",
+                "transformers": [
+                  {
+                    "$ref": "6012e042-3f2b5b74-c233fc69"
+                  }
+                ],
+                "isSavedField": true
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "ixBytes",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 8,
+            "from": "head",
+            "othersShow": false,
+            "othersLabel": "Others"
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes) by protocol as protocolName unwind=true | set ixBytes=add(ixCb,ixSb) | sort ixBytes desc | limit 8"
+            }
+          ],
+          "columns": []
+        },
+        "version": 24,
+        "options": {},
+        "description": "Unclassified bytes per IP protocol.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e98-34b6c892-da3e2545",
+        "permissions": {
+          "entityId": "68686e98-34b6c892-da3e2545",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "50b6946a-b586-4f5c-8671-f4a8a3151c94",
+        "header": {
+          "title": "Unclassified Server Endpoints",
+          "description": "Server IP / port / protocol receiving unclassified traffic."
+        },
+        "w": 24,
+        "h": 10,
+        "x": 0,
+        "y": 10,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e99-34b6c892-da3e2549",
+        "id": "68686e99-34b6c892-da3e2549",
+        "name": "IxFlow | UNM Unclassified Server Endpoints",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714709580,
+        "modified": 1793715277374,
+        "visualizationConfig": {
+          "type": "table",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes",
+              "ixFlows",
+              "ixDcClientIp",
+              "ixFirstSeen",
+              "ixLastSeen"
+            ],
+            "categoryKey": "serverIp",
+            "categoryKeys": [
+              "serverIp",
+              "serverPort",
+              "protocolName",
+              "ixServerIpCountryName"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "date"
+                },
+                {
+                  "formattingType": "date"
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Bytes"
+                },
+                {
+                  "custom": true,
+                  "value": "Flows"
+                },
+                {
+                  "custom": true,
+                  "value": "Clients"
+                },
+                {
+                  "custom": true,
+                  "value": "First Seen"
+                },
+                {
+                  "custom": true,
+                  "value": "Last Seen"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Server IP"
+                },
+                {
+                  "custom": true,
+                  "value": "Port"
+                },
+                {
+                  "custom": true,
+                  "value": "Protocol"
+                },
+                {
+                  "custom": true,
+                  "value": "Country"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null,
+                null,
+                null,
+                null
+              ]
+            },
+            "columns": [
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "serverIp",
+                "aggregation": "terms",
+                "field": "serverIp",
+                "fieldName": "serverIp",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "serverIp",
+                "preFn": "serverIp",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Server IP",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": true,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "serverIp",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "serverPort",
+                "aggregation": "terms",
+                "field": "serverPort",
+                "fieldName": "serverPort",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "serverPort",
+                "preFn": "serverPort",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": false,
+                "isNumberFieldType": true,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Port",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "frozen": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "serverPort",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "protocolName",
+                "aggregation": "terms",
+                "field": "protocol",
+                "fieldName": "protocolName",
+                "useFn": false,
+                "isSavedField": true,
+                "fn": {},
+                "bucket": "protocolName",
+                "preFn": "protocol",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Protocol",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "protocolName",
+                "transformers": [
+                  {
+                    "$ref": "6012e042-3f2b5b74-c233fc69"
+                  }
+                ]
+              },
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "ixServerIpCountryName",
+                "aggregation": "terms",
+                "field": "ixServerIpCountryName",
+                "fieldName": "ixServerIpCountryName",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "ixServerIpCountryName",
+                "preFn": "ixServerIpCountryName",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Country",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixServerIpCountryName",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixBytes",
+                "alias": "ixBytes",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Bytes",
+                "field": "",
+                "fieldName": "ixBytes",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "visualOptions": {
+                  "label": "Bytes",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixBytes"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixFlows",
+                "alias": "ixFlows",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Flows",
+                "field": "",
+                "fieldName": "ixFlows",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Flows",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixFlows"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixDcClientIp",
+                "alias": "ixDcClientIp",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Clients",
+                "field": "",
+                "fieldName": "ixDcClientIp",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcClientIp=dc(clientIp)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Clients",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixDcClientIp"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixFirstSeen",
+                "alias": "ixFirstSeen",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "First Seen",
+                "field": "",
+                "fieldName": "ixFirstSeen",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFirstSeen=min(firstTimestamp)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "First Seen",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "date"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixFirstSeen"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixLastSeen",
+                "alias": "ixLastSeen",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Last Seen",
+                "field": "",
+                "fieldName": "ixLastSeen",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixLastSeen=max(timestamp)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Last Seen",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "date"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixLastSeen"
+              }
+            ],
+            "includeTotal": {
+              "active": false,
+              "label": "Total",
+              "hidden": false
+            },
+            "type": "table",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "Too much data to display."
+            },
+            "drilldown": [],
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "showLocalQuerySwitch": false,
+            "globalFilter": false,
+            "filterable": true,
+            "sortable": true,
+            "displayValuesOnXAxis": false,
+            "showRowCount": true,
+            "groupRowsByOrder": 1,
+            "fitMode": "first"
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixFlows",
+                "metricName": "Flows",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "alias": "ixFlows",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixDcClientIp",
+                "metricName": "Clients",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcClientIp=dc(clientIp)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcClientIp",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixFirstSeen",
+                "metricName": "First Seen",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFirstSeen=min(firstTimestamp)",
+                  "postAggr": ""
+                },
+                "alias": "ixFirstSeen",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixLastSeen",
+                "metricName": "Last Seen",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixLastSeen=max(timestamp)",
+                  "postAggr": ""
+                },
+                "alias": "ixLastSeen",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "serverIp",
+                "field": "serverIp",
+                "alias": "serverIp",
+                "preFn": "serverIp",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "serverIp",
+                "transformers": [],
+                "isSavedField": false
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "serverPort",
+                "field": "serverPort",
+                "alias": "serverPort",
+                "preFn": "serverPort",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": true,
+                "isStringFieldType": false,
+                "fieldName": "serverPort",
+                "transformers": [],
+                "isSavedField": false
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "protocolName",
+                "field": "protocol",
+                "alias": "protocolName",
+                "preFn": "protocol",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": true,
+                "isStringFieldType": false,
+                "fieldName": "protocol",
+                "transformers": [
+                  {
+                    "$ref": "6012e042-3f2b5b74-c233fc69"
+                  }
+                ],
+                "isSavedField": true
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "ixServerIpCountryName",
+                "field": "ixServerIpCountryName",
+                "alias": "ixServerIpCountryName",
+                "preFn": "ixServerIpCountryName",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "ixServerIpCountryName",
+                "transformers": [],
+                "isSavedField": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "ixBytes",
+              "direction": "desc",
+              "description": "ixBytes (desc)"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 500,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes), ixFlows=sum(flows), ixDcClientIp=dc(clientIp), ixFirstSeen=min(firstTimestamp), ixLastSeen=max(timestamp) by serverIp as serverIp, serverPort as serverPort, protocol as protocolName, ixServerIpCountryName as ixServerIpCountryName unwind=true | set ixBytes=add(ixCb,ixSb) | sort ixBytes desc | limit 500"
+            }
+          ],
+          "columns": [
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "serverIp",
+              "aggregation": "terms",
+              "field": "serverIp",
+              "fieldName": "serverIp",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "serverIp",
+              "preFn": "serverIp",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Server IP",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": true,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "serverIp",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "serverPort",
+              "aggregation": "terms",
+              "field": "serverPort",
+              "fieldName": "serverPort",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "serverPort",
+              "preFn": "serverPort",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": false,
+              "isNumberFieldType": true,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Port",
+                "showLabel": true,
+                "align": "right"
+              },
+              "frozen": false,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "serverPort",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "protocolName",
+              "aggregation": "terms",
+              "field": "protocol",
+              "fieldName": "protocolName",
+              "useFn": false,
+              "isSavedField": true,
+              "fn": {},
+              "bucket": "protocolName",
+              "preFn": "protocol",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Protocol",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": false,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "protocolName",
+              "transformers": [
+                {
+                  "$ref": "6012e042-3f2b5b74-c233fc69"
+                }
+              ]
+            },
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "ixServerIpCountryName",
+              "aggregation": "terms",
+              "field": "ixServerIpCountryName",
+              "fieldName": "ixServerIpCountryName",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "ixServerIpCountryName",
+              "preFn": "ixServerIpCountryName",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Country",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": false,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixServerIpCountryName",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixBytes",
+              "alias": "ixBytes",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Bytes",
+              "field": "",
+              "fieldName": "ixBytes",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                "postAggr": "ixBytes=add(ixCb,ixSb)"
+              },
+              "visualOptions": {
+                "label": "Bytes",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixBytes"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixFlows",
+              "alias": "ixFlows",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Flows",
+              "field": "",
+              "fieldName": "ixFlows",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Flows",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixFlows"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixDcClientIp",
+              "alias": "ixDcClientIp",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Clients",
+              "field": "",
+              "fieldName": "ixDcClientIp",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixDcClientIp=dc(clientIp)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Clients",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixDcClientIp"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixFirstSeen",
+              "alias": "ixFirstSeen",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "First Seen",
+              "field": "",
+              "fieldName": "ixFirstSeen",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFirstSeen=min(firstTimestamp)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "First Seen",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "date"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixFirstSeen"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixLastSeen",
+              "alias": "ixLastSeen",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Last Seen",
+              "field": "",
+              "fieldName": "ixLastSeen",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixLastSeen=max(timestamp)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Last Seen",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "date"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixLastSeen"
+            }
+          ],
+          "includeTotal": {
+            "active": true,
+            "label": "Total",
+            "hidden": false
+          }
+        },
+        "version": 30,
+        "options": {},
+        "description": "Server IP / port / protocol receiving unclassified traffic.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e99-34b6c892-da3e2549",
+        "permissions": {
+          "entityId": "68686e99-34b6c892-da3e2549",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "d5de15ac-815a-475f-a50c-0efd386bc0fc",
+        "header": {
+          "title": "Unclassified Clients",
+          "description": "Clients generating unclassified traffic."
+        },
+        "w": 14,
+        "h": 10,
+        "x": 0,
+        "y": 20,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e99-34b6c892-da3e254d",
+        "id": "68686e99-34b6c892-da3e254d",
+        "name": "IxFlow | UNM Unclassified Clients",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714709825,
+        "modified": 1793715277452,
+        "visualizationConfig": {
+          "type": "table",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes",
+              "ixFlows",
+              "ixDcServerIp",
+              "ixDcServerPort"
+            ],
+            "categoryKey": "clientIp",
+            "categoryKeys": [
+              "clientIp",
+              "ixClientIpCountryName",
+              "ixClientAsName"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Bytes"
+                },
+                {
+                  "custom": true,
+                  "value": "Flows"
+                },
+                {
+                  "custom": true,
+                  "value": "Servers"
+                },
+                {
+                  "custom": true,
+                  "value": "Ports"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Client IP"
+                },
+                {
+                  "custom": true,
+                  "value": "Country"
+                },
+                {
+                  "custom": true,
+                  "value": "AS Name"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null,
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null,
+                null,
+                null
+              ]
+            },
+            "columns": [
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "clientIp",
+                "aggregation": "terms",
+                "field": "clientIp",
+                "fieldName": "clientIp",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "clientIp",
+                "preFn": "clientIp",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Client IP",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": true,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "clientIp",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "ixClientIpCountryName",
+                "aggregation": "terms",
+                "field": "ixClientIpCountryName",
+                "fieldName": "ixClientIpCountryName",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "ixClientIpCountryName",
+                "preFn": "ixClientIpCountryName",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Country",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixClientIpCountryName",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "ixClientAsName",
+                "aggregation": "terms",
+                "field": "ixClientAsName",
+                "fieldName": "ixClientAsName",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "ixClientAsName",
+                "preFn": "ixClientAsName",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "AS Name",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixClientAsName",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixBytes",
+                "alias": "ixBytes",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Bytes",
+                "field": "",
+                "fieldName": "ixBytes",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "visualOptions": {
+                  "label": "Bytes",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixBytes"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixFlows",
+                "alias": "ixFlows",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Flows",
+                "field": "",
+                "fieldName": "ixFlows",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Flows",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixFlows"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixDcServerIp",
+                "alias": "ixDcServerIp",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Servers",
+                "field": "",
+                "fieldName": "ixDcServerIp",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcServerIp=dc(serverIp)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Servers",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixDcServerIp"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixDcServerPort",
+                "alias": "ixDcServerPort",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Ports",
+                "field": "",
+                "fieldName": "ixDcServerPort",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcServerPort=dc(serverPort)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Ports",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixDcServerPort"
+              }
+            ],
+            "includeTotal": {
+              "active": false,
+              "label": "Total",
+              "hidden": false
+            },
+            "type": "table",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "Too much data to display."
+            },
+            "drilldown": [],
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "showLocalQuerySwitch": false,
+            "globalFilter": false,
+            "filterable": true,
+            "sortable": true,
+            "displayValuesOnXAxis": false,
+            "showRowCount": true,
+            "groupRowsByOrder": 1,
+            "fitMode": "first"
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixFlows",
+                "metricName": "Flows",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "alias": "ixFlows",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixDcServerIp",
+                "metricName": "Servers",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcServerIp=dc(serverIp)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcServerIp",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixDcServerPort",
+                "metricName": "Ports",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcServerPort=dc(serverPort)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcServerPort",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "clientIp",
+                "field": "clientIp",
+                "alias": "clientIp",
+                "preFn": "clientIp",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "clientIp",
+                "transformers": [],
+                "isSavedField": false
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "ixClientIpCountryName",
+                "field": "ixClientIpCountryName",
+                "alias": "ixClientIpCountryName",
+                "preFn": "ixClientIpCountryName",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "ixClientIpCountryName",
+                "transformers": [],
+                "isSavedField": false
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "ixClientAsName",
+                "field": "ixClientAsName",
+                "alias": "ixClientAsName",
+                "preFn": "ixClientAsName",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "ixClientAsName",
+                "transformers": [],
+                "isSavedField": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "ixBytes",
+              "direction": "desc",
+              "description": "ixBytes (desc)"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 500,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes), ixFlows=sum(flows), ixDcServerIp=dc(serverIp), ixDcServerPort=dc(serverPort) by clientIp as clientIp, ixClientIpCountryName as ixClientIpCountryName, ixClientAsName as ixClientAsName unwind=true | set ixBytes=add(ixCb,ixSb) | sort ixBytes desc | limit 500"
+            }
+          ],
+          "columns": [
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "clientIp",
+              "aggregation": "terms",
+              "field": "clientIp",
+              "fieldName": "clientIp",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "clientIp",
+              "preFn": "clientIp",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Client IP",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": true,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "clientIp",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "ixClientIpCountryName",
+              "aggregation": "terms",
+              "field": "ixClientIpCountryName",
+              "fieldName": "ixClientIpCountryName",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "ixClientIpCountryName",
+              "preFn": "ixClientIpCountryName",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Country",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": false,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixClientIpCountryName",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "ixClientAsName",
+              "aggregation": "terms",
+              "field": "ixClientAsName",
+              "fieldName": "ixClientAsName",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "ixClientAsName",
+              "preFn": "ixClientAsName",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "AS Name",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": false,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixClientAsName",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixBytes",
+              "alias": "ixBytes",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Bytes",
+              "field": "",
+              "fieldName": "ixBytes",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                "postAggr": "ixBytes=add(ixCb,ixSb)"
+              },
+              "visualOptions": {
+                "label": "Bytes",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixBytes"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixFlows",
+              "alias": "ixFlows",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Flows",
+              "field": "",
+              "fieldName": "ixFlows",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Flows",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixFlows"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixDcServerIp",
+              "alias": "ixDcServerIp",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Servers",
+              "field": "",
+              "fieldName": "ixDcServerIp",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixDcServerIp=dc(serverIp)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Servers",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixDcServerIp"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixDcServerPort",
+              "alias": "ixDcServerPort",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Ports",
+              "field": "",
+              "fieldName": "ixDcServerPort",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixDcServerPort=dc(serverPort)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Ports",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixDcServerPort"
+            }
+          ],
+          "includeTotal": {
+            "active": true,
+            "label": "Total",
+            "hidden": false
+          }
+        },
+        "version": 30,
+        "options": {},
+        "description": "Clients generating unclassified traffic.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e99-34b6c892-da3e254d",
+        "permissions": {
+          "entityId": "68686e99-34b6c892-da3e254d",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "1a99cf99-1674-458b-ad9a-1f49117625de",
+        "header": {
+          "title": "Top Server Ports",
+          "description": "Server ports with the most unclassified bytes."
+        },
+        "w": 10,
+        "h": 10,
+        "x": 14,
+        "y": 20,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e99-34b6c892-da3e2551",
+        "id": "68686e99-34b6c892-da3e2551",
+        "name": "IxFlow | UNM Top Server Ports",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714710091,
+        "modified": 1793715277530,
+        "visualizationConfig": {
+          "type": "chart",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes"
+            ],
+            "categoryKey": "serverPort",
+            "categoryKeys": [
+              "serverPort"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": [
+                null
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "value": "Bytes"
+                }
+              ],
+              "buckets": [
+                {
+                  "value": "Server Port"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#276EDB",
+                  "useDefaultColor": false
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null
+              ]
+            },
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "isCategoryDate": false,
+            "categoryDateInterval": "",
+            "autoBucket": false,
+            "timeKeys": [],
+            "splitKeys": [],
+            "splitChartsKeys": [],
+            "splitSeriesKeys": [],
+            "joinDataCategories": [
+              "serverPort"
+            ],
+            "gridIndexes": [
+              0
+            ],
+            "markers": [
+              {
+                "maxMarker": {},
+                "minMarker": {},
+                "maxLine": {},
+                "minLine": {},
+                "avgLine": {}
+              }
+            ],
+            "stack": {
+              "metrics": [
+                null
+              ]
+            },
+            "valueConfigs": {
+              "metrics": [
+                {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "nameLabels": true,
+                  "nameLabelsInline": true,
+                  "valueLabels": "value",
+                  "valueLabelsPosition": "insideLeft",
+                  "valueLabelsRotate": 0
+                }
+              ]
+            },
+            "sort": "desc",
+            "includeTotal": {
+              "hidden": false
+            },
+            "type": "bar",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+            },
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "animation": true,
+            "drilldown": [],
+            "showLocalQuerySwitch": false,
+            "displayValuesOnXAxis": true,
+            "yAxes": [
+              {
+                "series": [
+                  0
+                ],
+                "position": "default",
+                "showAxisLabels": true,
+                "labelAngle": 0,
+                "width": 100,
+                "axisLabelStyles": {
+                  "nameTextStyle": {
+                    "fontWeight": "normal",
+                    "fontSize": 12
+                  }
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                "useCustomName": false,
+                "splitLine": {
+                  "show": true,
+                  "lineStyle": {
+                    "color": "#2D2E55",
+                    "type": "solid",
+                    "width": 1
+                  }
+                },
+                "axisLine": {
+                  "show": true,
+                  "lineStyle": {
+                    "color": "#dddee8",
+                    "type": "solid",
+                    "width": 1
+                  }
+                },
+                "axisPointerConfig": {
+                  "show": false,
+                  "snap": false,
+                  "type": "shadow"
+                },
+                "labelPosition": "outside",
+                "forceAllLabels": false,
+                "barCategoryGapCustom": false,
+                "logScale": false,
+                "inverse": false
+              }
+            ],
+            "xAxes": [
+              {
+                "series": [
+                  0
+                ],
+                "position": "default",
+                "showAxisLabels": false,
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                "useCustomName": false,
+                "splitLine": {
+                  "show": true,
+                  "lineStyle": {
+                    "color": "#2D2E55",
+                    "type": "solid",
+                    "width": 1
+                  }
+                },
+                "axisLine": {
+                  "show": true,
+                  "lineStyle": {
+                    "color": "#dddee8",
+                    "type": "solid",
+                    "width": 1
+                  }
+                },
+                "axisPointerConfig": {
+                  "show": true,
+                  "snap": true,
+                  "type": "shadow"
+                },
+                "labelPosition": "outside",
+                "forceAllLabels": true,
+                "barCategoryGapCustom": false,
+                "logScale": false,
+                "inverse": false,
+                "dataZoom": false,
+                "dataZoomDefaultRangeAbsolute": true,
+                "dataZoomDefaultValue": {
+                  "min": 6,
+                  "max": 10
+                },
+                "dataZoomLock": true
+              }
+            ],
+            "showLegend": false,
+            "showInSingleMode": false,
+            "showSimpleChartTitle": true,
+            "active": {
+              "metrics": [
+                true
+              ]
+            }
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication = \"unknown\""
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "serverPort",
+                "field": "serverPort",
+                "alias": "serverPort",
+                "preFn": "serverPort",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": true,
+                "isStringFieldType": false,
+                "fieldName": "serverPort",
+                "transformers": [],
+                "isSavedField": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "ixBytes",
+              "direction": "desc"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 15,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "ixApplication = \"unknown\" | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes) by serverPort as serverPort unwind=true | set ixBytes=add(ixCb,ixSb) | sort ixBytes desc | limit 15"
+            }
+          ],
+          "includeTotal": {
+            "hidden": false
+          },
+          "columns": []
+        },
+        "version": 26,
+        "options": {},
+        "description": "Server ports with the most unclassified bytes.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e99-34b6c892-da3e2551",
+        "permissions": {
+          "entityId": "68686e99-34b6c892-da3e2551",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    },
+    {
+      "layout": {
+        "id": "14583008-d327-4c7e-b5ac-9387eaa99e11",
+        "header": {
+          "title": "Traffic Classification",
+          "description": "IxFlow traffic classification (3054:288) per application."
+        },
+        "w": 24,
+        "h": 8,
+        "x": 0,
+        "y": 30,
+        "moved": false,
+        "static": false
+      },
+      "config": {
+        "$ref": "68686e99-34b6c892-da3e2555",
+        "id": "68686e99-34b6c892-da3e2555",
+        "name": "IxFlow | UNM Traffic Classification",
+        "type": "visualization",
+        "tags": [],
+        "createdBy": "admin",
+        "modifiedBy": "admin",
+        "created": 1793714710351,
+        "modified": 1793715277606,
+        "visualizationConfig": {
+          "type": "table",
+          "concreteVisualizationConfig": {
+            "dataKey": "ixBytes",
+            "dataKeys": [
+              "ixBytes",
+              "ixFlows",
+              "ixDcClientIp"
+            ],
+            "categoryKey": "ixTrafficClassification",
+            "categoryKeys": [
+              "ixTrafficClassification",
+              "ixApplication"
+            ],
+            "formatting": {
+              "metrics": [
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                }
+              ],
+              "buckets": [
+                {
+                  "formattingType": "off"
+                },
+                {
+                  "formattingType": "off"
+                }
+              ]
+            },
+            "names": {
+              "metrics": [
+                {
+                  "custom": true,
+                  "value": "Bytes"
+                },
+                {
+                  "custom": true,
+                  "value": "Flows"
+                },
+                {
+                  "custom": true,
+                  "value": "Clients"
+                }
+              ],
+              "buckets": [
+                {
+                  "custom": true,
+                  "value": "Classification"
+                },
+                {
+                  "custom": true,
+                  "value": "Application"
+                }
+              ]
+            },
+            "colors": {
+              "metrics": [
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                },
+                {
+                  "useDefaultColor": true
+                }
+              ]
+            },
+            "thresholds": {
+              "metrics": [
+                null,
+                null,
+                null
+              ]
+            },
+            "areThresholdsAbsolute": {
+              "metrics": [
+                null,
+                null,
+                null
+              ]
+            },
+            "columns": [
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "ixTrafficClassification",
+                "aggregation": "terms",
+                "field": "ixTrafficClassification",
+                "fieldName": "ixTrafficClassification",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "ixTrafficClassification",
+                "preFn": "ixTrafficClassification",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Classification",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": true,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixTrafficClassification",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "bucket",
+                "alias": "ixApplication",
+                "aggregation": "terms",
+                "field": "ixApplication",
+                "fieldName": "ixApplication",
+                "useFn": false,
+                "isSavedField": false,
+                "fn": {},
+                "bucket": "ixApplication",
+                "preFn": "ixApplication",
+                "filterFn": {
+                  "custom": false
+                },
+                "isStringFieldType": true,
+                "isNumberFieldType": false,
+                "isCollectionFieldType": false,
+                "unwindCollection": false,
+                "autoBucket": false,
+                "interval": "",
+                "visualOptions": {
+                  "label": "Application",
+                  "showLabel": true,
+                  "align": "left"
+                },
+                "frozen": false,
+                "formatting": {
+                  "formattingType": "off"
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": true,
+                  "type": "single",
+                  "color": "#353664"
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixApplication",
+                "transformers": []
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixBytes",
+                "alias": "ixBytes",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Bytes",
+                "field": "",
+                "fieldName": "ixBytes",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "visualOptions": {
+                  "label": "Bytes",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.0",
+                  "formattingUnit": "bytes_decimal",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixBytes"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixFlows",
+                "alias": "ixFlows",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Flows",
+                "field": "",
+                "fieldName": "ixFlows",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Flows",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixFlows"
+              },
+              {
+                "active": true,
+                "columnType": "metric",
+                "metric": "ixDcClientIp",
+                "alias": "ixDcClientIp",
+                "aggregation": "",
+                "useAggr": false,
+                "metricName": "Clients",
+                "field": "",
+                "fieldName": "ixDcClientIp",
+                "fieldType": "field",
+                "useFn": false,
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcClientIp=dc(clientIp)",
+                  "postAggr": ""
+                },
+                "visualOptions": {
+                  "label": "Clients",
+                  "showLabel": true,
+                  "align": "right"
+                },
+                "formatting": {
+                  "formattingType": "number",
+                  "formattingPattern": "0,.[0]",
+                  "formattingUnit": "abbreviation",
+                  "formattingSimple": true
+                },
+                "includeNullValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "includeZeroValues": true,
+                "backgroundColor": {
+                  "useCustomColor": false
+                },
+                "foregroundColor": {
+                  "useCustomColor": false
+                },
+                "metricBar": {
+                  "active": true,
+                  "areThresholdsAbsolute": false,
+                  "minValue": 0,
+                  "maxValue": 100,
+                  "barColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "showAddFilterButton": true,
+                "defaultFilterStream": "netflow",
+                "limit": {
+                  "active": false
+                },
+                "dataField": "ixDcClientIp"
+              }
+            ],
+            "includeTotal": {
+              "active": false,
+              "label": "Total",
+              "hidden": false
+            },
+            "type": "table",
+            "hideTooMuchData": {
+              "active": true,
+              "value": 502,
+              "message": "Too much data to display."
+            },
+            "drilldown": [],
+            "baselines": [],
+            "baselineMetrics": {},
+            "baselineKeys": [],
+            "defaultFilterStream": [
+              "netflow"
+            ],
+            "hideTooMuchInputData": {
+              "active": false
+            },
+            "noData": {
+              "active": false
+            },
+            "showLocalQuerySwitch": false,
+            "globalFilter": false,
+            "filterable": true,
+            "sortable": true,
+            "displayValuesOnXAxis": false,
+            "showRowCount": true,
+            "groupRowsByOrder": 1,
+            "fitMode": "first"
+          }
+        },
+        "data": {
+          "dataMode": "advanced",
+          "source": {
+            "name": "netflow",
+            "type": "stream",
+            "isRaw": true,
+            "base": "netflow",
+            "resolution": ""
+          },
+          "query": {
+            "timerange": {
+              "from": "now-1hours",
+              "to": "now"
+            },
+            "query": "ixApplication != null"
+          },
+          "outputQuery": {},
+          "aggs": {
+            "metrics": [
+              {
+                "metric": "ixBytes",
+                "metricName": "Bytes",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                  "postAggr": "ixBytes=add(ixCb,ixSb)"
+                },
+                "alias": "ixBytes",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixFlows",
+                "metricName": "Flows",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixFlows=sum(flows)",
+                  "postAggr": ""
+                },
+                "alias": "ixFlows",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              },
+              {
+                "metric": "ixDcClientIp",
+                "metricName": "Clients",
+                "useAggr": false,
+                "field": "",
+                "fieldType": "savedMetric",
+                "aggregation": "",
+                "aggrParams": {},
+                "fn": {
+                  "aggr": "ixDcClientIp=dc(clientIp)",
+                  "postAggr": ""
+                },
+                "alias": "ixDcClientIp",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "transformers": []
+              }
+            ],
+            "buckets": [
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "ixTrafficClassification",
+                "field": "ixTrafficClassification",
+                "alias": "ixTrafficClassification",
+                "preFn": "ixTrafficClassification",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "ixTrafficClassification",
+                "transformers": [],
+                "isSavedField": false
+              },
+              {
+                "aggregation": "terms",
+                "useFn": false,
+                "bucket": "ixApplication",
+                "field": "ixApplication",
+                "alias": "ixApplication",
+                "preFn": "ixApplication",
+                "autoBucket": false,
+                "interval": "",
+                "includeNullValues": true,
+                "includeZeroValues": true,
+                "includeEmptyValues": true,
+                "includeEmptyListValues": true,
+                "limit": {
+                  "active": false
+                },
+                "filterFn": {
+                  "custom": false
+                },
+                "unwindCollection": false,
+                "isCollectionFieldType": false,
+                "isNumberFieldType": false,
+                "isStringFieldType": true,
+                "fieldName": "ixApplication",
+                "transformers": [],
+                "isSavedField": false
+              }
+            ]
+          },
+          "sorters": [
+            {
+              "field": "ixBytes",
+              "direction": "desc",
+              "description": "ixBytes (desc)"
+            }
+          ],
+          "limit": {
+            "active": true,
+            "limit": 500,
+            "from": "head",
+            "othersShow": false
+          },
+          "queries": [
+            {
+              "nql": "ixApplication != null | aggr ixCb=sum(clientBytes), ixSb=sum(serverBytes), ixFlows=sum(flows), ixDcClientIp=dc(clientIp) by ixTrafficClassification as ixTrafficClassification, ixApplication as ixApplication unwind=true | set ixBytes=add(ixCb,ixSb) | sort ixBytes desc | limit 500"
+            }
+          ],
+          "columns": [
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "ixTrafficClassification",
+              "aggregation": "terms",
+              "field": "ixTrafficClassification",
+              "fieldName": "ixTrafficClassification",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "ixTrafficClassification",
+              "preFn": "ixTrafficClassification",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Classification",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": true,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixTrafficClassification",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "bucket",
+              "alias": "ixApplication",
+              "aggregation": "terms",
+              "field": "ixApplication",
+              "fieldName": "ixApplication",
+              "useFn": false,
+              "isSavedField": false,
+              "fn": {},
+              "bucket": "ixApplication",
+              "preFn": "ixApplication",
+              "filterFn": {
+                "custom": false
+              },
+              "isStringFieldType": true,
+              "isNumberFieldType": false,
+              "isCollectionFieldType": false,
+              "unwindCollection": false,
+              "autoBucket": false,
+              "interval": "",
+              "visualOptions": {
+                "label": "Application",
+                "showLabel": true,
+                "align": "left"
+              },
+              "frozen": false,
+              "formatting": {
+                "formattingType": "off"
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": true,
+                "type": "single",
+                "color": "#353664"
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixApplication",
+              "transformers": []
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixBytes",
+              "alias": "ixBytes",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Bytes",
+              "field": "",
+              "fieldName": "ixBytes",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
+                "postAggr": "ixBytes=add(ixCb,ixSb)"
+              },
+              "visualOptions": {
+                "label": "Bytes",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixBytes"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixFlows",
+              "alias": "ixFlows",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Flows",
+              "field": "",
+              "fieldName": "ixFlows",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Flows",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixFlows"
+            },
+            {
+              "active": true,
+              "columnType": "metric",
+              "metric": "ixDcClientIp",
+              "alias": "ixDcClientIp",
+              "aggregation": "",
+              "useAggr": false,
+              "metricName": "Clients",
+              "field": "",
+              "fieldName": "ixDcClientIp",
+              "fieldType": "field",
+              "useFn": false,
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixDcClientIp=dc(clientIp)",
+                "postAggr": ""
+              },
+              "visualOptions": {
+                "label": "Clients",
+                "showLabel": true,
+                "align": "right"
+              },
+              "formatting": {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              "includeNullValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "includeZeroValues": true,
+              "backgroundColor": {
+                "useCustomColor": false
+              },
+              "foregroundColor": {
+                "useCustomColor": false
+              },
+              "metricBar": {
+                "active": true,
+                "areThresholdsAbsolute": false,
+                "minValue": 0,
+                "maxValue": 100,
+                "barColor": {
+                  "useCustomColor": false
+                }
+              },
+              "showAddFilterButton": true,
+              "defaultFilterStream": "netflow",
+              "limit": {
+                "active": false
+              },
+              "dataField": "ixDcClientIp"
+            }
+          ],
+          "includeTotal": {
+            "active": true,
+            "label": "Total",
+            "hidden": false
+          }
+        },
+        "version": 30,
+        "options": {},
+        "description": "IxFlow traffic classification (3054:288) per application.",
+        "entitySet": "COMPONENT",
+        "entityType": "visualization",
+        "annotations": null,
+        "_qbId": "68686e99-34b6c892-da3e2555",
+        "permissions": {
+          "entityId": "68686e99-34b6c892-da3e2555",
+          "entityType": "COMPONENT.visualization",
+          "canAdd": true,
+          "canView": true,
+          "canEdit": true,
+          "canDelete": true,
+          "canExecute": true,
+          "canModifyOwner": true,
+          "canGrantPermissions": true
+        }
+      },
+      "style": {
+        "padding": {
+          "top": 0,
+          "bottom": 0,
+          "left": 0,
+          "right": 0
+        }
+      }
+    }
+  ],
+  "version": 5,
+  "descriptionDefaultShow": false,
+  "entitySet": "COMPONENT",
+  "entityType": "dashboard",
+  "annotations": null,
+  "acl": {
+    "permissions": [],
+    "privacy": "public",
+    "publicPermissions": [],
+    "entityId": "68686e9a-34b6c892-da3e2559",
+    "entityType": "COMPONENT.dashboard",
+    "owner": "admin",
+    "availPerms": [
+      "VIEW",
+      "EDIT",
+      "ADD",
+      "DELETE",
+      "EXECUTE",
+      "MODIFY_OWNERSHIP",
+      "GRANT_PERMISSIONS"
+    ],
+    "isOwner": true,
+    "aclEdit": true
+  },
+  "permissions": {
+    "entityId": "68686e9a-34b6c892-da3e2559",
+    "entityType": "COMPONENT.dashboard",
+    "canAdd": true,
+    "canView": true,
+    "canEdit": true,
+    "canDelete": true,
+    "canExecute": true,
+    "canModifyOwner": true,
+    "canGrantPermissions": true
+  },
+  "aclEdit": true
+}

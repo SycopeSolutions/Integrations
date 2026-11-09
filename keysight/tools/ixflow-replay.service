@@ -1,0 +1,38 @@
+# Example systemd unit for ixflow_replay.py (demo/lab use).
+# Install: copy ixflow_replay.py and ixflow.cache to /opt/ixflow, create an
+# "ixflow" system user, replace SYCOPE_IP below, then:
+#   systemctl daemon-reload && systemctl enable --now ixflow-replay
+[Unit]
+Description=Keysight IxFlow IPFIX replay -> Sycope
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ixflow
+Group=ixflow
+WorkingDirectory=/opt/ixflow
+# Optional virtual edge router (--mirror-src MIRROR_IP): the address must exist on
+# the host. The unit can add/remove it as an IP alias ("+" = run as root), e.g.:
+#   ExecStartPre=+/usr/sbin/ip addr replace MIRROR_IP/32 dev IFACE
+#   ExecStopPost=+-/usr/sbin/ip addr del MIRROR_IP/32 dev IFACE
+# and append "--mirror-src MIRROR_IP" to ExecStart.
+ExecStart=/usr/bin/python3 /opt/ixflow/ixflow_replay.py run \
+    --cache /opt/ixflow/ixflow.cache \
+    --dst SYCOPE_IP --dport 2055 \
+    --speed 1.0 --lag 2 --template-interval 10 --report 300 \
+    --remap-ie 3054:176=232 --remap-ie 3054:177=299
+Restart=always
+RestartSec=5
+Nice=-5
+StandardOutput=journal
+StandardError=journal
+# Minimal privileges (remove when using --spoof, which needs root and raw sockets)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=
+
+[Install]
+WantedBy=multi-user.target

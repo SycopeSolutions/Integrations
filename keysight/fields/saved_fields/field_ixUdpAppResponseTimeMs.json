@@ -1,0 +1,39 @@
+{
+  "name": "ixUdpAppResponseTimeMs",
+  "type": "savedFields",
+  "tags": null,
+  "description": "Keysight IxFlow UDP application response time (PEN 3054:284) converted from microseconds to milliseconds.",
+  "visualOptions": {
+    "label": "Ix UDP App Response Time (ms)",
+    "showLabel": true
+  },
+  "sources": [
+    {
+      "streams": [
+        "netflow"
+      ],
+      "useFn": true,
+      "alias": "ixUdpAppResponseTimeMs",
+      "preFn": "div(ixUdpAppResponseTime, 1000)",
+      "filterFn": {
+        "custom": false
+      },
+      "postponeAggr": false
+    }
+  ],
+  "transformers": [],
+  "formatting": {
+    "formattingType": "number",
+    "formattingPattern": "0,0.[0]",
+    "formattingUnit": "off",
+    "formattingSimple": true
+  },
+  "version": 6,
+  "entitySet": "COMPONENT",
+  "entityType": "savedFields",
+  "annotations": null,
+  "displayName": "Ix UDP App Response Time (ms)",
+  "streams": [
+    "netflow"
+  ]
+}

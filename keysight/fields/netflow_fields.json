@@ -1,0 +1,285 @@
+{
+  "_comment": "Sycope NetFlow custom field definitions for Keysight IxFlow (PEN 3054). typeCode: 2=string, 6=long, 18=short, 23=mac. Elements that collide with Sycope built-in IPFIX element IDs are intentionally omitted - see docs/field_reference.md.",
+  "fields": [
+    {
+      "pen": 3054,
+      "elementId": 111,
+      "name": "ixApplication",
+      "displayName": "Ix Application",
+      "description": "Keysight IxFlow PEN 3054:111 - Application name",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 120,
+      "name": "ixClientIpCountryCode",
+      "displayName": "Ix Client IP Country Code",
+      "description": "Keysight IxFlow PEN 3054:120 - 2-letter country code for the IP address or one of the following:",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 121,
+      "name": "ixClientIpCountryName",
+      "displayName": "Ix Client IP Country Name",
+      "description": "Keysight IxFlow PEN 3054:121 - Country name for the source IP address",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 122,
+      "name": "ixClientIpRegionCode",
+      "displayName": "Ix Client IP Region Code",
+      "description": "Keysight IxFlow PEN 3054:122 - 2 letter region code for the source IP address",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 140,
+      "name": "ixServerIpCountryCode",
+      "displayName": "Ix Server IP Country Code",
+      "description": "Keysight IxFlow PEN 3054:140 - 2-letter country code for the IP address or one of the following:",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 141,
+      "name": "ixServerIpCountryName",
+      "displayName": "Ix Server IP Country Name",
+      "description": "Keysight IxFlow PEN 3054:141 - Country name for the destination IP address",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 142,
+      "name": "ixServerIpRegionCode",
+      "displayName": "Ix Server IP Region Code",
+      "description": "Keysight IxFlow PEN 3054:142 - 2-letter region code for the destination IP address",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 143,
+      "name": "ixServerIpRegionName",
+      "displayName": "Ix Server IP Region Name",
+      "description": "Keysight IxFlow PEN 3054:143 - Region name for the destination IP address",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 145,
+      "name": "ixServerIpCityName",
+      "displayName": "Ix Server IP City Name",
+      "description": "Keysight IxFlow PEN 3054:145 - City name for the destination IP address",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 161,
+      "name": "ixOsDeviceName",
+      "displayName": "Ix OS Device Name",
+      "description": "Keysight IxFlow PEN 3054:161 - OS name",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 163,
+      "name": "ixBrowserName",
+      "displayName": "Ix Browser Name",
+      "description": "Keysight IxFlow PEN 3054:163 - Unique name for each browser type",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 186,
+      "name": "ixClientAsName",
+      "displayName": "Ix Client AS Name",
+      "description": "Keysight IxFlow PEN 3054:186 - Client AS name (undocumented, inferred from data, e.g. CLOUDFLARENET)",
+      "typeCode": 2,
+      "indexed": false,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 188,
+      "name": "ixTransactionLatency",
+      "displayName": "Ix Transaction Latency",
+      "description": "Keysight IxFlow PEN 3054:188 - Transaction latency of the first transaction in a bidirectional flow in microseconds.",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": "microseconds"
+    },
+    {
+      "pen": 3054,
+      "elementId": 189,
+      "name": "ixDnsQueryHostname",
+      "displayName": "Ix DNS Query HostName",
+      "description": "Keysight IxFlow PEN 3054:189 - Host name contained in DNS query",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 190,
+      "name": "ixDnsResponseHostname",
+      "displayName": "Ix DNS Response HostName",
+      "description": "Keysight IxFlow PEN 3054:190 - Host name returned in response by DNS server",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 191,
+      "name": "ixDnsClass",
+      "displayName": "Ix DNS Class",
+      "description": "Keysight IxFlow PEN 3054:191 - DNS record class returned in the DNS response",
+      "typeCode": 2,
+      "indexed": false,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 201,
+      "name": "ixSni",
+      "displayName": "Ix SNI",
+      "description": "Keysight IxFlow PEN 3054:201 - Server Name Indication field for TLS",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 202,
+      "name": "ixDhcpClientId",
+      "displayName": "Ix DHCP Client ID",
+      "description": "Keysight IxFlow PEN 3054:202 - MAC address found in the Client Identifier option sent in the DHCP packet",
+      "typeCode": 23,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 214,
+      "name": "ixServiceType",
+      "displayName": "Ix Service Type",
+      "description": "Keysight IxFlow PEN 3054:214 - Radius message attribute value for Service-Type(6)",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 215,
+      "name": "ixFramedProtocol",
+      "displayName": "Ix Framed Protocol",
+      "description": "Keysight IxFlow PEN 3054:215 - Radius message attribute value for Framed-Protocol(7)",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 279,
+      "name": "ixJA3",
+      "displayName": "Ix JA3",
+      "description": "Keysight IxFlow PEN 3054:279 - Concatenation of the integer values",
+      "typeCode": 2,
+      "indexed": true,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 281,
+      "name": "ixTcpAppResponseTime",
+      "displayName": "Ix TCP App Response Time",
+      "description": "Keysight IxFlow PEN 3054:281 - Average time of transaction sequences measured between each client-to-server packet and the following server-t",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": "microseconds"
+    },
+    {
+      "pen": 3054,
+      "elementId": 284,
+      "name": "ixUdpAppResponseTime",
+      "displayName": "Ix UDP App Response Time",
+      "description": "Keysight IxFlow PEN 3054:284 - Average elapsed time of transaction sequences measured between each client-to-server packet and the subsequent",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": "microseconds"
+    },
+    {
+      "pen": 3054,
+      "elementId": 285,
+      "name": "ixQuicConnectionSetupTime",
+      "displayName": "Ix QUIC Connection Setup Time",
+      "description": "Keysight IxFlow PEN 3054:285 - The time required to perform the initial QUIC handshake between the client and the server. The value is displa",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": "microseconds"
+    },
+    {
+      "pen": 3054,
+      "elementId": 286,
+      "name": "ixQuicConnectionRoundTripTime",
+      "displayName": "Ix QUIC Connection Round Trip Time",
+      "description": "Keysight IxFlow PEN 3054:286 - Average round-trip time during a flow's lifetime, including the connection setup time. A single round trip is",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": "microseconds"
+    },
+    {
+      "pen": 3054,
+      "elementId": 287,
+      "name": "ixQuicAppResponseTime",
+      "displayName": "Ix QUIC App Response Time",
+      "description": "Keysight IxFlow PEN 3054:287 - Average round-trip time during a flow's lifetime, not including the connection setup time. A single round trip",
+      "typeCode": 6,
+      "indexed": false,
+      "unit": "microseconds"
+    },
+    {
+      "pen": 3054,
+      "elementId": 288,
+      "name": "ixTrafficClassification",
+      "displayName": "Ix Traffic Classification",
+      "description": "Keysight IxFlow PEN 3054:288 - Traffic classification (undocumented, inferred from data, e.g. Unmatched traffic)",
+      "typeCode": 2,
+      "indexed": false,
+      "unit": null
+    },
+    {
+      "pen": 3054,
+      "elementId": 321,
+      "name": "ixUnidirectionalFlow",
+      "displayName": "Ix Unidirectional Flow",
+      "description": "Keysight IxFlow PEN 3054:321 - Flow is unidirectional: 1: True 0: False",
+      "typeCode": 18,
+      "indexed": false,
+      "unit": null
+    }
+  ]
+}

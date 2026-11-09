@@ -1,0 +1,39 @@
+{
+  "name": "ixTransactionLatencyMs",
+  "type": "savedFields",
+  "tags": null,
+  "description": "Keysight IxFlow latency of the first transaction in the flow (PEN 3054:188) converted from microseconds to milliseconds.",
+  "visualOptions": {
+    "label": "Ix Transaction Latency (ms)",
+    "showLabel": true
+  },
+  "sources": [
+    {
+      "streams": [
+        "netflow"
+      ],
+      "useFn": true,
+      "alias": "ixTransactionLatencyMs",
+      "preFn": "div(ixTransactionLatency, 1000)",
+      "filterFn": {
+        "custom": false
+      },
+      "postponeAggr": false
+    }
+  ],
+  "transformers": [],
+  "formatting": {
+    "formattingType": "number",
+    "formattingPattern": "0,0.[0]",
+    "formattingUnit": "off",
+    "formattingSimple": true
+  },
+  "version": 6,
+  "entitySet": "COMPONENT",
+  "entityType": "savedFields",
+  "annotations": null,
+  "displayName": "Ix Transaction Latency (ms)",
+  "streams": [
+    "netflow"
+  ]
+}
