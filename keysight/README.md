@@ -6,7 +6,7 @@ This integration configures Sycope to decode those elements, provides five ready
 
 > **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and probes monitoring availability.
 
-<!-- SCREENSHOT: NOC Overview dashboard -->
+![Keysight IxFlow | NOC Overview](docs/screenshots/noc_overview.jpg)
 
 ---
 
@@ -124,10 +124,10 @@ Options: `--dry-run`, `--skip-assign`, `--skip-saved-fields`, `--skip-dashboards
 
 ### Manual alternative (GUI)
 
-If you prefer the GUI, configure the profile under **Template Based Settings**. Add a custom field for each row of the table in [docs/field_reference.md](docs/field_reference.md#1-supported-elements-created-by-installpy), create a traffic profile with these fields and assign it to the exporter IP.
+If you prefer the GUI, go to **Settings → NetFlow → Template Based Settings**. Add a custom field for each row of the table in [docs/field_reference.md](docs/field_reference.md#1-supported-elements-created-by-installpy), create a traffic profile with these fields and assign it to the exporter IP.
 Then import the dashboards and saved fields as described in [Dashboards](#dashboards).
 
-<!-- SCREENSHOT: Template Based Settings with the Keysight IxFlow profile -->
+![Traffic profile Keysight IxFlow in Template Based Settings](docs/screenshots/template_based_settings.jpg)
 
 ---
 
@@ -198,7 +198,10 @@ Exit code: `0` all OK, `1` at least one FAIL, `2` warnings only.
 
 ### Manual checks
 
-- In Sycope, open the NetFlow templates view for the exporter. The IxFlow data template should list the elements by their `ix*` names rather than as `unknown`.
+- In **Settings → NetFlow → Template Based Settings → Exporter templates**, click the magnifier next to the exporter IP. The IxFlow data template should list the elements by their `ix*` names rather than as `unknown`.
+
+  ![Exporter template with decoded ix* fields](docs/screenshots/exporter_template.jpg)
+
 - Run an NQL query on the `netflow` stream:
   ```
   src stream="netflow" | where ixApplication != null | aggr flows=count(timestamp) by ixApplication
@@ -212,7 +215,7 @@ Exit code: `0` all OK, `1` at least one FAIL, `2` warnings only.
 
 ## Using IxFlow fields in standard dashboards
 
-The `ix*` fields are regular fields of the `netflow` stream. Every built-in dashboard that reads that stream can be filtered by them, including *Port Details*, *Servers Ports Details*, *Applications* and *Host Details*. Type an NQL condition in the dashboard filter bar:
+The `ix*` fields are regular fields of the `netflow` stream. Every built-in dashboard that reads that stream can be filtered by them, including *Port Details*, *Servers Ports Details*, *Applications* and *Host Details*. In the query bar at the top, select the `netflow` source and type an NQL condition:
 
 | Goal | Filter |
 |---|---|
@@ -232,7 +235,11 @@ The `ix*` fields are regular fields of the `netflow` stream. Every built-in dash
 > **Latency values are in microseconds.** 1 ms = 1,000; 50 ms = 50,000; 1 s = 1,000,000. A value of `0` means "not measured for this flow".
 > Text fields that do not apply to a flow (e.g. `ixSni` for non-TLS traffic) contain an empty string, not null.
 
-<!-- SCREENSHOT: Port Details filtered by ixApplication -->
+*Servers Ports Details* filtered by `ixApplication = "http" and ixTcpAppResponseTime > 50000`. The built-in *Application* column is empty for this traffic; the IxFlow filter still finds it:
+
+![Servers Ports Details filtered by IxFlow fields](docs/screenshots/servers_ports_details_filter.jpg)
+
+A filtered view can be shared as a link. The filter is stored in the `gq` URL parameter, for example `https://<sycope>/panel/dashboards/edit/<dashboard-id>?gq={"query":{"source":"","nql":"ixApplication = \"http\""},"timerange":{"from":"now-15minutes","to":"now"}}` (URL-encoded).
 
 To show IxFlow values as columns or chart dimensions in your own widgets:
 - add the `ix*` field directly, or
@@ -259,18 +266,31 @@ The dashboards read the `netflow` stream and filter on `ixApplication != null`, 
 
 **Import with the script:** `install.py` (step 5) takes the folder that matches `sycope_version`.
 
-**Import from the GUI:** go to **Dashboards → Import** and upload the files from the folder that matches your Sycope version:
+**Import from the GUI:** go to **Dashboards → Add dashboard ▾ → Import dashboard**, upload the files from the folder that matches your Sycope version:
 - **Sycope 3.2:** `dashboards/sycope-3.2/*.json`
 - **Sycope 3.3:** `dashboards/sycope-3.3/*.json`
 
-The two folders contain the same dashboards. The export format changed in 3.3: widgets are stored next to the dashboard instead of inside it. A 3.2 file cannot be imported into 3.3 from the GUI. The script handles both formats.
+The dashboard opens in the editor; click **Save and close**. Import one file at a time.
+
+The two folders contain the same dashboards. The export format changed in 3.3 (widgets are stored next to the dashboard instead of inside it), so use the folder that matches your Sycope version. The script reads both formats.
 
 **Saved fields from the GUI:** go to **Settings → Objects → Fields → Import Field** and upload the files from `fields/saved_fields/`.
 
-<!-- SCREENSHOT: Applications dashboard -->
-<!-- SCREENSHOT: Endpoints dashboard -->
-<!-- SCREENSHOT: Inventory dashboard -->
-<!-- SCREENSHOT: Unmatched Traffic dashboard -->
+**Applications**
+
+![Keysight IxFlow | Applications](docs/screenshots/applications.jpg)
+
+**Endpoints**
+
+![Keysight IxFlow | Endpoints](docs/screenshots/endpoints.jpg)
+
+**Inventory**
+
+![Keysight IxFlow | Inventory](docs/screenshots/inventory.jpg)
+
+**Unmatched Traffic**
+
+![Keysight IxFlow | Unmatched Traffic](docs/screenshots/unmatched_traffic.jpg)
 
 ---
 
