@@ -24,7 +24,7 @@ with requests.Session() as session:
 Dashboards in this repository use the Sycope 3.3 export format. The module reads both formats and converts between them:
 
 - `to_32(doc)` - legacy support: converts a 3.3 export so it can be imported in the Sycope 3.2 GUI. It embeds the widgets back into the dashboard, removes keys that exist only in 3.3 and lowers schema versions to the 3.2 maximum (dashboard 9, widget 35).
-- `to_33(doc)` - converts an old 3.2 export to the 3.3 format.
+- `to_33(doc)` - converts an old 3.2 export to the 3.3 format. Optional: Sycope 3.3.1 imports 3.2 export files directly (GUI and API); use it to keep files in the current format.
 - `import_dashboard(api, path)` - imports a file in either format through the REST API into Sycope 3.2 or 3.3, updating widgets and the dashboard in place when they already exist (matched by name).
 - `install_components(api, integration_dir, legacy_32=False, dry_run=False)` - used by the integrations' `install.py`: imports `fields/` (saved fields), `drilldowns/` (widgets, then the shortcuts that point to them, re-pointed to the new widget ids) and `dashboards/`, whichever exist. `legacy_32=True` converts the dashboards for Sycope 3.2 first.
 
