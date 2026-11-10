@@ -36,7 +36,7 @@ Dashboards in this repository use the **Sycope 3.3** export format. For **Sycope
 python3 -m sycope.scripts.convert_dashboard --to 3.2 <integration>/dashboards/*.json -o dashboards-3.2/
 ```
 
-The converter works offline and needs Python 3.8+ with `requests`, like the integrations. Scripts that import dashboards through the API, such as `keysight/install.py`, support both versions without conversion. Python code can use `sycope.dashboards` (`to_32()`, `to_33()`, `import_dashboard()`).
+The converter works offline and needs Python 3.8+ with `requests`, like the integrations. The `install.py` scripts of the integrations import the dashboards (and, where the integration has them, saved fields and drilldowns) through the API; for Sycope 3.2 run them with `--sycope-3.2`. Python code can use `sycope.dashboards` (`to_32()`, `to_33()`, `import_dashboard()`, `install_components()`).
 
 ---
 

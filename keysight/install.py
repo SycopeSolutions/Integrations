@@ -15,7 +15,7 @@ Steps (each one is idempotent - re-running the script only adds what is missing)
 A JSON backup of the NetFlow configuration is written to backups/ before any change.
 
 Usage:
-    python3 install.py [--dry-run] [--skip-assign] [--skip-saved-fields] [--skip-dashboards]
+    python3 install.py [--dry-run] [--skip-assign] [--skip-saved-fields] [--skip-dashboards] [--sycope-3.2]
 
 Script version: 1.0
 Tested on Sycope 3.2.1 and 3.3.1
@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from sycope.api import SycopeApi
 from sycope.config import load_config
+from sycope.dashboards import install_components
 from sycope.exceptions import SycopeError
 from sycope.logging import setup_logging, suppress_ssl_warnings
 
@@ -55,13 +56,6 @@ BACKUP_DIR = os.path.join(SCRIPT_DIR, "backups")
 def load_ixflow_fields():
     with open(FIELDS_FILE, encoding="utf-8") as fp:
         return json.load(fp)["fields"]
-
-
-def dashboard_files():
-    files = sorted(glob.glob(os.path.join(DASHBOARDS_DIR, "*.json")))
-    if not files:
-        raise SycopeError(f"No dashboard files in {DASHBOARDS_DIR}")
-    return files
 
 
 def backup(api):
@@ -108,6 +102,8 @@ def main():
     parser.add_argument("--skip-assign", action="store_true", help="do not bind the profile to exporters")
     parser.add_argument("--skip-saved-fields", action="store_true", help="do not import saved fields")
     parser.add_argument("--skip-dashboards", action="store_true", help="do not import dashboards")
+    parser.add_argument("--sycope-3.2", dest="sycope_32", action="store_true",
+                        help="Sycope 3.2 (legacy) compatibility: convert dashboards to the 3.2 format before importing")
     args = parser.parse_args()
 
     try:
@@ -166,38 +162,17 @@ def main():
                     level = logging.WARNING if action.startswith("SKIPPED") else logging.INFO
                     logging.log(level, f"  {ip}: {action}")
 
-            existing = {(c["type"], c["name"]): c["id"] for c in nf.list_components(api)}
-
-            # 4. saved fields
-            logging.info("Step 4/5: saved fields")
-            if args.skip_saved_fields:
-                logging.info("  skipped (--skip-saved-fields)")
-            else:
-                for path in sorted(glob.glob(os.path.join(SAVED_FIELDS_DIR, "*.json"))):
-                    comp = nf.load_saved_field(path)
-                    if args.dry_run:
-                        state = "exists" if ("savedFields", comp["name"]) in existing else "would be created"
-                    else:
-                        _, state = nf.upsert_component(api, comp, existing)
-                    logging.info(f"  {comp['name']}: {state}")
-
-            # 5. dashboards
-            logging.info("Step 5/5: dashboards")
-            if args.skip_dashboards:
-                logging.info("  skipped (--skip-dashboards)")
-            else:
-                for path in dashboard_files():
-                    name, widgets = nf.dashboard_names(path)
-                    if args.dry_run:
-                        state = "exists" if ("dashboard", name) in existing else "would be created"
-                        logging.info(f"  {name}: {state} ({len(widgets)} widgets)")
-                        continue
-                    did, state, n = nf.import_dashboard(api, path, existing)
-                    logging.info(f"  {name}: {state} ({n} widgets) -> "
-                                 f"{cfg['sycope_host']}/panel/dashboards/edit/{did}")
+            # 4 + 5. saved fields and dashboards
+            logging.info("Step 4-5/5: saved fields and dashboards"
+                         + (" (Sycope 3.2 compatibility)" if args.sycope_32 else ""))
+            install_components(
+                api, SCRIPT_DIR, legacy_32=args.sycope_32, dry_run=args.dry_run,
+                fields=not args.skip_saved_fields, drilldowns=False,
+                dashboards=not args.skip_dashboards, log=logging.info,
+            )
 
             logging.info("Done. Run verify_flows.py once the exporter has sent templates and data.")
-        except SycopeError as e:
+        except (SycopeError, ValueError) as e:
             logging.error(f"Sycope API error: {e}")
             sys.exit(1)
         finally:

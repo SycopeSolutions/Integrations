@@ -41,7 +41,7 @@ The `eve_processor.py` script:
 │   └── Suricata_Protocols.json         # Suricata Protocols dashboard (Sycope 3.3 format)
 ├── config.json                      # Configuration file
 ├── eve_processor.py                 # Main processing script
-├── install.py                       # Creates a new Sycope index with proper fields
+├── install.py                       # Creates the Sycope index and imports the dashboards
 ├── uninstall.py                     # Optional cleanup for custom indexes
 ├── state.json                       # Offset-tracking state file (auto-generated)
 ├── tools/
@@ -103,11 +103,15 @@ or track the OISF release announcements for when the backport lands.
 
 ```bash
 git clone https://github.com/SycopeSolutions/Integrations.git
-cd Integrations/Suricata
+cd Integrations/suricata
 pip3 install -r requirements.txt
+# edit config.json (see below)
+python3 install.py --dry-run     # shows what would be created or updated, changes nothing
+python3 install.py               # Sycope 3.3
+python3 install.py --sycope-3.2  # Sycope 3.2 (legacy): dashboards converted to the 3.2 format first
 ```
 
-Edit the `config.json` as described below.
+`install.py` creates the `suricata` index (an existing index is left unchanged) and imports the two dashboards through the API; running it again updates them in place. Use `--skip-dashboards` to create only the index.
 
 ---
 
@@ -196,7 +200,7 @@ add its field path to `filter_keys` and a matching `<type>_whitelist` /
 
 | Script               | Purpose                                    | Example                                                |
 |----------------------|--------------------------------------------|---------------------------------------------------------|
-| **install.py**       | Create index & mappings                    | `python3 install.py` or `python3 install.py --profile all-protocols` |
+| **install.py**       | Create index & mappings, import dashboards | `python3 install.py` or `python3 install.py --profile all-protocols` |
 | **eve_processor.py** | Parse & inject new events                  | `python3 eve_processor.py` (e.g., via systemd)         |
 
 `install.py --profile basic` (the default, same as omitting the flag)
@@ -398,6 +402,8 @@ sudo journalctl -u suricata-eve-processor.timer -f
 ---
 
 ##  Dashboard Import
+
+`install.py` imports the dashboards. The steps below are only needed for a manual import from the GUI.
 
 1. In Sycope UI, go to **Dashboards → Add dashboard ▾ → Import dashboard**
 2. Upload `dashboards/Suricata_Dashboard_Sycope.json` (and `dashboards/Suricata_Protocols.json`)

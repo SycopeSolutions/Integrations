@@ -141,3 +141,57 @@ def test_import_dashboard_posts_widgets_then_dashboard():
     refs = [i["config"].get("$ref") for i in dash["properties"]["items"]]
     assert refs[:2] == ["new-1", "new-3"]  # ids returned by the widget POSTs (each followed by a permissions PUT)
     assert dash["properties"]["items"][2] == native_33()["configs"][0]["items"][2]  # frame kept
+
+
+class _FakeApi:
+    host = "https://sycope.test"
+
+    def __init__(self, existing=()):
+        self.calls, self.existing = [], list(existing)
+
+    def request(self, method, path, payload=None, ok=None):
+        self.calls.append((method, path, copy.deepcopy(payload)))
+        if method == "GET" and path.startswith("components"):
+            return {"data": self.existing}
+        if method == "POST" and path == "component":
+            return {"id": f"new-{len(self.calls)}"}
+        return None
+
+
+def _write(path, obj):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj), encoding="utf-8")
+
+
+def test_install_components_order_remap_and_legacy(tmp_path):
+    widget = _widget(W1, "Drilldown", version=38)
+    widget.pop("id")  # exports keep the source id in _qbId / acl
+    shortcut = {"name": "Inventory", "type": "bookmark", "redirectObjectType": "visualization",
+                "redirectObjectId": W1, "version": 3}
+    field = {"name": "f1", "type": "savedFields", "sources": [], "version": 6}
+    _write(tmp_path / "fields" / "f1.json", field)
+    _write(tmp_path / "fields" / "netflow_fields.json", {"fields": []})  # not a component: ignored
+    _write(tmp_path / "drilldowns" / "a_shortcut.json", shortcut)        # sorted first on disk
+    _write(tmp_path / "drilldowns" / "b_widget.json", widget)
+    _write(tmp_path / "dashboards" / "d.json", native_33())
+
+    api = _FakeApi()
+    counts = d.install_components(api, str(tmp_path), legacy_32=True, log=lambda m: None)
+    assert counts == {"fields": 1, "drilldowns": 2, "dashboards": 1}
+    posts = [c[2] for c in api.calls if c[0] == "POST"]
+    kinds = [p["type"] for p in posts]
+    assert kinds[:3] == ["savedFields", "visualization", "bookmark"]  # widget before its shortcut
+    widget_id = f"new-{[i for i, c in enumerate(api.calls, 1) if c[0] == 'POST'][1]}"
+    assert posts[2]["properties"]["redirectObjectId"] == widget_id     # re-pointed to the new widget
+    assert posts[1]["properties"]["version"] == d.WIDGET_VERSION_32     # legacy: 38 -> 35
+    dash = posts[-1]
+    assert dash["type"] == "dashboard" and dash["properties"]["version"] == d.DASH_VERSION_32
+
+
+def test_install_components_dry_run_writes_nothing(tmp_path):
+    _write(tmp_path / "dashboards" / "d.json", native_33())
+    api = _FakeApi(existing=[{"type": "dashboard", "name": "Test", "id": "x"}])
+    lines = []
+    d.install_components(api, str(tmp_path), dry_run=True, log=lines.append)
+    assert [c for c in api.calls if c[0] != "GET"] == []
+    assert any("exists" in line for line in lines)

@@ -2,15 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """
-Create custom index for Zabbix statistics in Sycope.
+Install the Zabbix integration in Sycope.
 
-This script creates a custom index with fields for storing Zabbix
-metrics: Hostname, Response Time, CPU Load, Memory Usage, Packet Loss.
+1. Creates the custom index for Zabbix metrics (hostname, response time, CPU load,
+   memory usage, packet loss) unless it already exists.
+2. Imports the saved fields (fields/), the drilldown widget and shortcut (drilldowns/)
+   and the dashboards (dashboards/). Re-running updates them in place.
+
+Usage:
+    python3 install.py [--dry-run] [--sycope-3.2] [--skip-fields] [--skip-drilldowns] [--skip-dashboards]
+
+--sycope-3.2 converts the dashboards (Sycope 3.3 format) for Sycope 3.2 before importing.
 
 Script version: 2.0
 Tested on Sycope 3.1
 """
 
+import argparse
 import logging
 import os
 import sys
@@ -22,6 +30,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from sycope.api import SycopeApi
 from sycope.config import load_config
+from sycope.dashboards import add_install_arguments, install_components
 from sycope.exceptions import SycopeError
 from sycope.logging import setup_logging, suppress_ssl_warnings
 
@@ -79,8 +88,18 @@ FIELDS = [
 ]
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Create the Zabbix statistics index and import the Zabbix fields, drilldowns "
+                    "and dashboards into Sycope.")
+    parser.add_argument("--dry-run", action="store_true", help="show what would be done, change nothing")
+    add_install_arguments(parser, dashboards=True, fields=True, drilldowns=True)
+    return parser.parse_args()
+
+
 def main() -> None:
-    """Create the Zabbix statistics custom index."""
+    """Create the Zabbix statistics custom index and import the Sycope objects."""
+    args = parse_args()
     # Load configuration first to get log_level
     try:
         cfg = load_config(
@@ -118,6 +137,7 @@ def main() -> None:
 
     # Connect to Sycope and create index
     logger.debug("Creating HTTP session...")
+    api = None
     with requests.Session() as session:
         try:
             logger.debug("Authenticating to Sycope API...")
@@ -130,17 +150,25 @@ def main() -> None:
             )
             logger.debug("Sycope authentication successful")
 
-            logging.info(f"Creating index: {cfg['index_name']}")
-            logger.debug("Index parameters:")
-            logger.debug(f"  Name: {cfg['index_name']}")
-            logger.debug(f"  Rotation: {cfg['index_rotation']}")
-            logger.debug(f"  Fields count: {len(FIELDS)}")
+            existing_indexes = {i.get("config", {}).get("name") for i in api.get_user_indices()}
+            if cfg["index_name"] in existing_indexes:
+                logging.info(f"Index {cfg['index_name']} already exists - not changed")
+            elif args.dry_run:
+                logging.info(f"Index {cfg['index_name']} would be created")
+            else:
+                logging.info(f"Creating index: {cfg['index_name']}")
+                logger.debug(f"  Rotation: {cfg['index_rotation']}, fields: {len(FIELDS)}")
+                api.create_index(cfg["index_name"], FIELDS, cfg["index_rotation"])
+                logging.info("Index created successfully")
 
-            api.create_index(cfg["index_name"], FIELDS, cfg["index_rotation"])
-            logging.info("Index created successfully")
-            logger.debug("Index creation complete")
+            logging.info("Importing Sycope objects" + (" (Sycope 3.2 compatibility)" if args.sycope_32 else ""))
+            install_components(
+                api, SCRIPT_DIR, legacy_32=args.sycope_32, dry_run=args.dry_run,
+                fields=not args.skip_fields, drilldowns=not args.skip_drilldowns,
+                dashboards=not args.skip_dashboards, log=logging.info,
+            )
 
-        except SycopeError as e:
+        except (SycopeError, ValueError) as e:
             logging.error(f"Sycope API error: {e}")
             logger.debug(f"Sycope exception: {type(e).__name__}: {e}")
             if hasattr(e, "status_code"):
@@ -149,8 +177,8 @@ def main() -> None:
                 logger.debug(f"  Response: {e.response}")
             sys.exit(1)
         finally:
-            logger.debug("Logging out from Sycope...")
-            api.log_out()
+            if api is not None:
+                api.log_out()
             logger.debug("Script complete")
 
 

@@ -33,6 +33,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from sycope.api import SycopeApi
 from sycope.config import load_config
+from sycope.dashboards import add_install_arguments, install_components
 from sycope.exceptions import SycopeError
 from sycope.logging import setup_logging, suppress_ssl_warnings
 
@@ -246,6 +247,8 @@ def parse_args():
             "ldap, pop3."
         ),
     )
+    parser.add_argument("--dry-run", action="store_true", help="show what would be done, change nothing")
+    add_install_arguments(parser, dashboards=True)
     return parser.parse_args()
 
 
@@ -293,6 +296,7 @@ def main() -> None:
 
     # Connect to Sycope and create index
     logger.debug("Creating HTTP session...")
+    api = None
     with requests.Session() as session:
         session.headers.update({"Content-Type": "application/json"})
         logger.debug("Session headers set")
@@ -308,17 +312,24 @@ def main() -> None:
             )
             logger.debug("Sycope authentication successful")
 
-            logging.info(f"Creating Suricata index: {cfg['index_name']}")
-            logger.debug("Index parameters:")
-            logger.debug(f"  Name: {cfg['index_name']}")
-            logger.debug("  Rotation: daily")
-            logger.debug(f"  Fields count: {len(fields)}")
+            existing_indexes = {i.get("config", {}).get("name") for i in api.get_user_indices()}
+            if cfg["index_name"] in existing_indexes:
+                logging.info(f"Index {cfg['index_name']} already exists - not changed")
+            elif args.dry_run:
+                logging.info(f"Index {cfg['index_name']} would be created")
+            else:
+                logging.info(f"Creating Suricata index: {cfg['index_name']}")
+                api.create_index(cfg["index_name"], fields, rotation="daily")
+                logging.info("Index created successfully")
 
-            api.create_index(cfg["index_name"], fields, rotation="daily")
-            logging.info("Index created successfully")
-            logger.debug("Index creation complete")
+            if args.skip_dashboards:
+                logging.info("Dashboards skipped (--skip-dashboards)")
+            else:
+                logging.info("Importing dashboards" + (" (Sycope 3.2 compatibility)" if args.sycope_32 else ""))
+                install_components(api, SCRIPT_DIR, legacy_32=args.sycope_32, dry_run=args.dry_run,
+                                   fields=False, drilldowns=False, log=logging.info)
 
-        except SycopeError as e:
+        except (SycopeError, ValueError) as e:
             logging.error(f"Sycope API error: {e}")
             logger.debug(f"Sycope exception: {type(e).__name__}: {e}")
             if hasattr(e, "status_code"):
@@ -327,8 +338,8 @@ def main() -> None:
                 logger.debug(f"  Response: {e.response}")
             sys.exit(1)
         finally:
-            logger.debug("Logging out from Sycope...")
-            api.log_out()
+            if api is not None:
+                api.log_out()
             logger.debug("Script complete")
 
 

@@ -97,7 +97,7 @@ The `zabbix_lookup_sync.py` script:
 ├── drilldowns                       # Optional drilldown action to import into Sycope
 ├── fields                           # Optional custom fields to import into Sycope
 ├── config.json                      # Configuration file
-├── install.py                       # Creates new Sycope custom index and custom Lookup
+├── install.py                       # Creates the custom index, imports fields, drilldowns and dashboards
 ├── uninstall.py                     # Optional cleanup for custom indexes and custom Lookups
 ├── zabbix_statistics_sync.py        # Main processing script for synchronizing metrics data
 ├── zabbix_lookup_sync.py            # Main processing script for synchronizing inventory data
@@ -141,10 +141,13 @@ After creating new index, add a dedicated user and role in Sycope for log ingest
 git clone https://github.com/SycopeSolutions/Integrations.git
 cd Integrations/zabbix
 pip3 install -r requirements.txt
-python3 install.py
+# edit config.json (see below)
+python3 install.py --dry-run     # shows what would be created or updated, changes nothing
+python3 install.py               # Sycope 3.3
+python3 install.py --sycope-3.2  # Sycope 3.2 (legacy): dashboards converted to the 3.2 format first
 ```
 
-Edit the `config.json` as described below.
+`install.py` creates the `ZabbixStats` index (an existing index is left unchanged), then imports through the API the saved fields (`fields/`), the drilldown widget and shortcut (`drilldowns/`) and the dashboards (`dashboards/`). Objects are matched by name, so running it again updates them in place. Options: `--skip-fields`, `--skip-drilldowns`, `--skip-dashboards`.
 
 ---
 
@@ -208,7 +211,7 @@ Edit the `config.json` as described below.
 
 | Script                    | Purpose                                    | Example                                             |
 |---------------------------|--------------------------------------------|-----------------------------------------------------|
-| **install.py**            | Create index                               | `python3 install.py`                                |
+| **install.py**            | Create index, import fields, drilldowns and dashboards | `python3 install.py [--sycope-3.2]`       |
 | **zabbix_lookup_sync.py** | Synchronization of the Inventory data      | `python3 zabbix_lookup_sync.py` (e.g., via systemd) |
 | **zabbix_statistics.py**  | Synchronization of the Statistics data     | `python3 zabbix_statistics.py` (e.g., via systemd)  |
 
@@ -234,6 +237,8 @@ Or run as a service (recommended)
 ---
 
 ##  Dashboard Import
+
+`install.py` imports the dashboards, fields and drilldowns. The steps below are only needed for a manual import from the GUI.
 
 1. In Sycope UI, go to **Dashboards → Add dashboard ▾ → Import dashboard**
 2. Upload `dashboards/zabbix_statistics_dashboard.json`, click **Save and close**

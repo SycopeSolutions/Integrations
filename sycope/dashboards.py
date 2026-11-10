@@ -345,3 +345,118 @@ def dashboard_names(source: Any) -> Tuple[str, List[str]]:
     doc = load_dashboard(source) if isinstance(source, str) else source
     dash, widgets = split(doc)
     return dash["name"], [w["name"] for w in widgets.values()]
+
+
+# ----------------------------------------------------------------------------- install.py helpers
+COMPONENT_TYPES = ("savedFields", "visualization", "bookmark")
+
+
+def _source_id(flat: Dict[str, Any]) -> Optional[str]:
+    """Id the object had on the system it was exported from (referenced by other exports)."""
+    return (flat.get("id") or flat.get("_qbId") or (flat.get("acl") or {}).get("entityId")
+            or (flat.get("permissions") or {}).get("entityId"))
+
+
+def _remap_ids(obj: Any, ids: Dict[str, str]) -> Any:
+    if isinstance(obj, dict):
+        return {k: _remap_ids(v, ids) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_remap_ids(v, ids) for v in obj]
+    if isinstance(obj, str) and obj in ids:
+        return ids[obj]
+    return obj
+
+
+def _component_files(directory: str) -> List[Tuple[str, Dict[str, Any]]]:
+    """(path, object) of every exported component (saved field, widget, shortcut) under ``directory``."""
+    import glob
+    import os
+
+    out = []
+    for path in sorted(glob.glob(os.path.join(directory, "**", "*.json"), recursive=True)):
+        try:
+            with open(path, encoding="utf-8") as fp:
+                obj = json.load(fp)
+        except (OSError, ValueError):
+            continue
+        if isinstance(obj, dict) and obj.get("type") in COMPONENT_TYPES and obj.get("name"):
+            out.append((path, obj))
+    return out
+
+
+def install_components(api, base_dir: str, legacy_32: bool = False, dry_run: bool = False,
+                       fields: bool = True, drilldowns: bool = True, dashboards: bool = True,
+                       log: Callable[[str], None] = logger.info) -> Dict[str, int]:
+    """Import an integration's Sycope objects through the REST API.
+
+    Looks for ``<base_dir>/fields`` (saved fields), ``<base_dir>/drilldowns`` (widgets and
+    shortcuts) and ``<base_dir>/dashboards`` (dashboards, 3.3 or 3.2 format) and imports
+    whatever exists, in that order. Objects are matched by type and name, so running it
+    again updates them in place. Shortcuts that point to an imported widget are re-pointed
+    to the widget's id on the target system.
+
+    ``legacy_32`` converts dashboards (and lowers widget schema versions) for Sycope 3.2
+    before importing them. Returns the number of objects per kind.
+    """
+    import glob
+    import os
+
+    existing = {(c["type"], c["name"]): c["id"] for c in list_components(api)}
+    ids: Dict[str, str] = {}
+    counts = {"fields": 0, "drilldowns": 0, "dashboards": 0}
+    verb = "would import" if dry_run else "imported"
+
+    def put(obj: Dict[str, Any], label: str) -> None:
+        obj = _remap_ids(copy.deepcopy(obj), ids)
+        if legacy_32 and obj.get("type") == "visualization" and isinstance(obj.get("version"), int):
+            obj["version"] = min(obj["version"], WIDGET_VERSION_32)
+        key = (obj["type"], obj["name"])
+        state = "exists" if key in existing else "new"
+        if not dry_run:
+            cid, state = upsert_component(api, to_component(obj), existing)
+            old = _source_id(obj)
+            if old:
+                ids[old] = cid
+        log(f"  {label} '{obj['name']}': {verb} ({state})")
+
+    if fields:
+        for _, obj in _component_files(os.path.join(base_dir, "fields")):
+            if obj["type"] == "savedFields":
+                put(obj, "field")
+                counts["fields"] += 1
+    if drilldowns:
+        objs = _component_files(os.path.join(base_dir, "drilldowns"))
+        # widgets before the shortcuts that reference them
+        for _, obj in sorted(objs, key=lambda po: po[1]["type"] == "bookmark"):
+            put(obj, "shortcut" if obj["type"] == "bookmark" else obj["type"])
+            counts["drilldowns"] += 1
+    if dashboards:
+        for path in sorted(glob.glob(os.path.join(base_dir, "dashboards", "*.json"))):
+            doc = load_dashboard(path)
+            if legacy_32:
+                doc = to_32(doc, warn=lambda m: log(f"    ! {m}"))
+            name, widgets = dashboard_names(doc)
+            if dry_run:
+                state = "exists" if ("dashboard", name) in existing else "new"
+                log(f"  dashboard '{name}': {verb} ({state}, {len(widgets)} widgets)")
+            else:
+                did, state, n = import_dashboard(api, doc, existing)
+                log(f"  dashboard '{name}': {verb} ({state}, {n} widgets) -> "
+                    f"{api.host}/panel/dashboards/edit/{did}")
+            counts["dashboards"] += 1
+    return counts
+
+
+def add_install_arguments(parser, dashboards: bool = True, fields: bool = False,
+                          drilldowns: bool = False) -> None:
+    """Common install.py options for importing an integration's Sycope objects."""
+    parser.add_argument("--sycope-3.2", dest="sycope_32", action="store_true",
+                        help="Sycope 3.2 (legacy) compatibility: convert dashboards to the 3.2 format "
+                             "before importing them")
+    if dashboards:
+        parser.add_argument("--skip-dashboards", action="store_true", help="do not import dashboards")
+    if fields:
+        parser.add_argument("--skip-fields", action="store_true", help="do not import saved fields")
+    if drilldowns:
+        parser.add_argument("--skip-drilldowns", action="store_true",
+                            help="do not import drilldown widgets and shortcuts")

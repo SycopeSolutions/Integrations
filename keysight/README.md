@@ -104,7 +104,8 @@ cd Integrations/keysight
 pip3 install -r requirements.txt
 # edit config.json (see below)
 python3 install.py --dry-run     # shows what would be created, writes nothing
-python3 install.py
+python3 install.py               # Sycope 3.3
+python3 install.py --sycope-3.2  # Sycope 3.2 (legacy): dashboards converted to the 3.2 format first
 ```
 
 `install.py` runs five steps. Each one is idempotent, so running the script again only adds what is missing and updates the dashboards in place:
@@ -119,7 +120,7 @@ python3 install.py
 
 Before changing anything the script saves the current fields, profiles and exporter bindings to `backups/netflow_config_<timestamp>.json`.
 
-Options: `--dry-run`, `--skip-assign`, `--skip-saved-fields`, `--skip-dashboards`.
+Options: `--dry-run`, `--skip-assign`, `--skip-saved-fields`, `--skip-dashboards`, `--sycope-3.2`.
 
 ### Manual alternative (GUI)
 
@@ -261,7 +262,7 @@ Typical uses:
 
 The dashboards read the `netflow` stream and filter on `ixApplication != null`, so other flow sources do not affect them. Latency widgets show milliseconds.
 
-**Import with the script:** `install.py` (step 5) imports the dashboards through the API into Sycope 3.2 and 3.3.
+**Import with the script:** `install.py` (step 5) imports the dashboards through the API. For Sycope 3.2 add `--sycope-3.2`.
 
 **Import from the GUI (Sycope 3.3):** go to **Dashboards → Add dashboard ▾ → Import dashboard** and upload a file from `dashboards/`. The dashboard opens in the editor; click **Save and close**. Import one file at a time.
 
