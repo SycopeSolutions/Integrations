@@ -1,8 +1,10 @@
 # nProbe Integration with Sycope
 
-Use **[ntop nProbe](https://www.ntop.org/products/netflow/nprobe/)** as a NetFlow/IPFIX probe for **Sycope** with Layer 7 visibility: nDPI application, DNS queries and responses, HTTP URL/host/user agent, JA3 hashes, client/server network latency, application latency and TCP retransmissions.
+Use **[ntop nProbe](https://www.ntop.org/products/netflow/nprobe/)** as a NetFlow/IPFIX probe for **Sycope** with Layer 7 visibility: nDPI application, DNS queries and responses, HTTP URL/host/user agent, TLS server name (SNI), JA4/JA3 fingerprints, TLS version and cipher, client/server network latency, application latency and TCP retransmissions.
 
-Sycope already knows all these fields (they are built-in). They are decoded only for exporters bound to a **traffic profile** that lists them. This integration creates that profile, named `nProbe`, and binds it to your nProbe exporters.
+Sycope decodes these fields only for exporters bound to a **traffic profile** that lists them. This integration creates that profile, named `nProbe`, and binds it to your nProbe exporters:
+- 30 of the profile's fields are built into Sycope;
+- 4 TLS fields (SNI, JA4, TLS version, TLS cipher) are created by `install.py` as custom NetFlow fields.
 
 > **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and probes monitoring availability.
 
@@ -19,7 +21,7 @@ nprobe/
 ├── uninstall.py                # Removes the bindings and the profile
 ├── verify_flows.py             # Checks binding, templates and field fill rates per exporter
 └── profiles/
-    └── nprobe_profile.json     # Traffic profile export: source type "probe", 30 built-in fields
+    └── nprobe_profile.json     # Traffic profile export: source type "probe", 30 built-in + 4 custom TLS fields
 ```
 
 The scripts use the shared library [`../sycope`](../sycope): `sycope.netflow` handles traffic profiles and exporters. The same profile file can also be imported with the generic command `python3 -m sycope.scripts.traffic_profile`.
@@ -36,7 +38,7 @@ The scripts use the shared library [`../sycope`](../sycope): `sycope.netflow` ha
 
 ## 1. Configure nProbe
 
-Export IPFIX (`-V 10`) to the Sycope collector (UDP 2055) with a template that contains the L7 elements. This template is used in our lab:
+Export IPFIX (`-V 10`) to the Sycope collector (UDP 2055) with a template that contains the L7 elements. This template (nProbe 11.0) fills every field of the profile except JA3 and `httpVia`:
 
 ```bash
 nprobe -i eth0 -n <sycope-ip>:2055 -V 10 -t 60 -d 15 \
@@ -46,13 +48,31 @@ nprobe -i eth0 -n <sycope-ip>:2055 -V 10 -t 60 -d 15 \
 %RETRANSMITTED_IN_BYTES %RETRANSMITTED_IN_PKTS %RETRANSMITTED_OUT_BYTES %RETRANSMITTED_OUT_PKTS \
 %APPLICATION_ID %L7_PROTO %DNS_QUERY %DNS_QUERY_ID %DNS_QUERY_TYPE %DNS_RET_CODE %DNS_NUM_ANSWERS \
 %DNS_TTL_ANSWER %DNS_RESPONSE %HTTP_URL %HTTP_METHOD %HTTP_RET_CODE %HTTP_REFERER %HTTP_USER_AGENT \
-%HTTP_MIME %HTTP_HOST %HTTP_SITE %HTTP_X_FORWARDED_FOR %JA3C_HASH %JA3S_HASH"
+%HTTP_MIME %HTTP_HOST %HTTP_SITE %HTTP_X_FORWARDED_FOR %IN_SRC_MAC %MAX_TTL \
+%TLS_SERVER_NAME %JA4C_HASH %TLS_CIPHER %TLS_VERSION"
 ```
 
 Notes:
 - With several `-n` collectors nProbe sends flows **round-robin** between them. To send all flows to every collector, add `-a` (`--all-collectors`).
 - Sycope binds the profile to the **source IP of the IPFIX packets**. On a multi-homed host that is the address of the interface that routes to Sycope, which may differ from the management address.
-- The profile also lists `httpVia`, `sourceMacAddress` and `clientMaxTtl`, which the template above does not send. They are optional.
+- **Template size limit:** the whole template must fit into one export packet (1472 bytes payload). With a template that is too long nProbe logs `ERROR: This template is longer than the max NetFlow packet lenght (1634 > 1472)` and **exports nothing**. Variable-length elements count with their maximum size. Adding `%HTTP_VIA` (up to 256 bytes) to the template above exceeds the limit, so it is left out. To get `httpVia`, remove other elements, for example the DNS group. After changing `-T`, check the nProbe log or run `verify_flows.py`.
+- **JA3:** nProbe 11 replaced the JA3 elements with JA4 (`%JA4C_HASH`). `%JA3C_HASH` / `%JA3S_HASH` are not in its element list (`nprobe -H`), and an unknown element in `-T` is silently ignored. The profile keeps Sycope's built-in `ja3cHash` / `ja3sHash` fields for older nProbe versions that still export them.
+- TLS fields are filled only for TLS traffic, DNS fields only for DNS, and so on. `nprobe -H` lists every element your version supports.
+
+| nProbe element | Sycope field | |
+|---|---|---|
+| `%L7_PROTO`, `%APPLICATION_ID` | `dpiAppId`, `applicationId` | built-in |
+| `%CLIENT_NW_LATENCY_MS`, `%SERVER_NW_LATENCY_MS`, `%APPL_LATENCY_MS` | `clientNetworkTime`, `serverNetworkTime`, `initialServerResponseTime` | built-in |
+| `%RETRANSMITTED_{IN,OUT}_{BYTES,PKTS}` | `retransmitted{In,Out}{Bytes,Packets}` | built-in |
+| `%DNS_*` (7) | `dnsQuery`, `dnsQueryId`, `dnsQueryType`, `dnsRetCode`, `dnsNumAnswers`, `dnsTtlAnswer`, `dnsResponse` | built-in |
+| `%HTTP_*` (10) | `httpUrl`, `httpMethod`, `httpRetCode`, `httpReferer`, `httpUa`, `httpMime`, `httpHost`, `httpSite`, `httpXForwardedFor`, `httpVia` | built-in |
+| `%IN_SRC_MAC`, `%MAX_TTL` | `sourceMacAddress`, `clientMaxTtl` | built-in |
+| `%JA3C_HASH`, `%JA3S_HASH` (older nProbe) | `ja3cHash`, `ja3sHash` | built-in |
+| `%TLS_SERVER_NAME` | `tlsServerName` (element 188) | custom, created by `install.py` |
+| `%JA4C_HASH` | `ja4cHash` (576) | custom |
+| `%TLS_CIPHER`, `%TLS_VERSION` | `tlsCipher` (493), `tlsVersion` (495) | custom |
+
+Sycope ignores the enterprise number of IPFIX elements. If another integration already uses one of the custom element ids on your Sycope, for example Keysight IxFlow's `ixTransactionLatency` (188), `install.py` skips that field with a warning and installs the rest.
 
 ---
 
@@ -67,8 +87,11 @@ python3 install.py
 ```
 
 `install.py`:
-1. creates the traffic profile `nProbe` (source type *probe*, 30 built-in fields), or updates it if it exists;
-2. binds it to every IP in `exporter_ips`. An exporter that already uses another profile is reported and not changed.
+1. creates the 4 custom TLS fields, unless their element ids are taken;
+2. creates the traffic profile `nProbe` (source type *probe*), or updates it if it exists;
+3. binds it to every IP in `exporter_ips`. An exporter that already uses another profile is reported and not changed.
+
+**Exporter IP changes** (new interface, readdressing, NAT): Sycope sees nProbe under a new IP, the profile is not bound to it, and the L7 fields stop being stored. Templates and flows still arrive, so this is easy to miss. Add the new IP to `exporter_ips` and run `install.py` again; the old bindings stay in place. `verify_flows.py` reports this case as `[FAIL] ... uses no profile`.
 
 Running it again changes nothing if everything is in place. In the GUI the profile is under **Settings → NetFlow → Template Based Settings**.
 
@@ -92,7 +115,7 @@ python3 verify_flows.py --exporter 10.0.0.5 --minutes 30
 For each exporter the script checks:
 - that the profile is bound to that IP;
 - that templates arrived and which profile fields they contain;
-- how many flows in the time window carry each field. DNS, HTTP and JA3 fields appear only when that traffic is present.
+- how many flows in the time window carry each field. DNS, HTTP and TLS fields appear only when that traffic is present.
 
 Example output, from an exporter whose IP was not bound to the profile:
 
@@ -130,7 +153,7 @@ python3 uninstall.py --dry-run
 python3 uninstall.py            # --yes to skip the confirmation
 ```
 
-The script removes the exporter bindings and the profile. The fields are built-in and stay. Flow data already stored is not deleted.
+The script removes the exporter bindings and the profile. The custom TLS fields and the built-in fields stay: custom fields may be used by other profiles, and stored data refers to them. Flow data already stored is not deleted.
 
 ---
 

@@ -188,6 +188,66 @@
       "name": "clientMaxTtl",
       "displayName": "Client Max TTL",
       "builtIn": true
+    },
+    {
+      "typeId": 188,
+      "name": "tlsServerName",
+      "displayName": "TLS Server Name",
+      "builtIn": false,
+      "definition": {
+        "typeCode": 2,
+        "description": "nProbe %TLS_SERVER_NAME (ntop PEN 35632, element 188): TLS SNI",
+        "indexed": true,
+        "common": false,
+        "dedupExporterStrategy": "FIRST",
+        "dedupConversationStrategy": "FIRST",
+        "defaultValue": null
+      }
+    },
+    {
+      "typeId": 576,
+      "name": "ja4cHash",
+      "displayName": "JA4 Client Hash",
+      "builtIn": false,
+      "definition": {
+        "typeCode": 2,
+        "description": "nProbe %JA4C_HASH (ntop PEN 35632, element 576): JA4 TLS client fingerprint",
+        "indexed": true,
+        "common": false,
+        "dedupExporterStrategy": "FIRST",
+        "dedupConversationStrategy": "FIRST",
+        "defaultValue": null
+      }
+    },
+    {
+      "typeId": 493,
+      "name": "tlsCipher",
+      "displayName": "TLS Cipher",
+      "builtIn": false,
+      "definition": {
+        "typeCode": 5,
+        "description": "nProbe %TLS_CIPHER (ntop PEN 35632, element 493): negotiated TLS cipher suite code",
+        "indexed": false,
+        "common": false,
+        "dedupExporterStrategy": "FIRST",
+        "dedupConversationStrategy": "FIRST",
+        "defaultValue": null
+      }
+    },
+    {
+      "typeId": 495,
+      "name": "tlsVersion",
+      "displayName": "TLS Version",
+      "builtIn": false,
+      "definition": {
+        "typeCode": 5,
+        "description": "nProbe %TLS_VERSION (ntop PEN 35632, element 495): TLS version code (e.g. 772 = TLS 1.3)",
+        "indexed": false,
+        "common": false,
+        "dedupExporterStrategy": "FIRST",
+        "dedupConversationStrategy": "FIRST",
+        "defaultValue": null
+      }
     }
   ]
 }

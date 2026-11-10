@@ -27,7 +27,7 @@ from sycope.logging import suppress_ssl_warnings
 from sycope import netflow
 
 # Fields nProbe fills only for some protocols: never filled is a warning, not an error.
-PROTOCOL_SPECIFIC = ("dns", "http", "ja3")
+PROTOCOL_SPECIFIC = ("dns", "http", "ja3", "ja4", "tls")
 
 
 def main():
