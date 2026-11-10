@@ -54,7 +54,6 @@ keysight/
 ├── install.py                  # Creates fields, traffic profile, exporter binding, saved fields, dashboards
 ├── uninstall.py                # Removes everything install.py created
 ├── verify_flows.py             # Checks that IxFlow records arrive with the expected fields
-├── sycope_netflow.py           # Helpers for the NetFlow configuration API (used by the scripts)
 ├── fields/
 │   ├── netflow_fields.json     # IxFlow element -> Sycope custom field definitions
 │   └── saved_fields/           # Saved fields (latency in ms), importable from the GUI as well
@@ -68,7 +67,7 @@ keysight/
     └── ixflow-replay.service   # Example systemd unit for the replay tool
 ```
 
-The scripts use the shared Sycope API library from [`../sycope`](../sycope) for login, sessions, NQL queries and logging.
+The scripts use the shared Sycope library from [`../sycope`](../sycope): `sycope.api` (login, NQL), `sycope.netflow` (fields, traffic profiles, exporters) and `sycope.dashboards` (dashboards, saved fields).
 
 > **Scripts can be executed on any host with HTTPS access to Sycope. Due to permissions and other limitations, please do not run them on Sycope Appliance.**
 

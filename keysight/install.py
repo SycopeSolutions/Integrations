@@ -41,7 +41,7 @@ from sycope.dashboards import install_components
 from sycope.exceptions import SycopeError
 from sycope.logging import setup_logging, suppress_ssl_warnings
 
-import sycope_netflow as nf
+from sycope import netflow as nf  # noqa: E402
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,193 @@
+{
+  "format": "sycope-traffic-profile",
+  "formatVersion": 1,
+  "profile": {
+    "name": "nProbe",
+    "sourceType": "probe",
+    "disablePen": false,
+    "icmpEncoding": "STANDARD",
+    "samplingInterval": null
+  },
+  "fields": [
+    {
+      "typeId": 209,
+      "name": "dnsNumAnswers",
+      "displayName": "Dns Num Answers",
+      "builtIn": true
+    },
+    {
+      "typeId": 205,
+      "name": "dnsQuery",
+      "displayName": "Dns Query",
+      "builtIn": true
+    },
+    {
+      "typeId": 206,
+      "name": "dnsQueryId",
+      "displayName": "Dns Query Transaction Id",
+      "builtIn": true
+    },
+    {
+      "typeId": 207,
+      "name": "dnsQueryType",
+      "displayName": "Dns Query Type",
+      "builtIn": true
+    },
+    {
+      "typeId": 208,
+      "name": "dnsRetCode",
+      "displayName": "Dns Return Code",
+      "builtIn": true
+    },
+    {
+      "typeId": 352,
+      "name": "dnsTtlAnswer",
+      "displayName": "Dns TTL Answer",
+      "builtIn": true
+    },
+    {
+      "typeId": 398,
+      "name": "dnsResponse",
+      "displayName": "Dns Response",
+      "builtIn": true
+    },
+    {
+      "typeId": 180,
+      "name": "httpUrl",
+      "displayName": "Http Url",
+      "builtIn": true
+    },
+    {
+      "typeId": 181,
+      "name": "httpRetCode",
+      "displayName": "Http Return Code",
+      "builtIn": true
+    },
+    {
+      "typeId": 182,
+      "name": "httpReferer",
+      "displayName": "Http Referer",
+      "builtIn": true
+    },
+    {
+      "typeId": 183,
+      "name": "httpUa",
+      "displayName": "Http User Agent",
+      "builtIn": true
+    },
+    {
+      "typeId": 184,
+      "name": "httpMime",
+      "displayName": "Http Mime Type",
+      "builtIn": true
+    },
+    {
+      "typeId": 187,
+      "name": "httpHost",
+      "displayName": "Http Host Name",
+      "builtIn": true
+    },
+    {
+      "typeId": 360,
+      "name": "httpMethod",
+      "displayName": "Http Method",
+      "builtIn": true
+    },
+    {
+      "typeId": 361,
+      "name": "httpSite",
+      "displayName": "Http Site",
+      "builtIn": true
+    },
+    {
+      "typeId": 460,
+      "name": "httpXForwardedFor",
+      "displayName": "Http X Forwarded For",
+      "builtIn": true
+    },
+    {
+      "typeId": 461,
+      "name": "httpVia",
+      "displayName": "Http Via",
+      "builtIn": true
+    },
+    {
+      "typeId": 489,
+      "name": "ja3cHash",
+      "displayName": "JA3 Client Hash",
+      "builtIn": true
+    },
+    {
+      "typeId": 490,
+      "name": "ja3sHash",
+      "displayName": "JA3 Server Hash",
+      "builtIn": true
+    },
+    {
+      "typeId": 56,
+      "name": "sourceMacAddress",
+      "displayName": "Source MAC Address",
+      "builtIn": true
+    },
+    {
+      "typeId": 95,
+      "name": "applicationId",
+      "displayName": "Application ID",
+      "builtIn": true
+    },
+    {
+      "typeId": 109,
+      "name": "retransmittedInPackets",
+      "displayName": "Retransmitted In Packets",
+      "builtIn": true
+    },
+    {
+      "typeId": 110,
+      "name": "retransmittedOutPackets",
+      "displayName": "Retransmitted Out Packets",
+      "builtIn": true
+    },
+    {
+      "typeId": 118,
+      "name": "dpiAppId",
+      "displayName": "L7 Protocol ID",
+      "builtIn": true
+    },
+    {
+      "typeId": 123,
+      "name": "clientNetworkTime",
+      "displayName": "Client Network Time",
+      "builtIn": true
+    },
+    {
+      "typeId": 124,
+      "name": "serverNetworkTime",
+      "displayName": "Server Network Time",
+      "builtIn": true
+    },
+    {
+      "typeId": 125,
+      "name": "initialServerResponseTime",
+      "displayName": "Initial Server Response Time",
+      "builtIn": true
+    },
+    {
+      "typeId": 127,
+      "name": "retransmittedInBytes",
+      "displayName": "Retransmitted In Bytes",
+      "builtIn": true
+    },
+    {
+      "typeId": 128,
+      "name": "retransmittedOutBytes",
+      "displayName": "Retransmitted Out Bytes",
+      "builtIn": true
+    },
+    {
+      "typeId": 53,
+      "name": "clientMaxTtl",
+      "displayName": "Client Max TTL",
+      "builtIn": true
+    }
+  ]
+}

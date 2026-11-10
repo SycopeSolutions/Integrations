@@ -19,6 +19,31 @@ with requests.Session() as session:
     api.log_out()
 ```
 
+## NetFlow traffic profiles (`sycope.netflow`)
+
+Traffic profiles (GUI: **Settings → NetFlow → Template Based Settings**) decide which NetFlow/IPFIX fields Sycope decodes for an exporter. The module manages:
+- custom field definitions;
+- traffic profiles, including the source type (`default`, `probe`);
+- the binding of profiles to exporter IPs. An exporter already bound to another profile is never re-bound.
+- the templates the collector received.
+
+- `export_profile(api, name)` - a portable JSON description of a profile: settings, field names, and the full definition of custom fields.
+- `import_profile(api, doc, exporter_ips, dry_run=False)` - creates or updates the profile on another Sycope:
+  - fields are matched by name;
+  - missing custom fields are created, unless their element id is already used. Sycope ignores the enterprise number, so one element id = one field.
+  - the profile is bound to the exporters.
+- `check_exporter(api, doc, ip)` / `field_fill(api, ip, fields, minutes)` - which profile fields an exporter sends, and how many flows carry them.
+
+Command line, from the repository root:
+
+```bash
+python3 -m sycope.scripts.traffic_profile --config config.json export --name nProbe -o nprobe_profile.json
+python3 -m sycope.scripts.traffic_profile --config config.json import nprobe_profile.json --exporter 10.0.0.5 --dry-run
+python3 -m sycope.scripts.traffic_profile --config config.json check nprobe_profile.json --exporter 10.0.0.5
+```
+
+Used by [`keysight`](../keysight) and [`nprobe`](../nprobe).
+
 ## Dashboards (`sycope.dashboards`)
 
 Dashboards in this repository use the Sycope 3.3 export format. The module reads both formats and converts between them:

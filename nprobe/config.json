@@ -1,0 +1,11 @@
+{
+  "log_level": "info",
+  "sycope_host": "https://sycope.example.com",
+  "api_base": "/npm/api/v1/",
+  "sycope_login": "admin",
+  "sycope_pass": "",
+  "profile_file": "profiles/nprobe_profile.json",
+  "traffic_profile_name": "nProbe",
+  "exporter_ips": [],
+  "verify_minutes": 15
+}

@@ -19,6 +19,7 @@ Script version: 1.0
 """
 
 import argparse
+import json
 import glob
 import logging
 import os
@@ -34,7 +35,8 @@ from sycope.config import load_config
 from sycope.exceptions import SycopeError
 from sycope.logging import setup_logging, suppress_ssl_warnings
 
-import sycope_netflow as nf
+from sycope import netflow as nf  # noqa: E402
+from sycope.dashboards import dashboard_names, list_components, to_component  # noqa: E402
 from install import CONFIG_FILE, DASHBOARDS_DIR, SAVED_FIELDS_DIR, backup, load_ixflow_fields
 
 logger = logging.getLogger(__name__)
@@ -71,19 +73,19 @@ def main():
                 backup(api)
 
             if not args.keep_dashboards:
-                comps = {(c["type"], c["name"]): c["id"] for c in nf.list_components(api)}
+                comps = {(c["type"], c["name"]): c["id"] for c in list_components(api)}
                 names = set()
                 for path in glob.glob(os.path.join(DASHBOARDS_DIR, "*.json")):
-                    dname, wnames = nf.dashboard_names(path)
+                    dname, wnames = dashboard_names(path)
                     names.add(("dashboard", dname))
                     names.update(("visualization", w) for w in wnames)
                 for path in glob.glob(os.path.join(SAVED_FIELDS_DIR, "*.json")):
-                    names.add(("savedFields", nf.load_saved_field(path)["name"]))
+                    names.add(("savedFields", to_component(json.load(open(path, encoding="utf-8")))["name"]))
                 # dashboards first, so widgets are no longer referenced when deleted
                 for key in sorted(names, key=lambda k: k[0] != "dashboard"):
                     if key in comps:
                         if not args.dry_run:
-                            nf.delete_component(api, comps[key])
+                            api.request("DELETE", f"component/{comps[key]}")
                         logging.info(f"  {key[0]:<13} {key[1]}: {verb}")
 
             if not args.keep_fields:

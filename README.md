@@ -20,11 +20,12 @@ We’re excited to share these resources with the community and support efficien
 | Directory | Integration |
 |---|---|
 | [`keysight`](keysight) | Keysight IxFlow (AppStack) IPFIX: custom fields, traffic profile, flow verification and dashboards |
+| [`nprobe`](nprobe) | ntop nProbe IPFIX with L7/DNS/HTTP/JA3/latency fields: traffic profile, exporter binding, flow verification |
 | [`phpipam`](phpipam) | phpIPAM subnets and addresses synchronized to the Hosts & Subnets lookup |
 | [`suricata`](suricata) | Suricata alerts and anomaly events in a Sycope custom index |
 | [`zabbix`](zabbix) | Zabbix statistics and inventory in Sycope, and Sycope monitoring template for Zabbix |
 | [`webhooks`](webhooks) | Alert notifications to Jira, Slack and Microsoft Teams |
-| [`sycope`](sycope) | Shared Python library for the Sycope REST API used by the integrations |
+| [`sycope`](sycope) | Shared Python library for the Sycope REST API used by the integrations (API client, NetFlow traffic profiles, dashboards) |
 
 ---
 
