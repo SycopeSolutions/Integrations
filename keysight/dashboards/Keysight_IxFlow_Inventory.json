@@ -2166,10 +2166,14 @@
           "formatting": {
             "metrics": [
               {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               {
                 "formattingType": "number",
@@ -2503,13 +2507,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixFirstSeen",
+              "metric": "firstTimestamp",
               "alias": "ixFirstSeen",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "min",
+              "useAggr": true,
               "metricName": "First Seen",
-              "field": "",
-              "fieldName": "ixFirstSeen",
+              "field": "firstTimestamp",
+              "fieldName": "min(firstTimestamp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -2523,7 +2527,9 @@
                 "align": "right"
               },
               "formatting": {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               "includeNullValues": true,
               "includeEmptyValues": true,
@@ -2548,13 +2554,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixLastSeen",
+              "metric": "timestamp",
               "alias": "ixLastSeen",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "max",
+              "useAggr": true,
               "metricName": "Last Seen",
-              "field": "",
-              "fieldName": "ixLastSeen",
+              "field": "timestamp",
+              "fieldName": "max(timestamp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -2568,7 +2574,9 @@
                 "align": "right"
               },
               "formatting": {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               "includeNullValues": true,
               "includeEmptyValues": true,
@@ -2593,13 +2601,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcIxApplication",
+              "metric": "ixApplication",
               "alias": "ixDcIxApplication",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Applications",
-              "field": "",
-              "fieldName": "ixDcIxApplication",
+              "field": "ixApplication",
+              "fieldName": "dc(ixApplication)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -2647,13 +2655,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcServerIp",
+              "metric": "serverIp",
               "alias": "ixDcServerIp",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Servers",
-              "field": "",
-              "fieldName": "ixDcServerIp",
+              "field": "serverIp",
+              "fieldName": "dc(serverIp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -2701,13 +2709,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixFlows",
+              "metric": "flows",
               "alias": "ixFlows",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "sum",
+              "useAggr": true,
               "metricName": "Flows",
-              "field": "",
-              "fieldName": "ixFlows",
+              "field": "flows",
+              "fieldName": "sum(flows)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -2755,19 +2763,19 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixBytes",
+              "metric": "bytes",
               "alias": "ixBytes",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "sum",
+              "useAggr": true,
               "metricName": "Bytes",
-              "field": "",
-              "fieldName": "ixBytes",
+              "field": "add(clientBytes,serverBytes)",
+              "fieldName": "sum(bytes)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
               "fn": {
-                "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
-                "postAggr": "ixBytes=add(ixCb,ixSb)"
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
               },
               "visualOptions": {
                 "label": "Bytes",
@@ -3684,10 +3692,14 @@
           "formatting": {
             "metrics": [
               {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               {
                 "formattingType": "number",
@@ -4036,13 +4048,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixFirstSeen",
+              "metric": "firstTimestamp",
               "alias": "ixFirstSeen",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "min",
+              "useAggr": true,
               "metricName": "First Seen",
-              "field": "",
-              "fieldName": "ixFirstSeen",
+              "field": "firstTimestamp",
+              "fieldName": "min(firstTimestamp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -4056,7 +4068,9 @@
                 "align": "right"
               },
               "formatting": {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               "includeNullValues": true,
               "includeEmptyValues": true,
@@ -4081,13 +4095,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixLastSeen",
+              "metric": "timestamp",
               "alias": "ixLastSeen",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "max",
+              "useAggr": true,
               "metricName": "Last Seen",
-              "field": "",
-              "fieldName": "ixLastSeen",
+              "field": "timestamp",
+              "fieldName": "max(timestamp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -4101,7 +4115,9 @@
                 "align": "right"
               },
               "formatting": {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               "includeNullValues": true,
               "includeEmptyValues": true,
@@ -4126,13 +4142,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcServerPort",
+              "metric": "serverPort",
               "alias": "ixDcServerPort",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Ports",
-              "field": "",
-              "fieldName": "ixDcServerPort",
+              "field": "serverPort",
+              "fieldName": "dc(serverPort)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -4180,13 +4196,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcIxApplication",
+              "metric": "ixApplication",
               "alias": "ixDcIxApplication",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Applications",
-              "field": "",
-              "fieldName": "ixDcIxApplication",
+              "field": "ixApplication",
+              "fieldName": "dc(ixApplication)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -4234,13 +4250,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcClientIp",
+              "metric": "clientIp",
               "alias": "ixDcClientIp",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Clients",
-              "field": "",
-              "fieldName": "ixDcClientIp",
+              "field": "clientIp",
+              "fieldName": "dc(clientIp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -4288,13 +4304,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixFlows",
+              "metric": "flows",
               "alias": "ixFlows",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "sum",
+              "useAggr": true,
               "metricName": "Flows",
-              "field": "",
-              "fieldName": "ixFlows",
+              "field": "flows",
+              "fieldName": "sum(flows)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -4342,19 +4358,19 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixBytes",
+              "metric": "bytes",
               "alias": "ixBytes",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "sum",
+              "useAggr": true,
               "metricName": "Bytes",
-              "field": "",
-              "fieldName": "ixBytes",
+              "field": "add(clientBytes,serverBytes)",
+              "fieldName": "sum(bytes)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
               "fn": {
-                "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
-                "postAggr": "ixBytes=add(ixCb,ixSb)"
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
               },
               "visualOptions": {
                 "label": "Bytes",
@@ -5364,7 +5380,9 @@
                 "formattingSimple": true
               },
               {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               }
             ],
             "buckets": [
@@ -5612,13 +5630,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcServerIp",
+              "metric": "serverIp",
               "alias": "ixDcServerIp",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Servers",
-              "field": "",
-              "fieldName": "ixDcServerIp",
+              "field": "serverIp",
+              "fieldName": "dc(serverIp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -5666,13 +5684,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixDcClientIp",
+              "metric": "clientIp",
               "alias": "ixDcClientIp",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "dc",
+              "useAggr": true,
               "metricName": "Clients",
-              "field": "",
-              "fieldName": "ixDcClientIp",
+              "field": "clientIp",
+              "fieldName": "dc(clientIp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -5720,13 +5738,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixFlows",
+              "metric": "flows",
               "alias": "ixFlows",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "sum",
+              "useAggr": true,
               "metricName": "Flows",
-              "field": "",
-              "fieldName": "ixFlows",
+              "field": "flows",
+              "fieldName": "sum(flows)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -5774,19 +5792,19 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixBytes",
+              "metric": "bytes",
               "alias": "ixBytes",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "sum",
+              "useAggr": true,
               "metricName": "Bytes",
-              "field": "",
-              "fieldName": "ixBytes",
+              "field": "add(clientBytes,serverBytes)",
+              "fieldName": "sum(bytes)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
               "fn": {
-                "aggr": "ixCb=sum(clientBytes), ixSb=sum(serverBytes)",
-                "postAggr": "ixBytes=add(ixCb,ixSb)"
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
               },
               "visualOptions": {
                 "label": "Bytes",
@@ -5828,13 +5846,13 @@
             {
               "active": true,
               "columnType": "metric",
-              "metric": "ixLastSeen",
+              "metric": "timestamp",
               "alias": "ixLastSeen",
-              "aggregation": "",
-              "useAggr": false,
+              "aggregation": "max",
+              "useAggr": true,
               "metricName": "Last Seen",
-              "field": "",
-              "fieldName": "ixLastSeen",
+              "field": "timestamp",
+              "fieldName": "max(timestamp)",
               "fieldType": "field",
               "useFn": false,
               "aggrParams": {},
@@ -5848,7 +5866,9 @@
                 "align": "right"
               },
               "formatting": {
-                "formattingType": "date"
+                "formattingType": "date",
+                "formattingPattern": "yyyy-MM-dd HH:mm",
+                "formattingSimple": true
               },
               "includeNullValues": true,
               "includeEmptyValues": true,
