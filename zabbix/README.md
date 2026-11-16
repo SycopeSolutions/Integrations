@@ -71,7 +71,7 @@ The integrations consists of :
 
 ## How the Integrations works
 
-The `zabbix_statistics_sync.py` script:
+The `zabbix_statistics.py` script:
 
 - Logs in to the Zabbix API and collects metrics for defined IP addresses
 - Aligns timestamps for different metrics - `CPU Load, ICMP Reponse Time, Memory Usage and Packet Loss`
@@ -89,9 +89,13 @@ The `zabbix_statistics_sync.py` script:
   `system.cpu.load` (load average) is not CPU utilization in percent and is not used. Other templates: set `item_keys` in `config.json`
 - Hostname: inventory *Name*, then inventory *Hostname*, then the host's visible name, then its technical host name - the same as `zabbix_lookup_sync.py`. Host inventory does not have to be enabled
 
+- Reads Zabbix with a few bulk requests per run (one `host.get`, one `item.get`, `history.get` per value type), so the number of requests does not grow with the number of hosts; float and unsigned items are both supported
+- Uses only enabled hosts and items. When several enabled hosts share an IP, the first one is used (logged at debug level)
+
 The `zabbix_lookup_sync.py` script:
 
-- Logs in to the Zabbix API and collects inventory data such as Hostname, OS version, Serial number, Notes and URLs
+- Logs in to the Zabbix API and collects inventory data such as Hostname, OS version, Serial number, Notes and URLs for every host with an interface (one `host.get` and one `item.get` per run)
+- Host type and IP come from the first interface found in the order SNMP, Zabbix agent, JMX, IPMI (main interface first); the `host_type` column is `SNMP`, `Agent`, `JMX` or `IPMI`. Versions up to 2.0 labelled agent hosts as `ICMP`
 - Compares gathered inventory data with already available custom Lookup to avoid duplicate records
 - Saves the difference in Sycope
 
@@ -110,8 +114,10 @@ The `zabbix_lookup_sync.py` script:
 ├── config.json                      # Configuration file
 ├── install.py                       # Creates the custom index, imports fields, drilldowns and dashboards
 ├── uninstall.py                     # Optional cleanup for custom indexes and custom Lookups
-├── zabbix_statistics_sync.py        # Main processing script for synchronizing metrics data
+├── zabbix_statistics.py             # Main processing script for synchronizing metrics data
 ├── zabbix_lookup_sync.py            # Main processing script for synchronizing inventory data
+├── zabbix_api.py                    # Zabbix API client shared by both scripts
+└── tests/                           # Tests with a fake Zabbix API: python3 -m pytest zabbix/tests
 ```
 
 ---
@@ -119,7 +125,7 @@ The `zabbix_lookup_sync.py` script:
 ## Requirements
 
 - Python 3.8+
-- Zabbix 7.0+
+- Zabbix 7.0+ (the API client sends the session or token in the `Authorization` header, available since Zabbix 6.4)
 - Sycope >= 3.1 with API access
 - Tested with Zabbix 7.0.5 and Sycope 3.3.1, Python 3.10 and 3.15, polars 1.32 and 2.1
 - `requests` module:
@@ -172,11 +178,18 @@ python3 install.py --sycope-3.2  # Sycope 3.2 (legacy): dashboards converted to 
     // Additional part of the Zabbix API endpoint
     "zabbix_api_base": "/api_jsonrpc.php",
 
-    // Zabbix API user
-    "zabbix_login": "Admin",
+    // Zabbix API token (recommended): Users -> API tokens. With a token the scripts do not log in
+    // and out, so no Zabbix session is opened per run; zabbix_login/zabbix_pass are then not needed.
+    // The token's user needs read access to the monitored hosts.
+    "zabbix_token": "",
 
-    // Password for the above API user
+    // Or a Zabbix API user and password (a session per run, closed with user.logout)
+    "zabbix_login": "Admin",
     "zabbix_pass": "",
+
+    // Optional: Zabbix request timeout in seconds (default 60) and TLS certificate check (default false)
+    "zabbix_timeout": 60,
+    "zabbix_verify_ssl": false,
 
     // URL of the Sycope API endpoint (HTTPS strongly recommended)
     "sycope_host": "https://sycope.example.com",
@@ -251,6 +264,13 @@ Or run as a service (recommended)
 ---
 
 ##  Notes
+
+- A run of a script that starts while the previous run of the same script is still working is skipped
+  (lock files `zabbix_statistics.lock` and `zabbix_lookup_sync.lock` next to the scripts), so cron runs
+  every minute never overlap or save the same minutes twice.
+- Versions up to 2.1 of the statistics script and 2.0 of the lookup script did not close their Zabbix
+  sessions. With a run every minute Zabbix keeps over 500,000 open sessions for the API user until its
+  housekeeper removes them after a year. Use an API token, or check the `sessions` table after upgrading.
 
 - The script requires a valid custom index in Sycope with matching column definitions.
 - Running the script on the Sycope appliance is not supported due to security isolation.

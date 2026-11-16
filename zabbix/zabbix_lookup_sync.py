@@ -4,10 +4,10 @@
 """
 Lookup synchronization between Zabbix inventory data and Sycope.
 
-This script retrieves host information from Zabbix (SNMP/ICMP hosts)
-and synchronizes it to a Sycope Lookup table.
+This script retrieves host information from Zabbix (hosts with an SNMP, agent,
+JMX or IPMI interface) and synchronizes it to a Sycope Lookup table.
 
-Script version: 2.0
+Script version: 2.1
 Tested on Sycope 3.1
 """
 
@@ -15,16 +15,21 @@ import json
 import logging
 import os
 import sys
+from collections import defaultdict
 
 import requests
 
 # Add parent directory to path for importing sycope modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# and this directory for zabbix_api (also when the script is imported from elsewhere)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from sycope.api import SycopeApi
 from sycope.config import load_config
 from sycope.exceptions import SycopeError
 from sycope.logging import setup_logging, suppress_ssl_warnings
+
+from zabbix_api import AlreadyRunning, ZabbixApi, ZabbixApiError, single_instance
 
 logger = logging.getLogger(__name__)
 
@@ -78,250 +83,188 @@ def create_lookup_structure(lookup_name: str) -> dict:
     return structure
 
 
-def zabbix_login(cfg: dict) -> tuple:
-    """Authenticate to Zabbix API."""
-    url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"]
-    logger.debug(f"Zabbix login URL: {url}")
-    logger.debug(f"Zabbix user: {cfg['zabbix_login']}")
-
-    login_payload = {
-        "jsonrpc": "2.0",
-        "method": "user.login",
-        "params": {"username": cfg["zabbix_login"], "password": cfg["zabbix_pass"]},
-        "id": 1,
-    }
-
-    logger.debug("Sending Zabbix login request")
-    response = requests.post(url, json=login_payload, verify=False)
-    logging.info(f"Zabbix Login Response: {response.status_code}")
-    logger.debug(f"Response headers: {dict(response.headers)}")
-
-    try:
-        result = response.json()
-        logger.debug(f"Response keys: {list(result.keys())}")
-
-        if "result" in result:
-            auth_token = result["result"]
-            logger.debug(
-                f"Auth token received (first 10 chars): {auth_token[:10] if len(auth_token) > 10 else '***'}..."
-            )
-            headers = {
-                "Authorization": f"Bearer {auth_token}",
-                "Content-Type": "application/json-rpc",
-            }
-            return auth_token, headers
-        else:
-            error = result.get("error", "Unknown error")
-            logger.debug(f"Login failed with error: {error}")
-            raise Exception(f"Login failed: {error}")
-    except requests.exceptions.JSONDecodeError as e:
-        logger.debug(f"JSON decode error: {e}")
-        logger.debug(f"Response text: {response.text[:500] if response.text else 'empty'}")
-        raise Exception("Invalid JSON response from Zabbix server")
+# Interface types in the order they are used for the lookup IP and the host type
+INTERFACE_TYPES = [("2", "SNMP"), ("1", "Agent"), ("4", "JMX"), ("3", "IPMI")]
 
 
-def zabbix_logout(cfg: dict) -> None:
-    """Log out from Zabbix API."""
-    url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"]
-    logger.debug(f"Zabbix logout URL: {url}")
-
-    logout_payload = {
-        "jsonrpc": "2.0",
-        "method": "user.logout",
-        "params": [],
-        "id": 2,
-    }
-    logging.info("Logging out from Zabbix")
-    response = requests.post(url, json=logout_payload, verify=False)
-    logger.debug(f"Logout response status: {response.status_code}")
-
-
-def get_snmp_icmp_hosts(cfg: dict, headers: dict) -> list:
-    """Get hosts with SNMP/ICMP interfaces from Zabbix."""
-    url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"]
-    logger.debug(f"Getting SNMP/ICMP hosts from: {url}")
-
-    hosts_payload = {
-        "jsonrpc": "2.0",
-        "method": "host.get",
-        "params": {
+def get_hosts(zabbix: ZabbixApi) -> list:
+    """Get all hosts with at least one interface (one host.get, with the number of items)."""
+    hosts = zabbix.call(
+        "host.get",
+        {
             "output": ["hostid", "host", "name", "status", "available"],
-            "selectInterfaces": ["type", "ip"],
+            "selectInterfaces": ["type", "ip", "main"],
             "selectInventory": ["hostname", "os", "serialno_a", "notes", "name"],
             "selectHostGroups": ["name"],
+            "selectItems": "count",
         },
-        "id": 2,
-    }
-
-    logger.debug("Sending host.get request")
-    response = requests.post(url, headers=headers, json=hosts_payload, verify=False)
-    logger.debug(f"Response status: {response.status_code}")
-
-    hosts_data = response.json().get("result", [])
-    logger.debug(f"Total hosts received: {len(hosts_data)}")
-
-    # Filter to include only hosts with SNMP (type=2) or ICMP (type=1) interfaces
-    filtered_hosts = [
-        host
-        for host in hosts_data
-        if any(int(iface.get("type", -1)) in [1, 2] for iface in host.get("interfaces", []))
-    ]
-
-    logger.debug(f"Hosts with SNMP/ICMP interfaces: {len(filtered_hosts)}")
-
-    # Log first few hosts for debugging
-    for host in filtered_hosts[:5]:
-        interfaces = host.get("interfaces", [])
-        iface_types = [iface.get("type") for iface in interfaces]
-        logger.debug(f"  Host: id={host.get('hostid')}, name={host.get('name')}, interfaces={iface_types}")
-    if len(filtered_hosts) > 5:
-        logger.debug(f"  ... and {len(filtered_hosts) - 5} more hosts")
-
-    return filtered_hosts
+    )
+    logger.debug(f"Total hosts received: {len(hosts)}")
+    hosts = [host for host in hosts if host.get("interfaces")]
+    logger.debug(f"Hosts with interfaces: {len(hosts)}")
+    return hosts
 
 
-def get_icmp_items(cfg: dict, headers: dict, host_id: str) -> list:
-    """Get ICMP item IDs for a host."""
-    url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"]
-    logger.debug(f"Getting ICMP items for host {host_id}")
+def get_icmp_items(zabbix: ZabbixApi, hostids: list) -> tuple:
+    """ICMP items of all hosts in one item.get.
 
-    payload = {
-        "jsonrpc": "2.0",
-        "method": "item.get",
-        "params": {
-            "output": ["itemid", "name"],
-            "hostids": host_id,
-            "search": {"name": "ICMP response time"},
-        },
-        "id": 3,
-    }
-
-    response = requests.post(url, headers=headers, json=payload, verify=False)
-    logger.debug(f"Response status: {response.status_code}")
-
-    items = response.json().get("result", [])
-    item_ids = [item["itemid"] for item in items]
-    logger.debug(f"Found {len(item_ids)} ICMP items for host {host_id}: {item_ids}")
-
-    return item_ids
+    Returns (response time item IDs by host, number of items with "ICMP" in the name by host).
+    """
+    if not hostids:
+        return {}, {}
+    items = zabbix.call(
+        "item.get",
+        {"output": ["itemid", "hostid", "name"], "hostids": hostids, "search": {"name": "ICMP"}},
+    )
+    response_time_ids = defaultdict(list)
+    icmp_count = defaultdict(int)
+    for item in items:
+        if "ICMP" in item["name"]:
+            icmp_count[item["hostid"]] += 1
+        if "icmp response time" in item["name"].lower():
+            response_time_ids[item["hostid"]].append(item["itemid"])
+    return response_time_ids, icmp_count
 
 
-def get_non_icmp_items(cfg: dict, headers: dict, host_id: str) -> bool:
-    """Check if host has any non-ICMP items."""
-    url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"]
-    logger.debug(f"Checking for non-ICMP items on host {host_id}")
-
-    payload = {
-        "jsonrpc": "2.0",
-        "method": "item.get",
-        "params": {
-            "output": ["itemid", "name"],
-            "hostids": host_id,
-        },
-        "id": 4,
-    }
-
-    response = requests.post(url, headers=headers, json=payload, verify=False)
-    logger.debug(f"Response status: {response.status_code}")
-
-    all_items = response.json().get("result", [])
-    filtered_items = [item for item in all_items if "ICMP" not in item["name"]]
-
-    logger.debug(f"Host {host_id}: {len(all_items)} total items, {len(filtered_items)} non-ICMP items")
-    return bool(filtered_items)
+def host_ip_and_type(interfaces: list) -> tuple:
+    """IP and type of the host: SNMP, then Zabbix agent, JMX, IPMI interface; main interface first."""
+    for type_id, type_name in INTERFACE_TYPES:
+        candidates = [iface for iface in interfaces if str(iface.get("type")) == type_id and iface.get("ip")]
+        candidates.sort(key=lambda iface: iface.get("main") != "1")
+        if candidates:
+            return candidates[0]["ip"], type_name
+    return "", "Unknown"
 
 
-def build_lookup_values(cfg: dict, headers: dict, snmp_hosts: list) -> list:
-    """Build lookup values from SNMP/ICMP hosts."""
-    logger.debug(f"Building lookup values for {len(snmp_hosts)} hosts")
+def build_lookup_values(cfg: dict, hosts: list, response_time_ids: dict, icmp_count: dict) -> list:
+    """Build lookup rows from the hosts."""
+    logger.debug(f"Building lookup values for {len(hosts)} hosts")
 
     status_map = {"0": "Enabled", "1": "Disabled"}
+    zabbix_url = cfg["zabbix_host"].rstrip("/")
     lookupvalues = []
 
-    for i, host in enumerate(snmp_hosts, 1):
+    for host in hosts:
         host_id = host.get("hostid")
-        logger.debug(f"Processing host {i}/{len(snmp_hosts)}: id={host_id}")
+        inventory = host.get("inventory")
+        if not isinstance(inventory, dict):  # inventory disabled: Zabbix returns []
+            inventory = {}
 
-        inventory = host.get("inventory", {})
-        interfaces = host.get("interfaces", [])
-        groups = host.get("hostgroups", [])
-
-        logger.debug(
-            f"  Inventory keys: {list(inventory.keys()) if isinstance(inventory, dict) else 'not a dict'}"
-        )
-        logger.debug(f"  Interfaces count: {len(interfaces)}")
-        logger.debug(f"  Groups count: {len(groups)}")
-
-        snmp_ip = next(
-            (iface.get("ip") for iface in interfaces if int(iface.get("type", -1)) == 2),
-            "N/A",
-        )
-        icmp_ip = next(
-            (iface.get("ip") for iface in interfaces if int(iface.get("type", -1)) == 1),
-            "N/A",
-        )
-
-        logger.debug(f"  SNMP IP: {snmp_ip}, ICMP IP: {icmp_ip}")
-
-        group_names = [group.get("name", "Unknown") for group in groups]
-        logger.debug(f"  Groups: {group_names}")
+        ip, host_type = host_ip_and_type(host.get("interfaces", []))
+        if not ip:
+            logger.debug(f"Host {host_id}: no interface with an IP address, skipped")
+            continue
 
         # Inventory "Name", inventory "Hostname", visible name, technical host name - the same order
         # as resolve_hostname() in zabbix_statistics.py (empty inventory fields fall through)
-        if not isinstance(inventory, dict):
-            inventory = {}
         host_name = inventory.get("name") or inventory.get("hostname") or host.get("name") or host.get("host")
-        logger.debug(f"  Resolved hostname: {host_name}")
+        group_names = [group.get("name", "Unknown") for group in host.get("hostgroups", [])]
 
-        # Determine host type
-        host_type = "Unknown"
-        if any(int(iface.get("type", -1)) == 2 for iface in interfaces):
-            host_type = "SNMP"
-        elif any(int(iface.get("type", -1)) == 1 for iface in interfaces):
-            host_type = "ICMP"
-        logger.debug(f"  Host type: {host_type}")
-
-        # Get items for URL building
-        icmp_item_ids = get_icmp_items(cfg, headers, host_id)
-        has_items = get_non_icmp_items(cfg, headers, host_id)
-
-        # Build URLs
-        if icmp_item_ids:
-            icmp_url = f"{cfg['zabbix_host'].rstrip('/')}/history.php?action=showgraph&itemids%5B%5D={','.join(map(str, icmp_item_ids))}"
+        icmp_ids = response_time_ids.get(host_id, [])
+        if icmp_ids:
+            icmp_url = f"{zabbix_url}/history.php?action=showgraph&itemids%5B%5D={','.join(icmp_ids)}"
         else:
             icmp_url = "No ICMP Items"
 
-        if has_items:
-            graph_url = f"{cfg['zabbix_host'].rstrip('/')}/zabbix.php?action=charts.view&filter_hostids%5B0%5D={host_id}&filter_show=1&filter_set=1"
+        if int(host.get("items") or 0) > icmp_count.get(host_id, 0):
+            graph_url = (
+                f"{zabbix_url}/zabbix.php?action=charts.view&filter_hostids%5B0%5D={host_id}"
+                "&filter_show=1&filter_set=1"
+            )
         else:
             graph_url = "No Other Items"
-
-        logger.debug(f"  ICMP URL: {icmp_url[:80]}..." if len(icmp_url) > 80 else f"  ICMP URL: {icmp_url}")
-        logger.debug(
-            f"  Graph URL: {graph_url[:80]}..." if len(graph_url) > 80 else f"  Graph URL: {graph_url}"
-        )
 
         row = [
             str(x)
             for x in [
-                snmp_ip if host_type == "SNMP" else icmp_ip,
+                ip,
                 host_name,
                 host_type,
                 ", ".join(group_names) if group_names else "N/A",
                 icmp_url,
                 graph_url,
-                inventory.get("os", "") if isinstance(inventory, dict) else "",
-                inventory.get("serialno_a", "") if isinstance(inventory, dict) else "",
-                inventory.get("notes", "") if isinstance(inventory, dict) else "",
+                inventory.get("os", ""),
+                inventory.get("serialno_a", ""),
+                inventory.get("notes", ""),
                 status_map.get(str(host.get("status")), "Unknown"),
             ]
         ]
-
-        logger.debug(f"  Row values: IP={row[0]}, hostname={row[1]}, type={row[2]}, status={row[-1]}")
+        logger.debug(f"  Host {host_id}: IP={row[0]}, hostname={row[1]}, type={row[2]}, status={row[-1]}")
         lookupvalues.append(row)
 
     logger.debug(f"Built {len(lookupvalues)} lookup rows")
     return lookupvalues
+
+
+def sync_lookup(api: SycopeApi, cfg: dict, lookup: dict) -> None:
+    """Create the lookup or update it when its rows or configuration differ, then set its privacy."""
+    logger.debug(f"Checking for existing lookup: {cfg['lookup_name']}")
+    lookup_id, saved_lookup = api.get_lookup(cfg["lookup_name"])
+    logger.debug(f"Lookup ID: {lookup_id}")
+
+    if lookup_id == "0":
+        logging.info(f'Creating new lookup "{cfg["lookup_name"]}"')
+        lookup_id = api.create_lookup(cfg["lookup_name"], lookup)
+        logger.debug(f"Create lookup result: id={lookup_id}")
+        if lookup_id == "0":
+            logging.error("Failed to create lookup, dumping to file")
+            with open("lookup_rows_problem.json", "w") as f:
+                json.dump(lookup, f)
+            sys.exit(1)
+    else:
+        compare_config = sorted(lookup["config"].items()) == sorted(saved_lookup["config"].items())
+        compare_rows = sorted(lookup["file"]["rows"], key=str) == sorted(saved_lookup["file"]["rows"], key=str)
+        logger.debug(
+            f"Config identical: {compare_config}, rows identical: {compare_rows}"
+            f" (new {len(lookup['file']['rows'])}, saved {len(saved_lookup['file']['rows'])})"
+        )
+        if compare_config and compare_rows:
+            logging.info(f'Saved data in lookup "{cfg["lookup_name"]}" is identical. No changes required.')
+        else:
+            logging.info(f'Updating lookup "{cfg["lookup_name"]}" ({len(lookup["file"]["rows"])} rows)')
+            lookup.update(
+                {
+                    "attributes": {"defaultColumns": []},
+                    "tags": None,
+                    "id": lookup_id,
+                    "category": "lookup.lookup",
+                }
+            )
+            api.edit_lookup(lookup_id, lookup)
+
+    logger.debug(f"Setting lookup privacy to: {cfg['lookup_privacy']}")
+    api.privacy_edit_lookup(lookup_id, cfg["lookup_privacy"])
+
+
+def run(cfg: dict) -> None:
+    """One synchronization: Zabbix hosts -> Sycope lookup."""
+    lookup = create_lookup_structure(cfg["lookup_name"])
+
+    zabbix = ZabbixApi(cfg)
+    try:
+        hosts = get_hosts(zabbix)
+        response_time_ids, icmp_count = get_icmp_items(zabbix, [host["hostid"] for host in hosts])
+    finally:
+        zabbix.close()
+
+    logging.info(f"Found {len(hosts)} hosts with interfaces in Zabbix")
+    lookup["file"]["rows"].extend(build_lookup_values(cfg, hosts, response_time_ids, icmp_count))
+
+    with requests.Session() as session:
+        api = None
+        try:
+            api = SycopeApi(
+                session=session,
+                host=cfg["sycope_host"],
+                login=cfg["sycope_login"],
+                password=cfg["sycope_pass"],
+                api_endpoint=cfg.get("api_base", "/npm/api/v1/"),
+            )
+            sync_lookup(api, cfg, lookup)
+        finally:
+            if api is not None:
+                logging.info("Logging out from Sycope")
+                api.log_out()
 
 
 def main() -> None:
@@ -332,9 +275,6 @@ def main() -> None:
             CONFIG_FILE,
             required_fields=[
                 "zabbix_host",
-                "zabbix_api_base",
-                "zabbix_login",
-                "zabbix_pass",
                 "sycope_host",
                 "sycope_login",
                 "sycope_pass",
@@ -342,6 +282,8 @@ def main() -> None:
                 "lookup_privacy",
             ],
         )
+        if not cfg.get("zabbix_token") and not (cfg.get("zabbix_login") and cfg.get("zabbix_pass")):
+            raise ValueError("set zabbix_token, or zabbix_login and zabbix_pass")
     except Exception as e:
         # Setup basic logging to report the error
         setup_logging("zabbix_lookup_sync.log")
@@ -354,135 +296,23 @@ def main() -> None:
 
     logger.debug("=" * 60)
     logger.debug("Zabbix Lookup Sync script starting")
-    logger.debug(f"Script directory: {SCRIPT_DIR}")
     logger.debug(f"Config file: {CONFIG_FILE}")
-    logger.debug("=" * 60)
-
-    logger.debug("Configuration loaded successfully")
-    logger.debug(f"  Zabbix host: {cfg['zabbix_host']}")
+    logger.debug(f"  Zabbix host: {cfg['zabbix_host']} ({'API token' if cfg.get('zabbix_token') else 'login'})")
     logger.debug(f"  Sycope host: {cfg['sycope_host']}")
-    logger.debug(f"  Lookup name: {cfg['lookup_name']}")
-    logger.debug(f"  Lookup privacy: {cfg['lookup_privacy']}")
+    logger.debug(f"  Lookup: {cfg['lookup_name']} ({cfg['lookup_privacy']})")
 
-    logging.info(f"Loaded configuration from {CONFIG_FILE}")
-
-    # Create lookup structure
-    lookup = create_lookup_structure(cfg["lookup_name"])
-
-    # Authenticate to Zabbix
     try:
-        logger.debug("Authenticating to Zabbix API...")
-        auth_token, headers = zabbix_login(cfg)
-        logger.debug("Zabbix authentication successful")
-    except Exception as e:
-        logging.error(f"Zabbix login failed: {e}")
-        logger.debug(f"Zabbix login exception: {type(e).__name__}: {e}")
+        with single_instance(os.path.join(SCRIPT_DIR, "zabbix_lookup_sync.lock")):
+            run(cfg)
+    except AlreadyRunning as e:
+        logging.warning(f"The previous run is still running, skipping this one ({e})")
+    except ZabbixApiError as e:
+        logging.error(f"Zabbix API error: {e}")
         sys.exit(1)
-
-    try:
-        # Get SNMP/ICMP hosts
-        logger.debug("Fetching SNMP/ICMP hosts from Zabbix...")
-        snmp_hosts = get_snmp_icmp_hosts(cfg, headers)
-
-        if not snmp_hosts:
-            logging.info("No SNMP or ICMP hosts found in Zabbix")
-            logger.debug("No hosts to process")
-        else:
-            logging.info(f"Found {len(snmp_hosts)} SNMP/ICMP hosts in Zabbix")
-            logger.debug("Building lookup values from host data...")
-            lookupvalues = build_lookup_values(cfg, headers, snmp_hosts)
-            lookup["file"]["rows"].extend(lookupvalues)
-            logger.debug(f"Total rows in lookup: {len(lookup['file']['rows'])}")
-
-        # Sync to Sycope
-        logger.debug("Creating Sycope session...")
-        with requests.Session() as session:
-            logger.debug("Authenticating to Sycope API...")
-            api = SycopeApi(
-                session=session,
-                host=cfg["sycope_host"],
-                login=cfg["sycope_login"],
-                password=cfg["sycope_pass"],
-                api_endpoint=cfg.get("api_base", "/npm/api/v1/"),
-            )
-            logger.debug("Sycope authentication successful")
-
-            try:
-                logger.debug(f"Checking for existing lookup: {cfg['lookup_name']}")
-                lookup_id, saved_lookup = api.get_lookup(cfg["lookup_name"])
-                logger.debug(f"Lookup ID: {lookup_id}")
-                logger.debug(f"Saved lookup keys: {list(saved_lookup.keys()) if saved_lookup else 'empty'}")
-
-                logging.info("Checking data...")
-
-                if lookup_id == "0":
-                    logging.info(f'Creating new lookup "{cfg["lookup_name"]}"')
-                    logger.debug("Lookup does not exist, creating new one...")
-                    lookup_id = api.create_lookup(cfg["lookup_name"], lookup)
-                    logger.debug(f"Create lookup result: id={lookup_id}")
-
-                    if lookup_id == "0":
-                        logging.error("Failed to create lookup, dumping to file")
-                        logger.debug("Dumping lookup data to lookup_rows_problem.json")
-                        with open("lookup_rows_problem.json", "w") as f:
-                            json.dump(lookup, f)
-                        sys.exit(1)
-                else:
-                    logger.debug("Lookup exists, comparing data...")
-
-                    # Compare configurations
-                    compare_config = sorted(lookup["config"].items()) == sorted(
-                        saved_lookup["config"].items()
-                    )
-                    logger.debug(f"Config comparison result: {compare_config}")
-                    if not compare_config:
-                        logger.debug(f"  New config: {sorted(lookup['config'].items())}")
-                        logger.debug(f"  Saved config: {sorted(saved_lookup['config'].items())}")
-
-                    # Compare rows
-                    new_rows_sorted = sorted(lookup["file"]["rows"], key=lambda x: str(x))
-                    saved_rows_sorted = sorted(saved_lookup["file"]["rows"], key=lambda x: str(x))
-                    compare_rows = new_rows_sorted == saved_rows_sorted
-                    logger.debug(f"Rows comparison result: {compare_rows}")
-                    logger.debug(f"  New rows count: {len(lookup['file']['rows'])}")
-                    logger.debug(f"  Saved rows count: {len(saved_lookup['file']['rows'])}")
-
-                    if compare_config and compare_rows:
-                        logging.info(
-                            f'Saved data in lookup "{cfg["lookup_name"]}" is identical. No changes required.'
-                        )
-                        logger.debug("No update needed")
-                    else:
-                        logger.debug("Data differs, updating lookup...")
-                        lookup.update(
-                            {
-                                "attributes": {"defaultColumns": []},
-                                "tags": None,
-                                "id": lookup_id,
-                                "category": "lookup.lookup",
-                            }
-                        )
-                        logger.debug(f"Updated lookup structure keys: {list(lookup.keys())}")
-                        api.edit_lookup(lookup_id, lookup)
-                        logger.debug("Lookup updated successfully")
-
-                # Set privacy
-                logger.debug(f"Setting lookup privacy to: {cfg['lookup_privacy']}")
-                api.privacy_edit_lookup(lookup_id, cfg["lookup_privacy"])
-                logger.debug("Privacy setting complete")
-
-            except SycopeError as e:
-                logging.error(f"Sycope API error: {e}")
-                logger.debug(f"Sycope exception: {type(e).__name__}: {e}")
-                sys.exit(1)
-            finally:
-                logging.info("Logging out from Sycope")
-                api.log_out()
-                logger.debug("Logged out from Sycope")
-
-    finally:
-        zabbix_logout(cfg)
-        logger.debug("Script complete")
+    except SycopeError as e:
+        logging.error(f"Sycope API error: {e}")
+        sys.exit(1)
+    logger.debug("Script complete")
 
 
 if __name__ == "__main__":
