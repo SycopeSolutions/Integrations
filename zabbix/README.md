@@ -75,8 +75,10 @@ The `zabbix_statistics_sync.py` script:
 
 - Logs in to the Zabbix API and collects metrics for defined IP addresses
 - Aligns timestamps for different metrics - `CPU Load, ICMP Reponse Time, Memory Usage and Packet Loss`
-- Compares gathered metric with already available metrics in Sycope's custom index to avoid duplicate samples
-- Saves the difference in Sycope
+- Compares gathered metric with already available metrics in Sycope's custom index to avoid duplicate samples (one sample per IP and minute)
+- Saves the difference in Sycope. A minute is saved when at least one metric has a value, so hosts without the ICMP template (or without a memory item) still get samples; the missing metrics stay empty
+- Fills the gaps of items with *Discard unchanged* preprocessing: Zabbix stores their value only when it changes or once per heartbeat, so on an idle host most minutes have no history. The last stored value is used until the heartbeat (without a heartbeat: up to `max_value_age_minutes`, default 60)
+- Hostname: inventory *Name*, then inventory *Hostname*, then the host's visible name, then its technical host name - the same as `zabbix_lookup_sync.py`. Host inventory does not have to be enabled
 
 The `zabbix_lookup_sync.py` script:
 
@@ -190,7 +192,11 @@ python3 install.py --sycope-3.2  # Sycope 3.2 (legacy): dashboards converted to 
 
     // Custom index time period (amount of data to be synchronized)
     // Script will check for duplicate data and will not save it twice
-    "period_minutes": 120
+    "period_minutes": 120,
+
+    // Optional (default 60): how long the last value of a "Discard unchanged" item without a
+    // heartbeat is used for the following minutes. Items with a heartbeat use the heartbeat.
+    "max_value_age_minutes": 60,
 
     // Examples for IPs to be synchronized
     // The Zabbix API is quite fast, allowing you to synchronize all IPs;

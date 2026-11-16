@@ -266,12 +266,11 @@ def build_lookup_values(cfg: dict, headers: dict, snmp_hosts: list) -> list:
         group_names = [group.get("name", "Unknown") for group in groups]
         logger.debug(f"  Groups: {group_names}")
 
-        # Get hostname from inventory or host name
-        if isinstance(inventory, dict):
-            inventory_name = inventory.get("name", "")
-            host_name = inventory_name if inventory_name else inventory.get("hostname", host.get("name"))
-        else:
-            host_name = host.get("name")
+        # Inventory "Name", inventory "Hostname", visible name, technical host name - the same order
+        # as resolve_hostname() in zabbix_statistics.py (empty inventory fields fall through)
+        if not isinstance(inventory, dict):
+            inventory = {}
+        host_name = inventory.get("name") or inventory.get("hostname") or host.get("name") or host.get("host")
         logger.debug(f"  Resolved hostname: {host_name}")
 
         # Determine host type

@@ -62,6 +62,11 @@ def val_multi(x, multi=1000):
     return result
 
 
+# Zabbix item preprocessing step types
+PREPROC_DISCARD_UNCHANGED = "19"
+PREPROC_DISCARD_UNCHANGED_HEARTBEAT = "20"
+
+
 # Keys for metrics (multiple keys for CPU Load to support different platforms)
 ITEM_KEYS = {
     "cpu_load": {
@@ -214,8 +219,21 @@ def get_host_id_by_ip(cfg: dict, headers: dict, ip: str) -> Optional[str]:
     return None
 
 
+def resolve_hostname(host: dict) -> str:
+    """Pick the host's name the same way as zabbix_lookup_sync.py.
+
+    Order: inventory "Name", inventory "Hostname", the host's visible name, its technical host name.
+    Hosts with inventory disabled return an empty list instead of an inventory object, so the visible
+    name is what most hosts end up with.
+    """
+    inventory = host.get("inventory")
+    if not isinstance(inventory, dict):
+        inventory = {}
+    return inventory.get("name") or inventory.get("hostname") or host.get("name") or host.get("host") or ""
+
+
 def get_hostname_by_id(cfg: dict, headers: dict, host_id: str) -> str:
-    """Get hostname (inventory name) from Zabbix using host ID."""
+    """Get the host's name from Zabbix using host ID (see resolve_hostname)."""
     url = cfg["zabbix_host"].rstrip("/") + cfg["zabbix_api_base"].rstrip("/")
     logger.debug(f"Getting hostname for host ID: {host_id}")
 
@@ -223,8 +241,8 @@ def get_hostname_by_id(cfg: dict, headers: dict, host_id: str) -> str:
         "jsonrpc": "2.0",
         "method": "host.get",
         "params": {
-            "output": ["hostid"],
-            "selectInventory": ["name"],
+            "output": ["hostid", "host", "name"],
+            "selectInventory": ["name", "hostname"],
             "hostids": host_id,
         },
         "id": 5,
@@ -236,13 +254,13 @@ def get_hostname_by_id(cfg: dict, headers: dict, host_id: str) -> str:
     result = response.json()["result"]
     logger.debug(f"Host.get result: {result}")
 
-    if result and "inventory" in result[0] and result[0]["inventory"]:
-        hostname = result[0]["inventory"].get("name", "")
-        logger.debug(f"Hostname for host {host_id}: {hostname}")
-        return hostname
+    if not result:
+        logger.debug(f"Host {host_id} not found")
+        return ""
 
-    logger.debug(f"No inventory name found for host {host_id}")
-    return ""
+    hostname = resolve_hostname(result[0])
+    logger.debug(f"Hostname for host {host_id}: {hostname}")
+    return hostname
 
 
 def get_items_id(cfg: dict, headers: dict, host_id: str) -> list:
@@ -255,6 +273,7 @@ def get_items_id(cfg: dict, headers: dict, host_id: str) -> list:
         "method": "item.get",
         "params": {
             "output": ["itemid", "name", "key_"],
+            "selectPreprocessing": ["type", "params"],
             "hostids": host_id,
             "sortfield": "name",
         },
@@ -313,6 +332,36 @@ def get_history(
     return result
 
 
+def parse_zabbix_seconds(value: str) -> Optional[int]:
+    """Convert a Zabbix time value ("300", "5m", "1h", "1d", "1w") to seconds; None for macros etc."""
+    units = {"s": 1, "m": 60, "h": 3600, "d": 86400, "w": 604800}
+    value = (value or "").strip()
+    try:
+        if value and value[-1] in units:
+            return int(value[:-1]) * units[value[-1]]
+        return int(value)
+    except ValueError:
+        return None
+
+
+def value_max_age_seconds(cfg: dict, item: dict) -> int:
+    """How long a stored value of the item still describes the current state.
+
+    Items with "Discard unchanged" preprocessing store a value only when it changes (or once per
+    heartbeat), so an idle host has no history for most minutes. Such a value stays valid until the
+    heartbeat; without a heartbeat it is used for at most max_value_age_minutes (default 60).
+    Other items keep the original one-minute match.
+    """
+    cap = int(cfg.get("max_value_age_minutes", 60)) * 60
+    for step in item.get("preprocessing") or []:
+        if str(step.get("type")) == PREPROC_DISCARD_UNCHANGED_HEARTBEAT:
+            heartbeat = parse_zabbix_seconds(step.get("params", ""))
+            return min(max(heartbeat, 59), cap) if heartbeat else cap
+        if str(step.get("type")) == PREPROC_DISCARD_UNCHANGED:
+            return cap
+    return 59
+
+
 def create_minute_df_pl(start_datetime: datetime, stop_datetime: datetime) -> pl.DataFrame:
     """Create time-aligned Polars DataFrame (1-minute interval)."""
     logger.debug(f"Creating minute DataFrame: {start_datetime} to {stop_datetime}")
@@ -350,8 +399,10 @@ def collect_metrics_for_ip(
     logger.debug(f"Hostname for {ip}: {hostname}")
 
     items_id = get_items_id(cfg, headers, host_id)
-    items_ids_dict = {x["key_"].split("[")[0]: x["itemid"] for x in items_id}
+    items_by_key = {x["key_"].split("[")[0]: x for x in items_id}
+    items_ids_dict = {key: item["itemid"] for key, item in items_by_key.items()}
     logger.debug(f"Item keys found: {list(items_ids_dict.keys())}")
+    max_age = {metric_name: 59 for metric_name in ITEM_KEYS}
 
     for metric_name, val_config in ITEM_KEYS.items():
         logger.debug(f"Processing metric: {metric_name}")
@@ -366,10 +417,15 @@ def collect_metrics_for_ip(
                 logger.debug(f"  Key {key_} not found in items")
                 continue
 
-            logger.debug(f"  Found item key: {key_} -> itemid={items_ids_dict[key_]}")
+            item_max_age = value_max_age_seconds(cfg, items_by_key[key_])
+            max_age[metric_name] = max(max_age[metric_name], item_max_age)
+            logger.debug(
+                f"  Found item key: {key_} -> itemid={items_ids_dict[key_]}, value valid for {item_max_age}s"
+            )
 
+            # Start earlier by the value's validity, so the first minutes get the last stored value
             history = get_history(
-                cfg, headers, items_ids_dict[key_], start_time_int, end_time_int, history_type=0
+                cfg, headers, items_ids_dict[key_], start_time_int - item_max_age, end_time_int, history_type=0
             )
 
             valid_count = 0
@@ -420,11 +476,13 @@ def collect_metrics_for_ip(
             .dt.convert_time_zone(time_zone="UTC")
             .dt.cast_time_unit("ms")
         )
+        # Regular items: the value nearest to the minute. "Discard unchanged" items: the last stored
+        # value, as long as it is younger than the heartbeat (see value_max_age_seconds).
         df = df_time_range.sort("datetime").join_asof(
             z.sort("datetime").drop("timestamp"),
             on="datetime",
-            tolerance="59s",
-            strategy="nearest",
+            tolerance=f"{max_age[col]}s",
+            strategy="nearest" if max_age[col] <= 59 else "backward",
         )
         dfs.append(df)
 
@@ -477,9 +535,16 @@ def inject_new_data(api: SycopeApi, cfg: dict, new_entries: pl.DataFrame) -> Non
     logger.debug(f"  Available columns for injection: {available_columns}")
     logger.debug(f"  Available metrics: {available_metrics}")
 
-    rows = new_entries[available_columns].drop_nulls(subset=available_metrics).rows()
+    # Keep a row when at least one metric has a value. Hosts differ in what they collect (no ICMP
+    # template, no memory item, ...) and requiring every metric dropped all rows of such hosts.
+    # Sycope stores the missing metrics as absent fields.
+    rows = (
+        new_entries[available_columns]
+        .filter(~pl.all_horizontal([pl.col(c).is_null() for c in available_metrics]))
+        .rows()
+    )
 
-    logger.debug(f"  Rows to inject after dropping nulls: {len(rows)}")
+    logger.debug(f"  Rows to inject (with at least one metric): {len(rows)}")
     if rows:
         logger.debug(f"  First row sample: {rows[0]}")
         api.inject_data(cfg["index_name"], available_columns, rows)
