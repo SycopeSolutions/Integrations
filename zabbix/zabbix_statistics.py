@@ -13,6 +13,7 @@ Tested on Sycope 3.1
 
 import logging
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -67,10 +68,21 @@ PREPROC_DISCARD_UNCHANGED = "19"
 PREPROC_DISCARD_UNCHANGED_HEARTBEAT = "20"
 
 
-# Keys for metrics (multiple keys for CPU Load to support different platforms)
+# Item selection rules per metric. The rules are tried in order and the first one that matches an
+# item of the host wins; "*" matches any text, everything else is literal. When a rule matches
+# several items (one per CPU, one per memory pool), "prefer_name" keeps the items whose name before
+# ":" is that text (Cisco "Processor: Memory utilization"), then "aggregate" (avg or max) combines
+# the remaining items minute by minute. config.json "item_keys" can replace the rules of a metric.
+#
+# system.cpu.load (load average) is not CPU utilization in percent and is not used.
 ITEM_KEYS = {
     "cpu_load": {
-        "values": ["system.cpu.load", "system.cpu.util"],
+        "rules": [
+            {"key": "system.cpu.util"},  # Windows/Linux by Zabbix agent
+            {"key": "system.cpu.util[snmp,*]", "aggregate": "avg"},  # Linux by SNMP
+            {"key": "system.cpu.util[cpmCPUTotal5minRev.*]", "aggregate": "avg"},  # Cisco IOS by SNMP
+            {"key": "system.cpu.util[hrProcessorLoad.*]", "aggregate": "avg"},  # HOST-RESOURCES-MIB
+        ],
         "output_type": float,
         "validation_function": val_numeric_range,
         "validation_args": {"lower": 0, "upper": 100},
@@ -78,7 +90,7 @@ ITEM_KEYS = {
         "round": 3,
     },
     "response_time": {
-        "values": ["icmppingsec"],
+        "rules": [{"key": "icmppingsec"}, {"key": "icmppingsec[*]"}],
         "output_type": float,
         "validation_function": val_numeric_range,
         "validation_args": {"lower": -1, "upper": 100000000},
@@ -86,7 +98,14 @@ ITEM_KEYS = {
         "round": None,
     },
     "memory_usage": {
-        "values": ["vm.memory.util"],
+        "rules": [
+            {"key": "vm.memory.util"},  # Windows by Zabbix agent
+            {"key": "vm.memory.utilization"},  # Linux by Zabbix agent
+            {"key": "vm.memory.util[snmp]"},  # Linux by SNMP
+            # Cisco and other SNMP templates: one item per memory pool, the "Processor" pool
+            # (as in "show memory"), otherwise the fullest pool
+            {"key": "vm.memory.util[*]", "aggregate": "max", "prefer_name": "Processor"},
+        ],
         "output_type": float,
         "validation_function": val_numeric_range,
         "validation_args": {"lower": 0, "upper": 100},
@@ -94,7 +113,7 @@ ITEM_KEYS = {
         "round": 3,
     },
     "packet_loss": {
-        "values": ["icmppingloss"],
+        "rules": [{"key": "icmppingloss"}, {"key": "icmppingloss[*]"}],
         "output_type": float,
         "validation_function": val_numeric_range,
         "validation_args": {"lower": 0, "upper": 100},
@@ -274,6 +293,7 @@ def get_items_id(cfg: dict, headers: dict, host_id: str) -> list:
         "params": {
             "output": ["itemid", "name", "key_"],
             "selectPreprocessing": ["type", "params"],
+            "filter": {"status": "0"},  # enabled items only
             "hostids": host_id,
             "sortfield": "name",
         },
@@ -362,6 +382,87 @@ def value_max_age_seconds(cfg: dict, item: dict) -> int:
     return 59
 
 
+def metric_rules(cfg: dict, metric_name: str) -> list:
+    """Item selection rules of a metric: config.json "item_keys" or the built-in ITEM_KEYS rules.
+
+    In config.json a rule is either a key pattern ("vm.memory.util[*]") or an object with "key" and
+    optionally "aggregate" and "prefer_name".
+    """
+    override = (cfg.get("item_keys") or {}).get(metric_name)
+    if not override:
+        return ITEM_KEYS[metric_name]["rules"]
+    return [rule if isinstance(rule, dict) else {"key": rule} for rule in override]
+
+
+def key_matches(pattern: str, key: str) -> bool:
+    """Match an item key against a rule pattern; "*" matches any text, everything else is literal."""
+    regex = ".*".join(re.escape(part) for part in pattern.split("*"))
+    return re.fullmatch(regex, key) is not None
+
+
+def select_items(items: list, rules: list) -> tuple:
+    """Return (items, aggregate, rule key) for the first rule that matches items of the host."""
+    for rule in rules:
+        matched = [item for item in items if key_matches(rule["key"], item["key_"])]
+        if not matched:
+            continue
+        prefer = rule.get("prefer_name")
+        if prefer:
+            preferred = [
+                item
+                for item in matched
+                if item.get("name", "").split(":")[0].strip().lower() == prefer.strip().lower()
+            ]
+            if preferred:
+                matched = preferred
+        return matched, rule.get("aggregate", "avg"), rule["key"]
+    return [], None, None
+
+
+def convert_history(history: list, val_config: dict) -> list:
+    """Validate and transform Zabbix history into (timestamp ms, value) pairs."""
+    values = []
+    for entry in history:
+        timestamp = int(entry["clock"]) * 1000
+        value = entry["value"]
+
+        if val_config["validation_function"] and not val_config["validation_function"](
+            value, **val_config["validation_args"]
+        ):
+            values.append((timestamp, None))
+            continue
+
+        value = val_config["output_type"](value)
+        if val_config["transform_function"]:
+            value = val_config["transform_function"](value)
+        if val_config["output_type"] is float and val_config["round"]:
+            value = round(value, val_config["round"])
+        values.append((timestamp, value))
+    return values
+
+
+def align_to_minutes(df_time_range: pl.DataFrame, values: list, max_age: int) -> pl.Series:
+    """Put an item's values on the minute grid.
+
+    Regular items: the value nearest to the minute. "Discard unchanged" items: the last stored
+    value, as long as it is younger than the heartbeat (see value_max_age_seconds).
+    """
+    z = pl.DataFrame(values, schema=["timestamp", "value"], orient="row").with_columns(
+        # cast_time_unit: polars >= 2.0 returns datetime[us] from from_epoch(..., "ms"),
+        # which no longer matches the datetime[ms] minute grid in join_asof below.
+        datetime=pl.from_epoch("timestamp", time_unit="ms")
+        .dt.convert_time_zone(time_zone="UTC")
+        .dt.cast_time_unit("ms")
+    )
+    joined = df_time_range.join_asof(
+        z.sort("datetime").drop("timestamp"),
+        on="datetime",
+        tolerance=f"{max_age}s",
+        strategy="nearest" if max_age <= 59 else "backward",
+    )
+    return joined["value"].cast(pl.Float64)
+
+
 def create_minute_df_pl(start_datetime: datetime, stop_datetime: datetime) -> pl.DataFrame:
     """Create time-aligned Polars DataFrame (1-minute interval)."""
     logger.debug(f"Creating minute DataFrame: {start_datetime} to {stop_datetime}")
@@ -388,8 +489,6 @@ def collect_metrics_for_ip(
     logger.debug(f"Collecting metrics for IP: {ip}")
     logger.debug(f"Time range: {start_time_int} to {end_time_int}")
 
-    history_data = {metric_name: [] for metric_name in ITEM_KEYS}
-
     host_id = get_host_id_by_ip(cfg, headers, ip)
     if not host_id:
         logger.debug(f"No host ID found for IP {ip}, skipping")
@@ -398,99 +497,47 @@ def collect_metrics_for_ip(
     hostname = get_hostname_by_id(cfg, headers, host_id)
     logger.debug(f"Hostname for {ip}: {hostname}")
 
-    items_id = get_items_id(cfg, headers, host_id)
-    items_by_key = {x["key_"].split("[")[0]: x for x in items_id}
-    items_ids_dict = {key: item["itemid"] for key, item in items_by_key.items()}
-    logger.debug(f"Item keys found: {list(items_ids_dict.keys())}")
-    max_age = {metric_name: 59 for metric_name in ITEM_KEYS}
+    items = get_items_id(cfg, headers, host_id)
+    grid = df_time_range.sort("datetime")
+    columns = {}
 
     for metric_name, val_config in ITEM_KEYS.items():
-        logger.debug(f"Processing metric: {metric_name}")
-        logger.debug(f"  Looking for keys: {val_config['values']}")
-
-        if not any(x in items_ids_dict for x in val_config["values"]):
-            logger.debug(f"  No matching item key found for {metric_name}")
+        rules = metric_rules(cfg, metric_name)
+        selected, aggregate, rule_key = select_items(items, rules)
+        if not selected:
+            logger.debug(f"{metric_name}: no item matches {[r['key'] for r in rules]}")
             continue
+        logger.debug(
+            f"{metric_name}: rule {rule_key} -> {[(i['key_'], i.get('name')) for i in selected]}, aggregate={aggregate}"
+        )
 
-        for key_ in val_config["values"]:
-            if key_ not in items_ids_dict:
-                logger.debug(f"  Key {key_} not found in items")
-                continue
-
-            item_max_age = value_max_age_seconds(cfg, items_by_key[key_])
-            max_age[metric_name] = max(max_age[metric_name], item_max_age)
-            logger.debug(
-                f"  Found item key: {key_} -> itemid={items_ids_dict[key_]}, value valid for {item_max_age}s"
-            )
-
+        series = []
+        for item in selected:
+            max_age = value_max_age_seconds(cfg, item)
             # Start earlier by the value's validity, so the first minutes get the last stored value
-            history = get_history(
-                cfg, headers, items_ids_dict[key_], start_time_int - item_max_age, end_time_int, history_type=0
-            )
+            history = get_history(cfg, headers, item["itemid"], start_time_int - max_age, end_time_int, history_type=0)
+            values = convert_history(history, val_config)
+            logger.debug(f"  {item['key_']}: {len(values)} values, valid for {max_age}s")
+            if values:
+                series.append(align_to_minutes(grid, values, max_age).alias(item["itemid"]))
 
-            valid_count = 0
-            invalid_count = 0
+        if not series:
+            continue
+        if len(series) == 1:
+            columns[metric_name] = series[0]
+        else:
+            combine = pl.max_horizontal if aggregate == "max" else pl.mean_horizontal
+            columns[metric_name] = pl.DataFrame(series).select(combine(pl.all())).to_series()
+            if val_config["round"]:
+                columns[metric_name] = columns[metric_name].round(val_config["round"])
 
-            for entry in history:
-                timestamp = int(entry["clock"]) * 1000
-                value = entry["value"]
-
-                if val_config["validation_function"] and not val_config["validation_function"](
-                    value, **val_config["validation_args"]
-                ):
-                    history_data[metric_name].append((timestamp, None))
-                    invalid_count += 1
-                    continue
-
-                value = val_config["output_type"](value)
-
-                if val_config["transform_function"]:
-                    value = val_config["transform_function"](value)
-                if val_config["output_type"] is float and val_config["round"]:
-                    value = round(value, val_config["round"])
-
-                history_data[metric_name].append((timestamp, value))
-                valid_count += 1
-
-            logger.debug(f"  {metric_name}: {valid_count} valid, {invalid_count} invalid entries")
-
-    total_entries = sum(len(v) for v in history_data.values())
-    logger.debug(f"Total history entries collected for {ip}: {total_entries}")
-
-    if not history_data:
+    if not columns:
         logger.debug(f"No history data for IP {ip}")
         return None
 
-    dfs = []
-    for col, vals in history_data.items():
-        if not vals:
-            logger.debug(f"  Column {col}: no values, skipping")
-            continue
-
-        logger.debug(f"  Column {col}: {len(vals)} values")
-
-        z = pl.DataFrame(vals, schema=["timestamp", col], orient="row").with_columns(
-            # cast_time_unit: polars >= 2.0 returns datetime[us] from from_epoch(..., "ms"),
-            # which no longer matches the datetime[ms] minute grid in join_asof below.
-            datetime=pl.from_epoch("timestamp", time_unit="ms")
-            .dt.convert_time_zone(time_zone="UTC")
-            .dt.cast_time_unit("ms")
-        )
-        # Regular items: the value nearest to the minute. "Discard unchanged" items: the last stored
-        # value, as long as it is younger than the heartbeat (see value_max_age_seconds).
-        df = df_time_range.sort("datetime").join_asof(
-            z.sort("datetime").drop("timestamp"),
-            on="datetime",
-            tolerance=f"{max_age[col]}s",
-            strategy="nearest" if max_age[col] <= 59 else "backward",
-        )
-        dfs.append(df)
-
-    if not dfs:
-        logger.debug(f"No DataFrames created for IP {ip}")
-        return None
-
-    result = pl.concat(dfs, how="align_full").with_columns(ip=pl.lit(ip), hostname=pl.lit(hostname))
+    result = grid.with_columns(
+        *[col.alias(name) for name, col in columns.items()], ip=pl.lit(ip), hostname=pl.lit(hostname)
+    )
     logger.debug(f"Created combined DataFrame for {ip}: {len(result)} rows, columns: {result.columns}")
 
     return result

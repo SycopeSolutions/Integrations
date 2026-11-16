@@ -78,6 +78,15 @@ The `zabbix_statistics_sync.py` script:
 - Compares gathered metric with already available metrics in Sycope's custom index to avoid duplicate samples (one sample per IP and minute)
 - Saves the difference in Sycope. A minute is saved when at least one metric has a value, so hosts without the ICMP template (or without a memory item) still get samples; the missing metrics stay empty
 - Fills the gaps of items with *Discard unchanged* preprocessing: Zabbix stores their value only when it changes or once per heartbeat, so on an idle host most minutes have no history. The last stored value is used until the heartbeat (without a heartbeat: up to `max_value_age_minutes`, default 60)
+- Picks the items by ordered key rules (first match wins), so the common Zabbix templates work without configuration:
+
+  | Metric | Item keys, in order | Several items (one per CPU / memory pool) |
+  |---|---|---|
+  | `cpu_load` | `system.cpu.util` (Windows/Linux agent), `system.cpu.util[snmp,*]` (Linux SNMP), `system.cpu.util[cpmCPUTotal5minRev.*]` (Cisco), `system.cpu.util[hrProcessorLoad.*]` (HOST-RESOURCES-MIB) | average |
+  | `memory_usage` | `vm.memory.util` (Windows agent), `vm.memory.utilization` (Linux agent), `vm.memory.util[snmp]` (Linux SNMP), `vm.memory.util[*]` (Cisco and other pools) | the *Processor* pool (item name `Processor: ...`), otherwise the fullest pool |
+  | `response_time`, `packet_loss` | `icmppingsec`, `icmppingloss` (with or without parameters) | average |
+
+  `system.cpu.load` (load average) is not CPU utilization in percent and is not used. Other templates: set `item_keys` in `config.json`
 - Hostname: inventory *Name*, then inventory *Hostname*, then the host's visible name, then its technical host name - the same as `zabbix_lookup_sync.py`. Host inventory does not have to be enabled
 
 The `zabbix_lookup_sync.py` script:
@@ -197,6 +206,13 @@ python3 install.py --sycope-3.2  # Sycope 3.2 (legacy): dashboards converted to 
     // Optional (default 60): how long the last value of a "Discard unchanged" item without a
     // heartbeat is used for the following minutes. Items with a heartbeat use the heartbeat.
     "max_value_age_minutes": 60,
+
+    // Optional: replace the item rules of a metric (cpu_load, memory_usage, response_time,
+    // packet_loss). A rule is a key pattern ("*" = any text) or an object with "key",
+    // "aggregate" ("avg" or "max") and "prefer_name". The first rule that matches wins.
+    "item_keys": {
+      "cpu_load": ["system.cpu.util", {"key": "system.cpu.util[hrProcessorLoad.*]", "aggregate": "max"}]
+    },
 
     // Examples for IPs to be synchronized
     // The Zabbix API is quite fast, allowing you to synchronize all IPs;
