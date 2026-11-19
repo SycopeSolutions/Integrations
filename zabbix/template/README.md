@@ -84,8 +84,9 @@ Optional settings, in `/etc/zabbix/sycope.conf` or the environment:
 |---|---|---|
 | `SYCOPE_SESSION_TTL` | `600` | Seconds a session is reused. `0` restores the version 1.0 behaviour (log in and out on every check). |
 | `SYCOPE_SESSION_DIR` | system temp directory | Directory of the cache file `sycope_check_<hash>.session`. Must be writable by the Zabbix user. |
+| `SYCOPE_HTTP_TIMEOUT` | `5` | Seconds to wait for each Sycope API response (version 1.2+). A stalled appliance then fails the check with an error instead of running into the Zabbix item timeout. |
 
-If the credentials are wrong, every item returns `{"error": "Sycope login failed (HTTP 400) Invalid username or password."}`.
+If the credentials are wrong, every item returns `{"error": "Sycope login failed (HTTP 400) Invalid username or password."}`. The items then hold `-1` (or `error`) and the trigger **Sycope: checks failing on {HOST.NAME}** opens (see [Failing checks](#failing-checks)).
 
 ### 3. Import the Zabbix template
 
@@ -94,6 +95,8 @@ In Zabbix: **Data Collection → Templates → Import**
 - Browse to `zbx_sycope_monitoring.yaml`
 - Check **Update existing** if re-importing after changes
 - Click **Import**
+
+> **Upgrading:** an import with **Update existing** sets the template macros back to the values in the file, for example `{$SYCOPE_IP}` to `sycope.example.com`. Set `{$SYCOPE_IP}` and any other changed macro on the hosts (step 4) or as a global macro (**Administration → Macros**), not on the template, so that a new template version keeps them. If you changed them on the template, set them again after the import. A wrong `{$SYCOPE_IP}` makes every check fail and opens the *checks failing* trigger.
 
 ### 4. Assign the template to hosts
 
@@ -119,6 +122,20 @@ All macros can be overridden per-host via **Data Collection → Hosts → [host]
 | `{$SYCOPE_CONN_MINUTES}` | `30` | Lookback window (minutes) for connection count queries |
 | `{$SYCOPE_ALERT_WARN}` | `1` | Alert count threshold for WARNING trigger |
 | `{$SYCOPE_ALERT_HIGH}` | `5` | Alert count threshold for HIGH trigger |
+| `{$SYCOPE_ERROR_PERIOD}` | `15m` | *Checks failing* trigger: period in which every connections check returned an error |
+| `{$SYCOPE_NODATA_PERIOD}` | `30m` | *Checks failing* trigger: period without any connections check result |
+| `{$SYCOPE_TIMEOUT}` | `20s` | Timeout of every check item (Zabbix 7.0+ item timeout); overrides the Zabbix server `Timeout` |
+
+### Failing checks
+
+A failed check (wrong credentials, Sycope unreachable, API error, wrong `{$SYCOPE_IP}`) does not make the items unsupported: preprocessing stores `-1` (counts) or `error` (messages) so that the item history shows when it happened. The other Sycope triggers cannot fire on such values, so the template has one availability trigger per host:
+
+| Trigger | Expression (on the *Private Connections From Node* item) | Severity |
+|---|---|---|
+| Sycope: checks failing on {HOST.NAME} | every value in `{$SYCOPE_ERROR_PERIOD}` is `-1`, or no value in `{$SYCOPE_NODATA_PERIOD}` | AVERAGE |
+
+To see the error, run the check as the Zabbix user, for example
+`sudo -u zabbix /usr/lib/zabbix/externalscripts/sycope_check.py <sycope_ip> connections <host_ip> 30`.
 
 > **Tip:** Performance latency alerts (`High Server/Client Network Latency`) tend to be infrequent. If those items always show 0, increase `{$SYCOPE_ALERT_MINUTES}` to `1440` (24 hours) on the host level.
 
@@ -465,7 +482,7 @@ Zabbix Server
 
 ## Production Considerations
 
-**API load:** With 4 hosts × 33 items × 5-minute interval, the Zabbix server makes approximately 26 API calls per host per cycle. Each call performs a full login/logout. If Sycope API load becomes a concern, increase intervals for asset discovery items (matched IPs, connections, active services) via their respective macros.
+**API load:** Each host has 33 items with a 5-minute interval, so the Zabbix server runs 33 NQL queries per host per cycle. All checks share one cached Sycope session (version 1.1+), so there is no login per check. If Sycope API load becomes a concern, increase intervals for asset discovery items (matched IPs, connections, active services) via their respective macros.
 
 **Credentials security:** Keep `/etc/zabbix/sycope.conf` at `chmod 640` owned by `root:zabbix`. Never pass credentials as Zabbix macro arguments — macros are visible in the Zabbix UI and stored in plaintext in the database.
 
@@ -475,4 +492,4 @@ Zabbix Server
 
 **Host IP matching:** The script uses `{HOST.IP}` as the NQL filter IP. If the monitored host uses NAT, has multiple interfaces, or its primary Zabbix IP differs from the IP visible in Sycope traffic, items will return 0. In that case override the IP by adding a custom item key or adjusting the host's Zabbix IP to match what Sycope sees.
 
-**Token expiry:** The Sycope session cookie is created and destroyed on each script invocation — there is no token reuse or caching. This is intentional to keep the script stateless.
+**Session expiry:** The Sycope session cookie is cached for `SYCOPE_SESSION_TTL` seconds (default 600) and shared by all checks. When Sycope invalidates it earlier (for example after a restart), the script logs in again and repeats the check once.

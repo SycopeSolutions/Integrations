@@ -35,6 +35,15 @@ zabbix_export:
     - macro: '{$SYCOPE_ALERT_HIGH}'
       value: '5'
       description: 'High threshold: alert count'
+    - macro: '{$SYCOPE_ERROR_PERIOD}'
+      value: 15m
+      description: 'Checks failing: period in which every connections check returned an error'
+    - macro: '{$SYCOPE_NODATA_PERIOD}'
+      value: 30m
+      description: 'Checks failing: period without any connections check result'
+    - macro: '{$SYCOPE_TIMEOUT}'
+      value: 20s
+      description: Timeout of each check (overrides the Zabbix server Timeout)
     items:
     - uuid: bd17475f1227487ea58552e9f2a0c89f
       name: Visibility - Only SYN Client TCP Flag
@@ -42,6 +51,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Only SYN Client
         TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -75,6 +85,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Only SYN
         Client TCP Flag","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -95,6 +106,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Initial connections
         from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -128,6 +140,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Initial connections
         from Public IPs","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -147,6 +160,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Horizontal Scan","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -180,6 +194,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Horizontal
         Scan","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -199,6 +214,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","Vertical Scan","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -232,6 +248,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","Vertical
         Scan","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -252,6 +269,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High Server Network
         Latency","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -278,6 +296,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","High Server
         Network Latency","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -298,6 +317,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","High Client Network
         Latency","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -324,6 +344,7 @@ zabbix_export:
       key: sycope_check.py["{$SYCOPE_IP}","alert_count_msg","{HOST.IP}","High Client
         Network Latency","true","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -343,6 +364,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","active_services","{HOST.IP}","{$SYCOPE_ASSET_DAYS}","true"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -362,6 +384,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","active_services_msg","{HOST.IP}","{$SYCOPE_ASSET_DAYS}","true"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT
@@ -381,6 +404,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Client_Public_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -400,6 +424,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Client_Private_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -419,6 +444,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Server_Public_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -438,6 +464,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Matched_Server_Private_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -457,6 +484,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Client_Public_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -476,6 +504,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Client_Private_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -495,6 +524,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Server_Public_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -514,6 +544,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","matched_ips","{HOST.IP}","{$SYCOPE_MATCHED_MINUTES}","Unmatched_Server_Private_IPs"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -533,6 +564,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_From_Node"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -547,11 +579,25 @@ zabbix_export:
         value: asset_discovery
       - tag: source
         value: sycope
+      triggers:
+      - uuid: 9e5ef9cf82d344b4af04e25a47baba56
+        expression: 'max(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_From_Node"],{$SYCOPE_ERROR_PERIOD})=-1 or nodata(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_From_Node"],{$SYCOPE_NODATA_PERIOD})=1'
+        name: 'Sycope: checks failing on {HOST.NAME}'
+        priority: AVERAGE
+        description: |
+          The Sycope checks of this host return errors (wrong credentials in /etc/zabbix/sycope.conf,
+          Sycope unreachable, API error) or no results. The items then hold -1 or "error" instead of
+          Sycope data, so the other Sycope triggers cannot fire. Run sycope_check.py as the zabbix user
+          to see the error.
+        tags:
+        - tag: scope
+          value: availability
     - uuid: b842f7906e5749f7a80de3d6461b6553
       name: Asset Discovery - Public Connections From Node
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Public_Connections_From_Node"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -571,6 +617,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Private_Connections_To_Node"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -590,6 +637,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","connections","{HOST.IP}","{$SYCOPE_CONN_MINUTES}","Public_Connections_To_Node"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -609,6 +657,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -640,6 +689,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","critical"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -664,6 +714,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","high"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -688,6 +739,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","medium"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -707,6 +759,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","low"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -726,6 +779,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}","info"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: FLOAT
@@ -745,6 +799,7 @@ zabbix_export:
       type: EXTERNAL
       key: sycope_check.py["{$SYCOPE_IP}","any_alerts_msg","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"]
       delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
       history: 7d
       trends: '0'
       value_type: TEXT

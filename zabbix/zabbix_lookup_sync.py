@@ -7,10 +7,11 @@ Lookup synchronization between Zabbix inventory data and Sycope.
 This script retrieves host information from Zabbix (hosts with an SNMP, agent,
 JMX or IPMI interface) and synchronizes it to a Sycope Lookup table.
 
-Script version: 2.1
+Script version: 2.2
 Tested on Sycope 3.1
 """
 
+import ipaddress
 import json
 import logging
 import os
@@ -136,6 +137,14 @@ def host_ip_and_type(interfaces: list) -> tuple:
     return "", "Unknown"
 
 
+def usable_ip(ip: str) -> bool:
+    """An IP that can appear in traffic: not empty, valid, not loopback (127.0.0.1 of the Zabbix server)."""
+    try:
+        return not ipaddress.ip_address(ip).is_loopback
+    except ValueError:
+        return False
+
+
 def build_lookup_values(cfg: dict, hosts: list, response_time_ids: dict, icmp_count: dict) -> list:
     """Build lookup rows from the hosts."""
     logger.debug(f"Building lookup values for {len(hosts)} hosts")
@@ -151,8 +160,8 @@ def build_lookup_values(cfg: dict, hosts: list, response_time_ids: dict, icmp_co
             inventory = {}
 
         ip, host_type = host_ip_and_type(host.get("interfaces", []))
-        if not ip:
-            logger.debug(f"Host {host_id}: no interface with an IP address, skipped")
+        if not usable_ip(ip):
+            logger.debug(f"Host {host_id}: no usable interface IP ({ip!r}), skipped")
             continue
 
         # Inventory "Name", inventory "Hostname", visible name, technical host name - the same order
@@ -248,7 +257,15 @@ def run(cfg: dict) -> None:
         zabbix.close()
 
     logging.info(f"Found {len(hosts)} hosts with interfaces in Zabbix")
-    lookup["file"]["rows"].extend(build_lookup_values(cfg, hosts, response_time_ids, icmp_count))
+    rows = build_lookup_values(cfg, hosts, response_time_ids, icmp_count)
+    if not rows:
+        # An API user without access to the hosts gets an empty list, not an error: keep the lookup
+        logging.warning(
+            "Zabbix returned no hosts with a usable IP - the lookup is not changed. "
+            "Check that the Zabbix API user or token can read the hosts."
+        )
+        return
+    lookup["file"]["rows"].extend(rows)
 
     with requests.Session() as session:
         api = None

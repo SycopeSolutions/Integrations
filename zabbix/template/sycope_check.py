@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Sycope Monitoring - Zabbix External Check Script
-Version: 1.1
+Version: 1.2
 Tested with Sycope 3.x API
 
 Usage:
@@ -21,6 +21,8 @@ Session reuse (optional settings, same places):
   SYCOPE_SESSION_TTL   seconds a Sycope session is reused by all checks (default 600, 0 = log in
                        and out on every check, the behaviour of version 1.0)
   SYCOPE_SESSION_DIR   directory of the session cache file (default: system temp directory)
+  SYCOPE_HTTP_TIMEOUT  seconds to wait for each Sycope API response (default 5), so a stalled
+                       appliance fails the check before the Zabbix item timeout
 
 Returns JSON: {"value": <int>, "message": "<str>"}
 """
@@ -60,6 +62,12 @@ def get_credentials():
         sys.exit(1)
     return user, password
 
+def http_timeout():
+    try:
+        return float(os.environ.get('SYCOPE_HTTP_TIMEOUT', '5'))
+    except ValueError:
+        return 5.0
+
 def make_ssl_context():
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
@@ -76,7 +84,7 @@ def api_post(base_url, path, payload, cookie=None):
     )
     if cookie:
         req.add_header('Cookie', cookie)
-    with urllib.request.urlopen(req, context=ctx) as resp:
+    with urllib.request.urlopen(req, context=ctx, timeout=http_timeout()) as resp:
         body = resp.read().decode('utf-8')
         # capture Set-Cookie header for session
         set_cookie = resp.getheader('Set-Cookie', '')
@@ -87,7 +95,7 @@ def api_get(base_url, path, cookie=None):
     req = urllib.request.Request(f"{base_url}{path}")
     if cookie:
         req.add_header('Cookie', cookie)
-    with urllib.request.urlopen(req, context=ctx) as resp:
+    with urllib.request.urlopen(req, context=ctx, timeout=http_timeout()) as resp:
         return resp.read().decode('utf-8')
 
 def login(base_url, user, password):

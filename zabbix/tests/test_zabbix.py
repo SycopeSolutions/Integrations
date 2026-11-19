@@ -310,3 +310,34 @@ def test_single_instance():
                     pass
         with zabbix_api.single_instance(path):  # released after the first run
             pass
+
+
+def test_lookup_skips_loopback_and_invalid_ips():
+    hosts = [
+        {"hostid": "1", "host": "zbx", "name": "Zabbix server", "status": "0", "items": "5", "inventory": [],
+         "interfaces": [{"type": "1", "ip": "127.0.0.1", "main": "1"}], "hostgroups": []},
+        {"hostid": "2", "host": "bad", "name": "Bad", "status": "0", "items": "5", "inventory": [],
+         "interfaces": [{"type": "1", "ip": "not-an-ip", "main": "1"}], "hostgroups": []},
+        {"hostid": "3", "host": "ok", "name": "OK", "status": "0", "items": "5", "inventory": [],
+         "interfaces": [{"type": "2", "ip": "2001:db8::1", "main": "1"}], "hostgroups": []},
+    ]
+    rows = lookup_sync.build_lookup_values({"zabbix_host": "https://z"}, hosts, {}, {})
+    assert [r[0] for r in rows] == ["2001:db8::1"]
+
+
+def test_lookup_not_changed_when_zabbix_returns_no_hosts(monkeypatch):
+    class Zabbix:
+        def __init__(self, cfg):
+            pass
+
+        def call(self, method, params):
+            return []  # e.g. a token user without access to any host
+
+        def close(self):
+            pass
+
+    touched = []
+    monkeypatch.setattr(lookup_sync, "ZabbixApi", Zabbix)
+    monkeypatch.setattr(lookup_sync, "SycopeApi", lambda **kw: touched.append(kw))
+    lookup_sync.run({"lookup_name": "integration-zabbix", "zabbix_host": "https://z"})
+    assert touched == []  # Sycope not contacted, the saved lookup stays
