@@ -93,7 +93,7 @@ def get_hosts(zabbix: ZabbixApi) -> list:
     hosts = zabbix.call(
         "host.get",
         {
-            "output": ["hostid", "host", "name", "status", "available"],
+            "output": ["hostid", "host", "name", "status"],
             "selectInterfaces": ["type", "ip", "main"],
             "selectInventory": ["hostname", "os", "serialno_a", "notes", "name"],
             "selectHostGroups": ["name"],
