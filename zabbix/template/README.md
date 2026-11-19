@@ -15,16 +15,16 @@ For each monitored host, the script authenticates against the Sycope API, runs t
 | File | Description |
 |---|---|
 | `sycope_check.py` | External check script — place in Zabbix ExternalScripts directory |
-| `zbx_sycope_monitoring.yaml` | Zabbix 7.x template — import via Configuration → Templates |
+| `zbx_sycope_monitoring.yaml` | Zabbix 7.0+ template (Zabbix 8.0 included) — import via Configuration → Templates |
 
 ---
 
 ## Requirements
 
-- Zabbix 7.0+
+- Zabbix 7.0+, including Zabbix 8.0
 - Python 3.8+ on the Zabbix server/proxy
 - Sycope 3.x with REST API accessible from the Zabbix server
-- Tested with Zabbix 7.0.5 and Sycope 3.3.1
+- Tested with Zabbix 7.0.5 and Sycope 3.3.1; the template import was also checked on Zabbix 8.0.0
 - Zabbix server must be able to reach Sycope on HTTPS (port 443)
 
 ---

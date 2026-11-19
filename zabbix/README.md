@@ -107,7 +107,7 @@ The `zabbix_lookup_sync.py` script:
 .
 ├── template/               # Sycope Monitoring Template for Zabbix (Sycope → Zabbix)
 │   ├── sycope_check.py              # External check script for Zabbix
-│   └── zbx_sycope_monitoring.yaml   # Zabbix 7.x template
+│   └── zbx_sycope_monitoring.yaml   # Zabbix 7.0+ template (also imports into Zabbix 8.0)
 ├── dashboards                       # Optional dashboards to import into Sycope
 ├── drilldowns                       # Optional drilldown action to import into Sycope
 ├── fields                           # Optional custom fields to import into Sycope
@@ -125,9 +125,9 @@ The `zabbix_lookup_sync.py` script:
 ## Requirements
 
 - Python 3.8+
-- Zabbix 7.0+ (the API client sends the session or token in the `Authorization` header, available since Zabbix 6.4)
+- Zabbix 7.0+, including Zabbix 8.0 (the API client sends the session or token in the `Authorization` header, available since Zabbix 6.4)
 - Sycope >= 3.1 with API access
-- Tested with Zabbix 7.0.5 and Sycope 3.3.1, Python 3.10 and 3.15, polars 1.32 and 2.1
+- Tested with Zabbix 7.0.5 and 8.0.0, Sycope 3.3.1, Python 3.10 and 3.15, polars 1.32 and 2.1
 - `requests` module:
   ```bash
   pip3 install requests
