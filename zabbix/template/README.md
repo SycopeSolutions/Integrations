@@ -4,7 +4,12 @@ Zabbix external check integration for the **Sycope NTA/Security Analytics** plat
 
 Sycope collects and analyzes network flow data, providing visibility into traffic patterns, asset discovery, and security alerts. This integration brings that data into Zabbix by querying the Sycope REST API using NQL (Network Query Language) — the same query language used natively in the Sycope UI.
 
-For each monitored host, the script authenticates against the Sycope API, runs targeted NQL queries filtered by the host's IP address, and returns structured JSON results. Zabbix collects these via external checks every 5 minutes and evaluates them against configurable thresholds to generate alerts.
+There are two templates:
+
+- **Sycope Monitoring** — linked to the monitored servers. For each host the script runs NQL queries filtered by the host's IP address (alerts, active services, traffic policies, connections). Zabbix collects them via external checks every 5 minutes and evaluates them against configurable thresholds.
+- **Sycope Appliance** — linked to the one host that represents the Sycope appliance. It monitors Sycope itself and the whole network without any IP filter: CPU, memory and disks of the appliance, flow reception and decoding, indexing, flow exporters, total traffic, all alerts in the network and Sycope system notifications. See [Sycope Appliance template](#sycope-appliance-template).
+
+Both templates use one external-check **master item** per check (raw JSON) and **dependent items** that read single values from it, so one run of the script feeds many items.
 
 > **Sycope is available as a [free version](https://free.sycope.com/)** supporting up to 5,000 flows/second with no limitations on data sources, subnetworks, or number of monitored hosts. The free version includes threat detection, anomaly detection, and personalized dashboards — making it viable for production use without a license cost. The main differences vs. the paid version are data retention (14 days vs. unlimited), access management (single admin role vs. full RBAC), and performance monitoring availability.
 
@@ -15,7 +20,8 @@ For each monitored host, the script authenticates against the Sycope API, runs t
 | File | Description |
 |---|---|
 | `sycope_check.py` | External check script — place in Zabbix ExternalScripts directory |
-| `zbx_sycope_monitoring.yaml` | Zabbix 7.0+ template (Zabbix 8.0 included) — import via Configuration → Templates |
+| `zbx_sycope_monitoring.yaml` | Template **Sycope Monitoring** (per monitored host), Zabbix 7.0+ (Zabbix 8.0 included) |
+| `zbx_sycope_appliance.yaml` | Template **Sycope Appliance** (the Sycope appliance itself, no IP filter), Zabbix 7.0+ |
 
 ---
 
@@ -76,7 +82,7 @@ SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword python3 sycope_check.py ...
 
 **Session reuse (version 1.1)**
 
-All checks share one Sycope session instead of logging in and out on every check. With 33 items per host, this saves dozens of logins per host per polling cycle and keeps checks within the Zabbix `Timeout`. The session cookie is cached in a file readable only by the Zabbix user. When Sycope invalidates the session (for example after a restart), the script logs in again and repeats the check once.
+All checks share one Sycope session instead of logging in and out on every check. This saves a login per check and keeps checks within the Zabbix `Timeout`. The session cookie is cached in a file readable only by the Zabbix user. When Sycope invalidates the session (for example after a restart), the script logs in again and repeats the check once.
 
 Optional settings, in `/etc/zabbix/sycope.conf` or the environment:
 
@@ -92,9 +98,11 @@ If the credentials are wrong, every item returns `{"error": "Sycope login failed
 
 In Zabbix: **Data Collection → Templates → Import**
 
-- Browse to `zbx_sycope_monitoring.yaml`
+- Browse to `zbx_sycope_monitoring.yaml` (and `zbx_sycope_appliance.yaml` for the appliance template)
 - Check **Update existing** if re-importing after changes
 - Click **Import**
+
+> **Upgrading from 1.x:** deploy `sycope_check.py` 2.0 (step 1) before importing the 2.0 template, because the master items use the new check type `host_alerts`. The import keeps the item IDs (items are matched by UUID), so the history of all 33 items is kept although they become dependent items with new keys (for example `sycope.alert.count["Horizontal Scan"]`).
 
 > **Upgrading:** an import with **Update existing** sets the template macros back to the values in the file, for example `{$SYCOPE_IP}` to `sycope.example.com`. Set `{$SYCOPE_IP}` and any other changed macro on the hosts (step 4) or as a global macro (**Administration → Macros**), not on the template, so that a new template version keeps them. If you changed them on the template, set them again after the import. A wrong `{$SYCOPE_IP}` makes every check fail and opens the *checks failing* trigger.
 
@@ -107,6 +115,10 @@ In Zabbix: **Data Collection → Templates → Import**
 
 > The script uses `{HOST.IP}` automatically as the monitored IP for all NQL queries — no manual configuration needed per host beyond the `{$SYCOPE_IP}` macro.
 
+### 5. Link the appliance template to the Sycope host (optional)
+
+Create a host for the Sycope appliance (or use an existing one, for example with the *ICMP Ping* template) whose main interface has the Sycope address, and add the template **Sycope Appliance**. Its checks use `{HOST.CONN}` (the main interface) as the Sycope API address, so it needs no `{$SYCOPE_IP}` macro.
+
 ---
 
 ## Zabbix Macros
@@ -118,6 +130,8 @@ All macros can be overridden per-host via **Data Collection → Hosts → [host]
 | `{$SYCOPE_IP}` | `sycope.example.com` | IP or hostname of the Sycope appliance |
 | `{$SYCOPE_ALERT_MINUTES}` | `15` | Lookback window (minutes) for all alert queries |
 | `{$SYCOPE_ASSET_DAYS}` | `7` | Lookback window (days) for active services discovery |
+| `{$SYCOPE_SKIP_NAT_PORTS}` | `true` | Active services: ignore server ports 49152 and above (ephemeral/NAT ports) |
+| `{$SYCOPE_ASSET_DELAY}` | `1h` | Active services: check interval. The query covers `{$SYCOPE_ASSET_DAYS}` days of traffic, so a shorter interval adds load without new information |
 | `{$SYCOPE_MATCHED_MINUTES}` | `60` | Lookback window (minutes) for matched/unmatched IP queries |
 | `{$SYCOPE_CONN_MINUTES}` | `30` | Lookback window (minutes) for connection count queries |
 | `{$SYCOPE_ALERT_WARN}` | `1` | Alert count threshold for WARNING trigger |
@@ -128,7 +142,7 @@ All macros can be overridden per-host via **Data Collection → Hosts → [host]
 
 ### Failing checks
 
-A failed check (wrong credentials, Sycope unreachable, API error, wrong `{$SYCOPE_IP}`) does not make the items unsupported: preprocessing stores `-1` (counts) or `error` (messages) so that the item history shows when it happened. The other Sycope triggers cannot fire on such values, so the template has one availability trigger per host:
+A failed check (wrong credentials, Sycope unreachable, API error, wrong `{$SYCOPE_IP}`) does not make the items unsupported: the master item stores the script's `{"error": "..."}` JSON (kept for 1 day in the `(raw)` items) and the dependent items store `-1` (counts) or `error` (messages) so that the item history shows when it happened. The other Sycope triggers cannot fire on such values, so the template has one availability trigger per host:
 
 | Trigger | Expression (on the *Private Connections From Node* item) | Severity |
 |---|---|---|
@@ -136,6 +150,7 @@ A failed check (wrong credentials, Sycope unreachable, API error, wrong `{$SYCOP
 
 To see the error, run the check as the Zabbix user, for example
 `sudo -u zabbix /usr/lib/zabbix/externalscripts/sycope_check.py <sycope_ip> connections <host_ip> 30`.
+The template **Sycope Appliance** has the same trigger, *Sycope: API checks failing*, on its CPU utilization item.
 
 > **Tip:** Performance latency alerts (`High Server/Client Network Latency`) tend to be infrequent. If those items always show 0, increase `{$SYCOPE_ALERT_MINUTES}` to `1440` (24 hours) on the host level.
 
@@ -145,18 +160,21 @@ To see the error, run the check as the Zabbix user, for example
 
 The script supports the following check types, passed as the second argument:
 
-| Check type | Extra args | Description |
-|---|---|---|
-| `alert_count` | `<alert_name> <include_client> <minutes>` | Count of a specific named alert |
-| `alert_count_msg` | `<alert_name> <include_client> <minutes>` | Same as above, for message text extraction |
-| `any_alerts` | `<minutes> [severity]` | All alerts for the host, with severity breakdown |
-| `any_alerts_msg` | `<minutes>` | Same as above, for detail text extraction |
-| `active_services` | `<days> <disable_nat_ports>` | Active server ports seen on the host |
-| `active_services_msg` | `<days> <disable_nat_ports>` | Same, for port list text extraction |
-| `matched_ips` | `<minutes> <field>` | Matched/unmatched client/server IP counts |
-| `connections` | `<minutes> <field>` | Inbound/outbound connection counts |
+| Check type | Extra args | NQL queries | Description |
+|---|---|---|---|
+| `host_alerts` | `<minutes> [alert_name...]` | 1 | All alerts of the host: total, severity counts, per-alert-name counts (`by_name`) |
+| `active_services` | `<days> <disable_nat_ports>` | 1 | Active server ports seen on the host |
+| `matched_ips` | `<minutes>` | 2 | Matched/unmatched client/server IP counts |
+| `connections` | `<minutes>` | 2 | Inbound/outbound connection counts |
+| `appliance_health` | `<minutes>` | 3-4 | Sycope self-monitoring (`metrics` stream); `<monitored_ip>` is `-` |
+| `appliance_traffic` | `<minutes> <exporter_hours>` | 3 | Total traffic and flow exporters; `<monitored_ip>` is `-` |
+| `appliance_alerts` | `<minutes>` | 2 | Alerts in the whole network and system notifications; `<monitored_ip>` is `-` |
+| `alert_count` | `<alert_name> <include_client> <minutes>` | 1 | 1.x: count of one named alert (not used by the 2.0 template) |
+| `any_alerts` | `<minutes>` | 1 | 1.x: all alerts of the host with severity counts (not used by the 2.0 template) |
 
-All check types return a JSON object. Zabbix items use JSONPath preprocessing to extract individual values.
+All check types return a JSON object. The template has one master item (external check, `(raw)` in the name) per check and host; the other items are dependent items that extract single values with JSONPath (or a short JavaScript step for the alert-name items).
+
+**Queries per host and 5-minute cycle:** 5, plus 1 per hour for active services (version 1.x: about 93, because each of the 33 items ran its check separately and each `matched_ips` item ran all 8 queries).
 
 ---
 
@@ -199,7 +217,9 @@ All check types return a JSON object. Zabbix items use JSONPath preprocessing to
 | Matched/Unmatched Client/Server Public/Private IPs | 8 distinct counters |
 | Private/Public Connections From/To Node | 4 distinct counters |
 
-All items are tagged with `source: sycope` and a `component` tag for easy filtering in Zabbix Latest Data.
+All items are tagged with `source: sycope` and a `component` tag for easy filtering in Zabbix Latest Data. The four master items `Sycope - ... (raw)` (tag `type: raw`) hold the JSON of each check.
+
+> The four *Matched/Unmatched Server ... IPs* items can only be 0 or 1: the queries filter `serverIp = {HOST.IP}`, so there is a single server address. They show whether the host served traffic that matches (or does not match) the traffic profiles, as a public or a private address.
 
 ---
 
@@ -284,23 +304,31 @@ SYCOPE_USER=admin SYCOPE_PASSWORD=yourpassword \
   python3 sycope_check.py sycope.example.com any_alerts 10.0.0.5 1440
 ```
 
-This returns all alert names seen in the last 24 hours. Once you have the exact name, add it as a dedicated template item in `zbx_sycope_monitoring.yaml`:
+This returns all alert names seen in the last 24 hours. Once you have the exact name, add it as a dependent item of the master item `Sycope - Host alerts (raw)` in `zbx_sycope_monitoring.yaml` (the master item already returns every alert name of the host, no change of the master item is needed):
 
 ```yaml
 - uuid: <generate: python3 -c "import uuid; print(uuid.uuid4().hex)">
   name: 'Security - DNS Tunneling'
-  type: EXTERNAL
-  key: 'sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","DNS Tunneling","true","{$SYCOPE_ALERT_MINUTES}"]'
-  delay: 5m
+  type: DEPENDENT
+  key: 'sycope.alert.count["DNS Tunneling"]'
+  delay: '0'
   history: 7d
   trends: '0'
   value_type: FLOAT
   preprocessing:
-    - type: JSONPATH
+    - type: JAVASCRIPT
       parameters:
-        - '$.value'
+        - |
+          var d = JSON.parse(value);
+          if (d.error) {
+              throw d.error;
+          }
+          var e = (d.by_name || {})["DNS Tunneling"];
+          return e ? e.value : 0;
       error_handler: CUSTOM_VALUE
       error_handler_params: '-1'
+  master_item:
+    key: 'sycope_check.py["{$SYCOPE_IP}","host_alerts","{HOST.IP}","{$SYCOPE_ALERT_MINUTES}"]'
   tags:
     - tag: component
       value: security
@@ -308,10 +336,12 @@ This returns all alert names seen in the last 24 hours. Once you have the exact 
       value: sycope
   triggers:
     - uuid: <generate new uuid>
-      expression: 'last(/Sycope Monitoring/sycope_check.py["{$SYCOPE_IP}","alert_count","{HOST.IP}","DNS Tunneling","true","{$SYCOPE_ALERT_MINUTES}"])>=1'
+      expression: 'last(/Sycope Monitoring/sycope.alert.count["DNS Tunneling"])>=1'
       name: 'Sycope: DNS Tunneling detected on {HOST.NAME}'
       priority: HIGH
 ```
+
+The JavaScript step returns 0 when the alert did not occur in the window and `-1` (error handler) when the check failed.
 
 **Example: Custom NQL query in the script**
 
@@ -331,13 +361,12 @@ def check_unique_external_ips(base_url, cookie, ip, last_minutes):
     return {"value": count, "message": f"Unique external IPs: {count}"}
 ```
 
-Then register it in `main()` before the `else` clause:
+Then register it in `run_check()` before the `else` clause:
 
 ```python
 elif check_type == "unique_external_ips":
     last_minutes = int(extra[0]) if len(extra) > 0 else 60
-    result = check_unique_external_ips(base_url, cookie, monitored_ip, last_minutes)
-    print(json.dumps(result))
+    return check_unique_external_ips(base_url, cookie, monitored_ip, last_minutes)
 ```
 
 Key rules when writing NQL queries:
@@ -395,6 +424,83 @@ Component tag values used in this template:
 | `performance` | High Server/Client Network Latency |
 | `alerts` | Sycope - Active Alerts (all severity items) |
 | `asset_discovery` | Active Services, Matched/Unmatched IPs, Connections |
+
+## Sycope Appliance template
+
+Template **Sycope Appliance** (`zbx_sycope_appliance.yaml`) monitors the Sycope appliance and the whole network, without filtering by IP. Link it to the host that represents Sycope; the checks use `{HOST.CONN}` as the API address.
+
+| Master item (raw) | Check | Source in Sycope | Dependent items |
+|---|---|---|---|
+| Sycope - Health (raw) | `appliance_health` | `metrics` stream (Sycope self-monitoring) | CPU and memory utilization, memory total/used, metrics age, flow packets received, flows decoded/analyzed/filtered, missed templates, dropped packets and errors of the listeners, decoder and forwarder, indexing writes and errors, event bus rejected/dead/errors/queue, syslog/Ambience input errors, failed DNS servers, problems summary |
+| Sycope - Traffic (raw) | `appliance_traffic` | `netflowTotalAggr`, `netflowByExporterAggr` | Total bps, pps, flows/s, sessions/s; exporters active/known/silent and status |
+| Sycope - Alerts (raw) | `appliance_alerts` | `alerts`, `notifications` | Network alerts total and per severity, distinct alert names, top-10 detail; system notifications per level (for example license expiry warnings) with detail |
+
+Low-level discovery (dependent rules, no extra queries):
+
+- **Sycope disks** — `{#DISK}`: total, used, free, used in % for each file system of the appliance
+- **Sycope flow exporters** — `{#EXPORTER}`: bps, pps, flows/s and *sending* (1/0) for each exporter seen in the last `{$SYCOPE_EXPORTER_HOURS}` hours
+
+Rates are averages over the last `{$SYCOPE_WINDOW_MINUTES}` whole minutes (the current, incomplete minute is left out).
+
+| Trigger | Severity |
+|---|---|
+| Sycope: API checks failing on {HOST.NAME} | AVERAGE |
+| Sycope: self-monitoring metrics not written for over `{$SYCOPE_METRICS_AGE_MAX}`s | HIGH |
+| Sycope: no flows received for 15m (decoded flows/s below `{$SYCOPE_FLOWS_MIN}`) | HIGH |
+| Sycope: exporter {#EXPORTER} stopped sending flows (none for `{$SYCOPE_EXPORTER_SILENT}`) | AVERAGE |
+| Sycope: flow packets dropped or not decoded | WARNING |
+| Sycope: index write or delete errors | WARNING |
+| Sycope: internal processing errors (event bus, inputs) | WARNING |
+| Sycope: high CPU / memory utilization (over `{$SYCOPE_CPU_MAX}` / `{$SYCOPE_MEMORY_MAX}` % for 15m) | WARNING |
+| Sycope: disk {#DISK} usage over `{$SYCOPE_DISK_PUSED_WARN}`% / almost full (over `{$SYCOPE_DISK_PUSED_CRIT}`%) | WARNING / HIGH |
+| Sycope: critical / high severity alerts in the network | HIGH / WARNING |
+| Sycope: system notification errors | WARNING |
+
+| Macro | Default | Description |
+|---|---|---|
+| `{$SYCOPE_WINDOW_MINUTES}` | `5` | Query window in minutes (keep equal to the 5m item interval) |
+| `{$SYCOPE_EXPORTER_HOURS}` | `24` | Exporters seen in this many hours are discovered and expected to send flows |
+| `{$SYCOPE_EXPORTER_SILENT}` | `15m` | Period without flows after which a known exporter is reported |
+| `{$SYCOPE_TIMEOUT}` | `30s` | Timeout of each check |
+| `{$SYCOPE_ERROR_PERIOD}` / `{$SYCOPE_NODATA_PERIOD}` | `15m` / `30m` | API checks failing trigger |
+| `{$SYCOPE_CPU_MAX}` / `{$SYCOPE_MEMORY_MAX}` | `90` / `90` | Utilization thresholds, % |
+| `{$SYCOPE_DISK_PUSED_WARN}` / `{$SYCOPE_DISK_PUSED_CRIT}` | `80` / `90` | Disk usage thresholds, % |
+| `{$SYCOPE_METRICS_AGE_MAX}` | `600` | Maximum age of the newest self-monitoring record, seconds |
+| `{$SYCOPE_FLOWS_MIN}` | `1` | Minimum decoded flows per second |
+
+Graphs: Traffic, Flows per second, CPU and memory, Network alerts by severity, Flow exporters.
+
+Template dashboard **Sycope Appliance** (Monitoring → Hosts → *Sycope host* → Dashboards), 3 pages:
+
+| Page | Widgets |
+|---|---|
+| Overview | KPIs (flows decoded, traffic, exporters active/silent, network alerts, CPU, memory, metrics age), the 5 graphs, and the last values of health problems, exporter status, network alert detail and Sycope notifications (Item history widgets) |
+| Collection and exporters | Error counters (UDP dropped, decoder errors, forwarder dropped, index write errors, event bus rejected/errors, missed templates, records written), traffic and flows/s graph per discovered exporter |
+| Disks | Used % and free space graph per discovered file system |
+
+Screenshots (Zabbix 7.0.5, lab appliance with 11 flow exporters):
+
+**Overview**
+
+![Sycope Appliance dashboard - Overview](screenshots/sycope_appliance_overview.jpg)
+
+**Collection and exporters**: error counters and one traffic / flows-per-second graph per discovered exporter (the graph prototype widgets page through the exporters, 8 per page)
+
+![Sycope Appliance dashboard - Collection and exporters](screenshots/sycope_appliance_collection_exporters.jpg)
+
+**Disks**: used % and free space per file system of the appliance
+
+![Sycope Appliance dashboard - Disks](screenshots/sycope_appliance_disks.jpg)
+
+Test from the Zabbix server:
+
+```bash
+sudo -u zabbix /usr/lib/zabbix/externalscripts/sycope_check.py sycope.example.com appliance_health - 5
+sudo -u zabbix /usr/lib/zabbix/externalscripts/sycope_check.py sycope.example.com appliance_traffic - 5 24
+sudo -u zabbix /usr/lib/zabbix/externalscripts/sycope_check.py sycope.example.com appliance_alerts - 5
+```
+
+---
 
 ## Screenshots
 
@@ -473,7 +579,8 @@ Zabbix Server
               └── GET  /npm/api/v1/logout
 ```
 
-- Each Zabbix item invocation creates one full login → query → logout cycle
+- Each master item runs the script once; its dependent items get their values from that run
+- The Sycope session is cached and reused by all checks (`SYCOPE_SESSION_TTL`)
 - SSL certificate verification is disabled (`CERT_NONE`) — Sycope typically uses a self-signed certificate
 - Pagination is handled automatically by `run_nql()` using the `total` field from the first response
 - The script has no persistent state and is safe to run concurrently across multiple hosts
@@ -482,7 +589,7 @@ Zabbix Server
 
 ## Production Considerations
 
-**API load:** Each host has 33 items with a 5-minute interval, so the Zabbix server runs 33 NQL queries per host per cycle. All checks share one cached Sycope session (version 1.1+), so there is no login per check. If Sycope API load becomes a concern, increase intervals for asset discovery items (matched IPs, connections, active services) via their respective macros.
+**API load:** Each host has 4 master items: three every 5 minutes (5 NQL queries) and *Active services* every `{$SYCOPE_ASSET_DELAY}` (default 1 hour, 1 query). That is about 60 NQL queries per host per hour (version 1.x: about 1,100, 33 script calls and about 93 queries every 5 minutes). The template *Sycope Appliance* adds 3 calls and 8-9 queries per cycle. All checks share one cached Sycope session, so there is no login per check. If Sycope API load becomes a concern, increase the interval of the master items.
 
 **Credentials security:** Keep `/etc/zabbix/sycope.conf` at `chmod 640` owned by `root:zabbix`. Never pass credentials as Zabbix macro arguments — macros are visible in the Zabbix UI and stored in plaintext in the database.
 

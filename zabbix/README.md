@@ -34,7 +34,8 @@ This means you get Sycope's deep network intelligence — scan detection, anomal
 
 ### What's included
 
-- **33 monitoring items** per host covering security alerts, performance, visibility, asset discovery, and active alert severity breakdown
+- **33 monitoring items** per host covering security alerts, performance, visibility, asset discovery, and active alert severity breakdown, fed by 4 master items (6 NQL queries per host and cycle)
+- **Sycope Appliance template** for Sycope itself, without IP filtering: appliance CPU/memory/disks, flow reception and decoding, indexing, flow exporters (discovered), total traffic, all alerts in the network and system notifications such as license expiry
 - **Built-in graphs** with trigger threshold lines for Security Alerts, Performance Alerts, Connections, Matched IPs, and Active Services
 - **Triggers** with configurable WARNING and HIGH thresholds, plus DISASTER trigger for critical severity alerts
 - **Multi-host dashboard** importable via Zabbix API script
@@ -49,6 +50,10 @@ This means you get Sycope's deep network intelligence — scan detection, anomal
 **Custom dashboard with live security KPIs, alert graphs, connection trends, and performance monitoring:**
 
 <img width="1920" height="860" alt="Zabbix - Create custom dashboard using statistics and alerts from Sycope" src="https://github.com/user-attachments/assets/8bcf7bfb-7656-4168-aab1-c7bdc3aad9ef" />
+
+**Sycope Appliance template dashboard: health of the Sycope appliance, flow collection, exporters and alerts in the whole network:**
+
+![Sycope Appliance dashboard in Zabbix](template/screenshots/sycope_appliance_overview.jpg)
 
 See [template folder](https://github.com/SycopeSolutions/Integrations/tree/main/zabbix/template) for full documentation.
 
@@ -107,7 +112,8 @@ The `zabbix_lookup_sync.py` script:
 .
 ├── template/               # Sycope Monitoring Template for Zabbix (Sycope → Zabbix)
 │   ├── sycope_check.py              # External check script for Zabbix
-│   └── zbx_sycope_monitoring.yaml   # Zabbix 7.0+ template (also imports into Zabbix 8.0)
+│   ├── zbx_sycope_monitoring.yaml   # template per monitored host, Zabbix 7.0+ (also imports into Zabbix 8.0)
+│   └── zbx_sycope_appliance.yaml    # template for the Sycope appliance itself (no IP filter)
 ├── dashboards                       # Optional dashboards to import into Sycope
 ├── drilldowns                       # Optional drilldown action to import into Sycope
 ├── fields                           # Optional custom fields to import into Sycope
@@ -117,7 +123,7 @@ The `zabbix_lookup_sync.py` script:
 ├── zabbix_statistics.py             # Main processing script for synchronizing metrics data
 ├── zabbix_lookup_sync.py            # Main processing script for synchronizing inventory data
 ├── zabbix_api.py                    # Zabbix API client shared by both scripts
-└── tests/                           # Tests with a fake Zabbix API: python3 -m pytest zabbix/tests
+└── tests/                           # Tests with a fake Zabbix API and a fake Sycope NQL API: python3 -m pytest zabbix/tests
 ```
 
 ---

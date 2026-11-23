@@ -1,0 +1,1983 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+  - uuid: 5c4bf6e37439437cbf003b9d42418832
+    name: Templates/Applications
+  templates:
+  - uuid: a2b77303c3bc4b4581b6a54dd22cb68d
+    template: Sycope Appliance
+    name: Sycope Appliance
+    description: |
+      Health and global data of a Sycope NTA/Security appliance, without filtering by IP.
+      Link it to the host that represents the Sycope appliance: the checks use {HOST.CONN} (the host's main
+      interface) as the Sycope API address.
+      Three external-check master items run 8-9 NQL queries per cycle (self-monitoring "metrics" stream,
+      netflowTotalAggr, netflowByExporterAggr, alerts, notifications); everything else is dependent items
+      and low-level discovery (disks, flow exporters).
+      Requirements: sycope_check.py 2.0+ in ExternalScripts and /etc/zabbix/sycope.conf (SYCOPE_USER,
+      SYCOPE_PASSWORD), the same as for the template "Sycope Monitoring".
+    groups:
+    - name: Templates/Applications
+    items:
+    - uuid: a15c864b0b964ee4b7fcac8f3e83cc85
+      name: Sycope - Health (raw)
+      type: EXTERNAL
+      key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
+      history: 1d
+      trends: '0'
+      value_type: TEXT
+      description: 'Self-monitoring of the Sycope appliance from its "metrics" stream: CPU, memory, disks, flow reception and decoding, indexing and the internal event bus (3-4 NQL queries).'
+      tags:
+      - tag: component
+        value: health
+      - &id001
+        tag: source
+        value: sycope
+      - tag: type
+        value: raw
+    - uuid: 78f3042824134d5dbc423f785f231178
+      name: Sycope - Traffic (raw)
+      type: EXTERNAL
+      key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
+      history: 1d
+      trends: '0'
+      value_type: TEXT
+      description: Total traffic received by Sycope (netflowTotalAggr) and per flow exporter (netflowByExporterAggr) in the last {$SYCOPE_WINDOW_MINUTES} whole minutes, plus the exporters seen in the last {$SYCOPE_EXPORTER_HOURS} hours (3 NQL queries).
+      tags:
+      - tag: component
+        value: traffic
+      - *id001
+      - tag: type
+        value: raw
+    - uuid: f9cc52c0e7954551bbb0afb0762f761a
+      name: Sycope - Alerts (raw)
+      type: EXTERNAL
+      key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      delay: 5m
+      timeout: '{$SYCOPE_TIMEOUT}'
+      history: 1d
+      trends: '0'
+      value_type: TEXT
+      description: All Sycope alerts in the whole network and Sycope system notifications (license, services) in the last {$SYCOPE_WINDOW_MINUTES} minutes (2 NQL queries).
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+      - tag: type
+        value: raw
+    - uuid: 1c88971c57274b78bac149dd72387b6c
+      name: Health - CPU utilization
+      type: DEPENDENT
+      key: sycope.cpu.util
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: '%'
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.cpu_util
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: health
+      - *id001
+      triggers:
+      - uuid: eff13512c7da4cfdb65cfb1bb0aaeea9
+        expression: min(/Sycope Appliance/sycope.cpu.util,15m)>{$SYCOPE_CPU_MAX}
+        name: 'Sycope: high CPU utilization (over {$SYCOPE_CPU_MAX}% for 15m)'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: performance
+      - uuid: 60ebcf605b8d459b96a2498742291e6a
+        expression: max(/Sycope Appliance/sycope.cpu.util,{$SYCOPE_ERROR_PERIOD})=-1 or nodata(/Sycope Appliance/sycope.cpu.util,{$SYCOPE_NODATA_PERIOD})=1
+        name: 'Sycope: API checks failing on {HOST.NAME}'
+        priority: AVERAGE
+        description: The Sycope appliance checks return errors (wrong credentials in /etc/zabbix/sycope.conf, Sycope unreachable, API error) or no results, so the items hold -1 and the other triggers cannot fire. The raw JSON with the error is in the "(raw)" items.
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: 74c81a42c7a94b52ae3e9fcf0126d9a1
+      name: Health - Memory utilization
+      type: DEPENDENT
+      key: sycope.memory.util
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: '%'
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.memory_util
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: health
+      - *id001
+      triggers:
+      - uuid: 738c03544c834b3cac5b413fc7a61399
+        expression: min(/Sycope Appliance/sycope.memory.util,15m)>{$SYCOPE_MEMORY_MAX}
+        name: 'Sycope: high memory utilization (over {$SYCOPE_MEMORY_MAX}% for 15m)'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: capacity
+    - uuid: d8ab2e59502d4b6abdbfba0ef2415d66
+      name: Health - Memory total
+      type: DEPENDENT
+      key: sycope.memory.total
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: B
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.memory_total
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: health
+      - *id001
+    - uuid: f31661e1a8b144ff82abb921be13051b
+      name: Health - Memory used
+      type: DEPENDENT
+      key: sycope.memory.used
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: B
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.memory_used
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: health
+      - *id001
+    - uuid: d27449912ef0474481f33d3f4e53c645
+      name: Health - Metrics age
+      type: DEPENDENT
+      key: sycope.metrics.age
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: s
+      description: Seconds since the newest record of the Sycope "metrics" stream. Sycope writes it every minute; a growing age means its processing pipeline or indexing stopped.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.metrics_age
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: health
+      - *id001
+      triggers:
+      - uuid: 958c173da6d8499c8bf17781c0c3bc0d
+        expression: last(/Sycope Appliance/sycope.metrics.age)>{$SYCOPE_METRICS_AGE_MAX}
+        name: 'Sycope: self-monitoring metrics not written for over {$SYCOPE_METRICS_AGE_MAX}s'
+        priority: HIGH
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: 2df365fe22e44096a11ed6cb7ce98292
+      name: Collection - Flow packets received
+      type: DEPENDENT
+      key: sycope.netflow.udp_pps
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: pps
+      description: UDP packets per second received by the NetFlow/IPFIX/sFlow listeners.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.netflow_udp_pps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: 6b3e4debccdc468eb0d0a4d44f2e3d6b
+      name: Collection - Flows decoded
+      type: DEPENDENT
+      key: sycope.flows.decoded
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: flows/s
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.flows_decoded_ps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+      triggers:
+      - uuid: dd824a07e5354852aaafdf0c8d178426
+        expression: max(/Sycope Appliance/sycope.flows.decoded,15m)<{$SYCOPE_FLOWS_MIN} and min(/Sycope Appliance/sycope.flows.decoded,15m)>=0
+        name: 'Sycope: no flows received for 15m'
+        priority: HIGH
+        description: Sycope decoded fewer than {$SYCOPE_FLOWS_MIN} flows per second for 15 minutes. Check the exporters, the network path and the Sycope collector services.
+        tags:
+        - tag: scope
+          value: availability
+    - uuid: fabc608b459d420aaf619d089c573feb
+      name: Collection - Flows analyzed
+      type: DEPENDENT
+      key: sycope.flows.analyzed
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: flows/s
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.flows_analyzed_ps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: 216ecbca96234d61833193d9df84045f
+      name: Collection - Flows filtered out
+      type: DEPENDENT
+      key: sycope.flows.filtered_out
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: Flows removed by the flow filters in the window.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.flows_filtered_out
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: ddf0069004924aa7971f693f0cf2437e
+      name: Collection - Missed templates
+      type: DEPENDENT
+      key: sycope.decoder.missed_templates
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: NetFlow v9/IPFIX records that could not be decoded yet because the exporter has not sent the template. Usual for a few minutes after an exporter or Sycope restart.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.decoder_missed_templates
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: ef514ce4a55f4f4e8d41f272cb511555
+      name: Collection - UDP packets dropped
+      type: DEPENDENT
+      key: sycope.netflow.udp_dropped
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.netflow_udp_dropped
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: 6bdfc8e35f0c421eb3db18ed926498f9
+      name: Collection - UDP receive errors
+      type: DEPENDENT
+      key: sycope.netflow.udp_errors
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.netflow_udp_errors
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: 03c836d4f33444e08a27d80ba6f52dce
+      name: Collection - Decoder dropped
+      type: DEPENDENT
+      key: sycope.decoder.dropped
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.decoder_dropped
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: a1134267aad84d0d970fac9a2bea0124
+      name: Collection - Decoder errors
+      type: DEPENDENT
+      key: sycope.decoder.errors
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.decoder_errors
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+    - uuid: 970b7c1b3a914423aaf855e22d2ca8dd
+      name: Collection - Forwarder dropped packets
+      type: DEPENDENT
+      key: sycope.forwarder.dropped
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.forwarder_dropped
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: collection
+      - *id001
+      triggers:
+      - uuid: bf001d619c0940f299232e742428b908
+        expression: last(/Sycope Appliance/sycope.netflow.udp_dropped)>0 or last(/Sycope Appliance/sycope.netflow.udp_errors)>0 or last(/Sycope Appliance/sycope.decoder.dropped)>0 or last(/Sycope Appliance/sycope.decoder.errors)>0 or last(/Sycope Appliance/sycope.forwarder.dropped)>0
+        recovery_mode: RECOVERY_EXPRESSION
+        recovery_expression: max(/Sycope Appliance/sycope.netflow.udp_dropped,15m)<=0 and max(/Sycope Appliance/sycope.netflow.udp_errors,15m)<=0 and max(/Sycope Appliance/sycope.decoder.dropped,15m)<=0 and max(/Sycope Appliance/sycope.decoder.errors,15m)<=0 and max(/Sycope Appliance/sycope.forwarder.dropped,15m)<=0
+        name: 'Sycope: flow packets dropped or not decoded'
+        priority: WARNING
+        description: 'Sycope dropped or failed to decode received flow packets in the last window (listener, decoder or forwarder). Usually the appliance is overloaded or an exporter sends malformed data. Details: item "Health - Problems".'
+        tags:
+        - tag: scope
+          value: collection
+    - uuid: bf074034611045ec8739dbd6e20171e8
+      name: Indexing - Records written
+      type: DEPENDENT
+      key: sycope.index.writes
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: rps
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.index_writes_ps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: indexing
+      - *id001
+    - uuid: 6817df2f3f1c4db392ac88afe45e1878
+      name: Indexing - Write errors
+      type: DEPENDENT
+      key: sycope.index.write_errors
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.index_write_errors
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: indexing
+      - *id001
+    - uuid: 7546b3124a5b498e86042ecb487e6c36
+      name: Indexing - Delete errors
+      type: DEPENDENT
+      key: sycope.index.delete_errors
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.index_delete_errors
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: indexing
+      - *id001
+      triggers:
+      - uuid: 6ada3067485c4155bac596d4737645b1
+        expression: last(/Sycope Appliance/sycope.index.write_errors)>0 or last(/Sycope Appliance/sycope.index.delete_errors)>0
+        recovery_mode: RECOVERY_EXPRESSION
+        recovery_expression: max(/Sycope Appliance/sycope.index.write_errors,15m)<=0 and max(/Sycope Appliance/sycope.index.delete_errors,15m)<=0
+        name: 'Sycope: index write or delete errors'
+        priority: WARNING
+        description: Sycope failed to write records to its indexes; data of the indexes listed in "Health - Problems" may be missing.
+        tags:
+        - tag: scope
+          value: indexing
+    - uuid: 2165a04125594afa859584fa34c02cef
+      name: Event bus - Rejected events
+      type: DEPENDENT
+      key: sycope.eventbus.rejected
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.eventbus_rejected
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: eventbus
+      - *id001
+    - uuid: 8bbec1c672d44d368027ccc7a89477f2
+      name: Event bus - Dead events
+      type: DEPENDENT
+      key: sycope.eventbus.dead
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.eventbus_dead_events
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: eventbus
+      - *id001
+    - uuid: ce440caf68b249a7aefc5dea427caa2e
+      name: Event bus - Errors
+      type: DEPENDENT
+      key: sycope.eventbus.errors
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.eventbus_errors
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: eventbus
+      - *id001
+    - uuid: 4f0c4365ce1a4baea71bd0200badba79
+      name: Inputs - Syslog/Ambience source errors
+      type: DEPENDENT
+      key: sycope.sources.errors
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.source_errors
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: eventbus
+      - *id001
+      triggers:
+      - uuid: 24b2b042688d4bb5bdbc596aeec74533
+        expression: last(/Sycope Appliance/sycope.eventbus.rejected)>0 or last(/Sycope Appliance/sycope.eventbus.dead)>0 or last(/Sycope Appliance/sycope.eventbus.errors)>0 or last(/Sycope Appliance/sycope.sources.errors)>0
+        recovery_mode: RECOVERY_EXPRESSION
+        recovery_expression: max(/Sycope Appliance/sycope.eventbus.rejected,15m)<=0 and max(/Sycope Appliance/sycope.eventbus.dead,15m)<=0 and max(/Sycope Appliance/sycope.eventbus.errors,15m)<=0 and max(/Sycope Appliance/sycope.sources.errors,15m)<=0
+        name: 'Sycope: internal processing errors'
+        priority: WARNING
+        description: The Sycope event bus rejected events or reported errors, or a syslog/Ambience input failed.
+        tags:
+        - tag: scope
+          value: processing
+    - uuid: f6b6bce99b30471dbe3821a6e8aa0de5
+      name: Event bus - Max queue size
+      type: DEPENDENT
+      key: sycope.eventbus.max_queue
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.eventbus_max_queue
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: eventbus
+      - *id001
+    - uuid: e9c51a6addb74756acc872ec06b3eb5f
+      name: Asset discovery - DNS servers failed
+      type: DEPENDENT
+      key: sycope.dns.servers_failed
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: DNS servers used by Sycope asset discovery that do not answer.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.dns_servers_failed
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: asset_discovery
+      - *id001
+    - uuid: 44ad86cf2a754bff896e4c00987d6b70
+      name: Health - Problems
+      type: DEPENDENT
+      key: sycope.health.message
+      delay: '0'
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: health
+      - *id001
+    - uuid: 9b086c2f2b144365886e39897fd5fe93
+      name: Traffic - Total bits per second
+      type: DEPENDENT
+      key: sycope.traffic.bps
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: bps
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.bps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: traffic
+      - *id001
+    - uuid: e2941aeb7489418892ec8321c0b3079d
+      name: Traffic - Total packets per second
+      type: DEPENDENT
+      key: sycope.traffic.pps
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: pps
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.pps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: traffic
+      - *id001
+    - uuid: d4b3219cd0244a659e6d8c82cb51d2f8
+      name: Traffic - Flows per second
+      type: DEPENDENT
+      key: sycope.traffic.flows
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: flows/s
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.flows_ps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: traffic
+      - *id001
+    - uuid: beb54f66b17c4d8db97dccf2647fcd24
+      name: Traffic - Sessions per second
+      type: DEPENDENT
+      key: sycope.traffic.sessions
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      units: sessions/s
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.sessions_ps
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: traffic
+      - *id001
+    - uuid: 24bca9690d3f4231a4834a0e77b86b1e
+      name: Exporters - Active
+      type: DEPENDENT
+      key: sycope.exporters.active
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.exporters_active
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: exporters
+      - *id001
+    - uuid: c60e9080c7a44c47b996dc0001ef2229
+      name: Exporters - Known
+      type: DEPENDENT
+      key: sycope.exporters.known
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: Exporters that sent flows in the last {$SYCOPE_EXPORTER_HOURS} hours.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.exporters_known
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: exporters
+      - *id001
+    - uuid: d8c2e50668db4a91b2cb6d30629f7f0b
+      name: Exporters - Silent
+      type: DEPENDENT
+      key: sycope.exporters.silent
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: Exporters seen in the last {$SYCOPE_EXPORTER_HOURS} hours but not in the last window.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.exporters_silent
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: exporters
+      - *id001
+    - uuid: 65a41a1c31fb404d826e124533b1f058
+      name: Exporters - Status
+      type: DEPENDENT
+      key: sycope.exporters.message
+      delay: '0'
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      tags:
+      - tag: component
+        value: exporters
+      - *id001
+    - uuid: dbc45fb284dd4a2aabb8db18a445ce84
+      name: Alerts - Total (network)
+      type: DEPENDENT
+      key: sycope.net.alerts[total]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: All Sycope alerts of the whole network in the last {$SYCOPE_WINDOW_MINUTES} minutes.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.value
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+    - uuid: 0febea25f3ce498eb6a29291b9191221
+      name: Alerts - Critical (network)
+      type: DEPENDENT
+      key: sycope.net.alerts[critical]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_critical
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+      triggers:
+      - uuid: 715431a1175a4f9db4fa8e30fdba1aa1
+        expression: last(/Sycope Appliance/sycope.net.alerts[critical])>=1
+        name: 'Sycope: critical alerts in the network'
+        priority: HIGH
+        tags:
+        - tag: scope
+          value: security
+    - uuid: 13326f6c116e4432ac719daf650e7d53
+      name: Alerts - High (network)
+      type: DEPENDENT
+      key: sycope.net.alerts[high]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_high
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+      triggers:
+      - uuid: a07587d8a18e4eb1be0db5d2026d88bb
+        expression: last(/Sycope Appliance/sycope.net.alerts[high])>=1
+        name: 'Sycope: high severity alerts in the network'
+        priority: WARNING
+        tags:
+        - tag: scope
+          value: security
+    - uuid: f928333483a344148acc63b00569e30e
+      name: Alerts - Medium (network)
+      type: DEPENDENT
+      key: sycope.net.alerts[medium]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_medium
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+    - uuid: c0d642e9c4a0457a954ce3fef5bc675b
+      name: Alerts - Low (network)
+      type: DEPENDENT
+      key: sycope.net.alerts[low]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_low
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+    - uuid: 33ae4f98eb4a42a3bf3e595b42a7d84e
+      name: Alerts - Info (network)
+      type: DEPENDENT
+      key: sycope.net.alerts[info]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.severity_info
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+    - uuid: f22f50052d2c408b9962e49cdc723b93
+      name: Alerts - Distinct alert names
+      type: DEPENDENT
+      key: sycope.net.alerts[names]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.alert_names
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+    - uuid: 25e72e91f97b43cd8a8bdc48623e8266
+      name: Alerts - Detail (network)
+      type: DEPENDENT
+      key: sycope.net.alerts.detail
+      delay: '0'
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: alerts
+      - *id001
+    - uuid: 2eda9c90e59b48d8a34ec9314899f320
+      name: Notifications - Errors
+      type: DEPENDENT
+      key: sycope.notifications[error]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.notifications_error
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: notifications
+      - *id001
+      triggers:
+      - uuid: c84190fb93614c0aade023e519c00ca1
+        expression: last(/Sycope Appliance/sycope.notifications[error])>0
+        name: 'Sycope: system notification errors'
+        priority: WARNING
+        description: Sycope raised Error/Critical system notifications; see item "Notifications - Detail".
+        tags:
+        - tag: scope
+          value: system
+    - uuid: 62206ed3a85a4059964e63d9e140780f
+      name: Notifications - Warnings
+      type: DEPENDENT
+      key: sycope.notifications[warning]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      description: Warning notifications, for example license expiry reminders.
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.notifications_warning
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: notifications
+      - *id001
+    - uuid: 35ef4efb24834a0695f175a63e66d17a
+      name: Notifications - Info
+      type: DEPENDENT
+      key: sycope.notifications[info]
+      delay: '0'
+      history: 31d
+      trends: 365d
+      value_type: FLOAT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.notifications_info
+        error_handler: CUSTOM_VALUE
+        error_handler_params: '-1'
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: notifications
+      - *id001
+    - uuid: 74907aa94a204f888f3d42354f229de7
+      name: Notifications - Detail
+      type: DEPENDENT
+      key: sycope.notifications.detail
+      delay: '0'
+      history: 7d
+      trends: '0'
+      value_type: TEXT
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.notifications_message
+        error_handler: CUSTOM_VALUE
+        error_handler_params: error
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_alerts","-","{$SYCOPE_WINDOW_MINUTES}"]
+      tags:
+      - tag: component
+        value: notifications
+      - *id001
+    discovery_rules:
+    - uuid: 7067c99573b44fabbdba232709345a91
+      name: Sycope disks
+      type: DEPENDENT
+      key: sycope.disks.discovery
+      delay: '0'
+      lifetime: 7d
+      description: File systems of the Sycope appliance from the osDisksUtil self-monitoring metrics.
+      item_prototypes:
+      - uuid: 5b1955624e224b8b861070409d00f8a0
+        name: 'Disk {#DISK}: used, in %'
+        type: DEPENDENT
+        key: sycope.disk.pused[{#DISK}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: '%'
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.disks[?(@.name=='{#DISK}')].pused.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+        tags:
+        - tag: component
+          value: storage
+        - tag: disk
+          value: '{#DISK}'
+        - *id001
+        trigger_prototypes:
+        - uuid: b9498281aded41ca83bc6fb19b3dc9a0
+          expression: last(/Sycope Appliance/sycope.disk.pused[{#DISK}])>{$SYCOPE_DISK_PUSED_CRIT}
+          name: 'Sycope: disk {#DISK} almost full (over {$SYCOPE_DISK_PUSED_CRIT}%)'
+          priority: HIGH
+          tags:
+          - tag: scope
+            value: capacity
+        - uuid: f0067a543471478792403e71ee09a03c
+          expression: last(/Sycope Appliance/sycope.disk.pused[{#DISK}])>{$SYCOPE_DISK_PUSED_WARN}
+          name: 'Sycope: disk {#DISK} usage over {$SYCOPE_DISK_PUSED_WARN}%'
+          priority: WARNING
+          dependencies:
+          - name: 'Sycope: disk {#DISK} almost full (over {$SYCOPE_DISK_PUSED_CRIT}%)'
+            expression: last(/Sycope Appliance/sycope.disk.pused[{#DISK}])>{$SYCOPE_DISK_PUSED_CRIT}
+          tags:
+          - tag: scope
+            value: capacity
+      - uuid: 42009795a23e40bfa3443fe69e162c60
+        name: 'Disk {#DISK}: total'
+        type: DEPENDENT
+        key: sycope.disk.total[{#DISK}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: B
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.disks[?(@.name=='{#DISK}')].total.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+        tags:
+        - tag: component
+          value: storage
+        - tag: disk
+          value: '{#DISK}'
+        - *id001
+      - uuid: 1b095acac9774ffcbca2b91be5b2fd6e
+        name: 'Disk {#DISK}: used'
+        type: DEPENDENT
+        key: sycope.disk.used[{#DISK}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: B
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.disks[?(@.name=='{#DISK}')].used.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+        tags:
+        - tag: component
+          value: storage
+        - tag: disk
+          value: '{#DISK}'
+        - *id001
+      - uuid: 783a948e8111497d845de43e78539781
+        name: 'Disk {#DISK}: free'
+        type: DEPENDENT
+        key: sycope.disk.free[{#DISK}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        units: B
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.disks[?(@.name=='{#DISK}')].free.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+        tags:
+        - tag: component
+          value: storage
+        - tag: disk
+          value: '{#DISK}'
+        - *id001
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_health","-","{$SYCOPE_WINDOW_MINUTES}"]
+      lld_macro_paths:
+      - lld_macro: '{#DISK}'
+        path: $.name
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.disks
+        error_handler: DISCARD_VALUE
+    - uuid: f285150a0bed4aa1aced3abb16cfc99c
+      name: Sycope flow exporters
+      type: DEPENDENT
+      key: sycope.exporters.discovery
+      delay: '0'
+      lifetime: 1d
+      description: Flow exporters (routers, switches, probes) that sent flows to Sycope in the last {$SYCOPE_EXPORTER_HOURS} hours.
+      item_prototypes:
+      - uuid: bc599a11a261488ca0a6389e0ec1a210
+        name: 'Exporter {#EXPORTER}: bits per second'
+        type: DEPENDENT
+        key: sycope.exporter.bps[{#EXPORTER}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.exporters[?(@.ip=='{#EXPORTER}')].bps.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+        tags:
+        - tag: component
+          value: exporters
+        - tag: exporter
+          value: '{#EXPORTER}'
+        - *id001
+        units: bps
+      - uuid: b4773668b45340dc998752be5807e4ec
+        name: 'Exporter {#EXPORTER}: packets per second'
+        type: DEPENDENT
+        key: sycope.exporter.pps[{#EXPORTER}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.exporters[?(@.ip=='{#EXPORTER}')].pps.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+        tags:
+        - tag: component
+          value: exporters
+        - tag: exporter
+          value: '{#EXPORTER}'
+        - *id001
+        units: pps
+      - uuid: 30463bc18dd14282aef67620b9bbce1e
+        name: 'Exporter {#EXPORTER}: flows per second'
+        type: DEPENDENT
+        key: sycope.exporter.fps[{#EXPORTER}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.exporters[?(@.ip=='{#EXPORTER}')].fps.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+        tags:
+        - tag: component
+          value: exporters
+        - tag: exporter
+          value: '{#EXPORTER}'
+        - *id001
+        units: flows/s
+      - uuid: 1996d3c815e44bc6aeea826184b12f17
+        name: 'Exporter {#EXPORTER}: sending'
+        type: DEPENDENT
+        key: sycope.exporter.active[{#EXPORTER}]
+        delay: '0'
+        history: 31d
+        trends: 365d
+        value_type: FLOAT
+        preprocessing:
+        - type: JSONPATH
+          parameters:
+          - $.exporters[?(@.ip=='{#EXPORTER}')].active.first()
+          error_handler: CUSTOM_VALUE
+          error_handler_params: '-1'
+        master_item:
+          key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+        tags:
+        - tag: component
+          value: exporters
+        - tag: exporter
+          value: '{#EXPORTER}'
+        - *id001
+        description: 1 = the exporter sent flows in the last window, 0 = silent.
+        trigger_prototypes:
+        - uuid: 46c4f00a28c34177ab71cfeac4edba10
+          expression: max(/Sycope Appliance/sycope.exporter.active[{#EXPORTER}],{$SYCOPE_EXPORTER_SILENT})=0
+          name: 'Sycope: exporter {#EXPORTER} stopped sending flows'
+          priority: AVERAGE
+          description: The exporter sent flows to Sycope in the last {$SYCOPE_EXPORTER_HOURS} hours but none in the last {$SYCOPE_EXPORTER_SILENT}. Check the router/probe export configuration and the path to Sycope. When the exporter was removed on purpose, the problem disappears after {$SYCOPE_EXPORTER_HOURS} hours (LLD).
+          tags:
+          - tag: scope
+            value: collection
+      master_item:
+        key: sycope_check.py["{HOST.CONN}","appliance_traffic","-","{$SYCOPE_WINDOW_MINUTES}","{$SYCOPE_EXPORTER_HOURS}"]
+      lld_macro_paths:
+      - lld_macro: '{#EXPORTER}'
+        path: $.ip
+      preprocessing:
+      - type: JSONPATH
+        parameters:
+        - $.exporters
+        error_handler: DISCARD_VALUE
+    tags:
+    - tag: class
+      value: application
+    - tag: target
+      value: sycope
+    macros:
+    - macro: '{$SYCOPE_WINDOW_MINUTES}'
+      value: '5'
+      description: Window of the appliance queries in minutes (keep equal to the 5m item interval)
+    - macro: '{$SYCOPE_EXPORTER_HOURS}'
+      value: '24'
+      description: Exporters seen in this many hours are discovered and expected to send flows
+    - macro: '{$SYCOPE_EXPORTER_SILENT}'
+      value: 15m
+      description: 'Exporter trigger: period without flows from a known exporter'
+    - macro: '{$SYCOPE_TIMEOUT}'
+      value: 30s
+      description: Timeout of each check (overrides the Zabbix server Timeout)
+    - macro: '{$SYCOPE_ERROR_PERIOD}'
+      value: 15m
+      description: 'API checks failing: period in which every health check returned an error'
+    - macro: '{$SYCOPE_NODATA_PERIOD}'
+      value: 30m
+      description: 'API checks failing: period without any health check result'
+    - macro: '{$SYCOPE_CPU_MAX}'
+      value: '90'
+      description: CPU utilization threshold, %
+    - macro: '{$SYCOPE_MEMORY_MAX}'
+      value: '90'
+      description: Memory utilization threshold, %
+    - macro: '{$SYCOPE_DISK_PUSED_WARN}'
+      value: '80'
+      description: Disk usage warning threshold, %
+    - macro: '{$SYCOPE_DISK_PUSED_CRIT}'
+      value: '90'
+      description: Disk usage high threshold, %
+    - macro: '{$SYCOPE_METRICS_AGE_MAX}'
+      value: '600'
+      description: Maximum age of the newest self-monitoring record, seconds
+    - macro: '{$SYCOPE_FLOWS_MIN}'
+      value: '1'
+      description: 'No-flows trigger: minimum decoded flows per second'
+    dashboards:
+    - uuid: 9ae41e7b100d4d3ea9a04947bcf3273f
+      name: Sycope Appliance
+      auto_start: 'NO'
+      pages:
+      - name: Overview
+        widgets:
+        - type: item
+          name: Flows decoded
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.flows.decoded
+        - type: graph
+          name: 'Sycope: Traffic'
+          y: '3'
+          width: '36'
+          height: '5'
+          fields:
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Sycope Appliance
+              name: 'Sycope: Traffic'
+          - type: INTEGER
+            name: source_type
+            value: '0'
+        - type: graph
+          name: 'Sycope: CPU and memory'
+          y: '8'
+          width: '24'
+          height: '5'
+          fields:
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Sycope Appliance
+              name: 'Sycope: CPU and memory'
+          - type: INTEGER
+            name: source_type
+            value: '0'
+        - type: itemhistory
+          name: Health problems
+          y: '13'
+          width: '36'
+          height: '4'
+          fields:
+          - type: ITEM
+            name: columns.0.itemid
+            value:
+              host: Sycope Appliance
+              key: sycope.health.message
+          - type: STRING
+            name: columns.0.name
+            value: Health problems
+          - type: INTEGER
+            name: show_column_header
+            value: '0'
+          - type: INTEGER
+            name: show_lines
+            value: '3'
+          - type: INTEGER
+            name: show_timestamp
+            value: '1'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: itemhistory
+          name: Network alerts detail
+          y: '17'
+          width: '36'
+          height: '4'
+          fields:
+          - type: ITEM
+            name: columns.0.itemid
+            value:
+              host: Sycope Appliance
+              key: sycope.net.alerts.detail
+          - type: STRING
+            name: columns.0.name
+            value: Network alerts detail
+          - type: INTEGER
+            name: show_column_header
+            value: '0'
+          - type: INTEGER
+            name: show_lines
+            value: '3'
+          - type: INTEGER
+            name: show_timestamp
+            value: '1'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: item
+          name: Traffic
+          x: '9'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.traffic.bps
+        - type: item
+          name: Exporters active
+          x: '18'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.exporters.active
+        - type: graph
+          name: 'Sycope: Network alerts by severity'
+          x: '24'
+          y: '8'
+          width: '24'
+          height: '5'
+          fields:
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Sycope Appliance
+              name: 'Sycope: Network alerts by severity'
+          - type: INTEGER
+            name: source_type
+            value: '0'
+        - type: item
+          name: Exporters silent
+          x: '27'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.exporters.silent
+        - type: item
+          name: Network alerts
+          x: '36'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.net.alerts[total]
+        - type: graph
+          name: 'Sycope: Flows per second'
+          x: '36'
+          y: '3'
+          width: '36'
+          height: '5'
+          fields:
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Sycope Appliance
+              name: 'Sycope: Flows per second'
+          - type: INTEGER
+            name: source_type
+            value: '0'
+        - type: itemhistory
+          name: Exporters status
+          x: '36'
+          y: '13'
+          width: '36'
+          height: '4'
+          fields:
+          - type: ITEM
+            name: columns.0.itemid
+            value:
+              host: Sycope Appliance
+              key: sycope.exporters.message
+          - type: STRING
+            name: columns.0.name
+            value: Exporters status
+          - type: INTEGER
+            name: show_column_header
+            value: '0'
+          - type: INTEGER
+            name: show_lines
+            value: '3'
+          - type: INTEGER
+            name: show_timestamp
+            value: '1'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: itemhistory
+          name: Sycope notifications
+          x: '36'
+          y: '17'
+          width: '36'
+          height: '4'
+          fields:
+          - type: ITEM
+            name: columns.0.itemid
+            value:
+              host: Sycope Appliance
+              key: sycope.notifications.detail
+          - type: STRING
+            name: columns.0.name
+            value: Sycope notifications
+          - type: INTEGER
+            name: show_column_header
+            value: '0'
+          - type: INTEGER
+            name: show_lines
+            value: '3'
+          - type: INTEGER
+            name: show_timestamp
+            value: '1'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: item
+          name: CPU
+          x: '45'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.cpu.util
+        - type: graph
+          name: 'Sycope: Flow exporters'
+          x: '48'
+          y: '8'
+          width: '24'
+          height: '5'
+          fields:
+          - type: GRAPH
+            name: graphid.0
+            value:
+              host: Sycope Appliance
+              name: 'Sycope: Flow exporters'
+          - type: INTEGER
+            name: source_type
+            value: '0'
+        - type: item
+          name: Memory
+          x: '54'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.memory.util
+        - type: item
+          name: Metrics age
+          x: '63'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.metrics.age
+      - name: Collection and exporters
+        widgets:
+        - type: item
+          name: Dropped (UDP)
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.netflow.udp_dropped
+        - type: graphprototype
+          name: 'Exporters: traffic'
+          y: '3'
+          width: '72'
+          height: '10'
+          fields:
+          - type: INTEGER
+            name: columns
+            value: '4'
+          - type: ITEM_PROTOTYPE
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.exporter.bps[{#EXPORTER}]
+          - type: STRING
+            name: reference
+            value: SYEXB
+          - type: INTEGER
+            name: rows
+            value: '2'
+          - type: INTEGER
+            name: source_type
+            value: '3'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: graphprototype
+          name: 'Exporters: flows per second'
+          y: '13'
+          width: '72'
+          height: '10'
+          fields:
+          - type: INTEGER
+            name: columns
+            value: '4'
+          - type: ITEM_PROTOTYPE
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.exporter.fps[{#EXPORTER}]
+          - type: STRING
+            name: reference
+            value: SYEXF
+          - type: INTEGER
+            name: rows
+            value: '2'
+          - type: INTEGER
+            name: source_type
+            value: '3'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: item
+          name: Decoder errors
+          x: '9'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.decoder.errors
+        - type: item
+          name: Forwarder dropped
+          x: '18'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.forwarder.dropped
+        - type: item
+          name: Index write errors
+          x: '27'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.index.write_errors
+        - type: item
+          name: Event bus rejected
+          x: '36'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.eventbus.rejected
+        - type: item
+          name: Event bus errors
+          x: '45'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.eventbus.errors
+        - type: item
+          name: Missed templates
+          x: '54'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '0'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.decoder.missed_templates
+        - type: item
+          name: Records written
+          x: '63'
+          width: '9'
+          height: '3'
+          fields:
+          - type: INTEGER
+            name: decimal_places
+            value: '1'
+          - type: ITEM
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.index.writes
+      - name: Disks
+        widgets:
+        - type: graphprototype
+          name: Disk usage
+          width: '72'
+          height: '6'
+          fields:
+          - type: INTEGER
+            name: columns
+            value: '5'
+          - type: ITEM_PROTOTYPE
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.disk.pused[{#DISK}]
+          - type: STRING
+            name: reference
+            value: SYDKU
+          - type: INTEGER
+            name: rows
+            value: '1'
+          - type: INTEGER
+            name: source_type
+            value: '3'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+        - type: graphprototype
+          name: Disk free space
+          y: '6'
+          width: '72'
+          height: '6'
+          fields:
+          - type: INTEGER
+            name: columns
+            value: '5'
+          - type: ITEM_PROTOTYPE
+            name: itemid.0
+            value:
+              host: Sycope Appliance
+              key: sycope.disk.free[{#DISK}]
+          - type: STRING
+            name: reference
+            value: SYDKF
+          - type: INTEGER
+            name: rows
+            value: '1'
+          - type: INTEGER
+            name: source_type
+            value: '3'
+          - type: STRING
+            name: time_period._reference
+            value: DASHBOARD._timeperiod
+  graphs:
+  - uuid: 286ce856fd4f4213976a47c4471ea760
+    name: 'Sycope: Traffic'
+    graph_items:
+    - sortorder: '0'
+      color: 1A7C11
+      item:
+        host: Sycope Appliance
+        key: sycope.traffic.bps
+  - uuid: 585504df7f2f4f4085473826f63b352a
+    name: 'Sycope: Flows per second'
+    graph_items:
+    - sortorder: '0'
+      color: 1A7C11
+      item:
+        host: Sycope Appliance
+        key: sycope.flows.decoded
+    - sortorder: '1'
+      color: 2774A4
+      item:
+        host: Sycope Appliance
+        key: sycope.flows.analyzed
+    - sortorder: '2'
+      color: F63100
+      item:
+        host: Sycope Appliance
+        key: sycope.traffic.flows
+  - uuid: 57ec8ad582574df1a8c1acf6beb4be9f
+    name: 'Sycope: CPU and memory'
+    graph_items:
+    - sortorder: '0'
+      color: F63100
+      item:
+        host: Sycope Appliance
+        key: sycope.cpu.util
+    - sortorder: '1'
+      color: 2774A4
+      item:
+        host: Sycope Appliance
+        key: sycope.memory.util
+  - uuid: 10fc85affc4e46d998127266d121534b
+    name: 'Sycope: Network alerts by severity'
+    graph_items:
+    - sortorder: '0'
+      color: B71C1C
+      item:
+        host: Sycope Appliance
+        key: sycope.net.alerts[critical]
+    - sortorder: '1'
+      color: F63100
+      item:
+        host: Sycope Appliance
+        key: sycope.net.alerts[high]
+    - sortorder: '2'
+      color: FFC107
+      item:
+        host: Sycope Appliance
+        key: sycope.net.alerts[medium]
+    - sortorder: '3'
+      color: 2774A4
+      item:
+        host: Sycope Appliance
+        key: sycope.net.alerts[low]
+    - sortorder: '4'
+      color: 9E9E9E
+      item:
+        host: Sycope Appliance
+        key: sycope.net.alerts[info]
+  - uuid: 59621451865d480da9bd59b1c7688d02
+    name: 'Sycope: Flow exporters'
+    graph_items:
+    - sortorder: '0'
+      color: 2774A4
+      item:
+        host: Sycope Appliance
+        key: sycope.exporters.known
+    - sortorder: '1'
+      color: 1A7C11
+      item:
+        host: Sycope Appliance
+        key: sycope.exporters.active
+    - sortorder: '2'
+      color: F63100
+      item:
+        host: Sycope Appliance
+        key: sycope.exporters.silent
