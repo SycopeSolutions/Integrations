@@ -211,6 +211,21 @@ creates columns for `smb`, `krb5`, `dhcp`, `snmp`, `dcerpc`, `ssh`, `smtp`,
 an RFP or compliance requirement calls for that metadata. `eve_processor.py`
 has no CLI flags; it reads everything from `config.json`.
 
+Both profiles store the rule metadata of alerts (`alert.metadata`, present in
+ET Open/Pro rules and in EVE by default) in dedicated columns:
+`alert_mitre_tactic_id`, `alert_mitre_tactic_name`, `alert_mitre_technique_id`,
+`alert_mitre_technique_name`, `alert_signature_severity`, `alert_confidence`,
+`alert_attack_target`, `alert_malware_family`, `alert_cve`, `alert_tag`
+(lists comma-separated, e.g. `T1190`, `Major`, `High`, `Exploit,CISA_KEV`).
+Sycope alert rules on the Suricata index use them as context for the analyst
+(which ATT&CK technique the signature author assigned, how reliable it is).
+Rules without a metadata key leave the column empty. An index created by an
+older `install.py` does not have these columns: the processor simply skips
+them; recreate the index (`uninstall.py`, then `install.py`) to get them.
+
+Kerberos-based detections (e.g. Kerberoasting: TGS replies with RC4/DES for
+many SPNs) need `--profile all-protocols` and `"krb5"` in `event_types`.
+
 ---
 
 ##  Progress Tracking and Log Rotation

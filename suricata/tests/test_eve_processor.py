@@ -425,3 +425,47 @@ class TestMultiLevelRotation:
 
         # No pending backlog should remain once everything is drained.
         assert "pending_backlog" not in state or not state["pending_backlog"]
+
+
+class TestAlertMetadata:
+    """alert.metadata (ET rule metadata) lands in the alert_* metadata columns."""
+
+    def _row(self, ev):
+        sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        import install
+
+        columns, column_map, cols_idxs, actions = ep.setup_column_mapping(install.BASIC_FIELDS)
+        row = ep.build_row(ev, columns, column_map, cols_idxs, actions)
+        return dict(zip(columns, row))
+
+    def test_metadata_lists_flattened_into_columns(self):
+        ev = make_event(event_type="alert", alert={
+            "action": "allowed", "gid": 1, "signature_id": 2034647, "rev": 1, "severity": 1,
+            "signature": "ET EXPLOIT Apache log4j RCE Attempt (http ldap) (CVE-2021-44228)",
+            "category": "Attempted Administrator Privilege Gain",
+            "metadata": {
+                "mitre_tactic_id": ["TA0001"], "mitre_tactic_name": ["Initial_Access"],
+                "mitre_technique_id": ["T1190"], "mitre_technique_name": ["Exploit_Public_Facing_Application"],
+                "signature_severity": ["Major"], "confidence": ["High"], "attack_target": ["Server"],
+                "cve": ["CVE_2021_44228"], "tag": ["Exploit", "CISA_KEV"],
+                "deployment": ["Perimeter", "Internal"],
+            },
+        })
+        r = self._row(ev)
+        assert r["alert_mitre_technique_id"] == "T1190"
+        assert r["alert_mitre_tactic_name"] == "Initial_Access"
+        assert r["alert_signature_severity"] == "Major"
+        assert r["alert_confidence"] == "High"
+        assert r["alert_attack_target"] == "Server"
+        assert r["alert_cve"] == "CVE_2021_44228"
+        assert r["alert_tag"] == "Exploit,CISA_KEV"
+        assert r["alert_malware_family"] is None
+
+    def test_alert_without_metadata_leaves_columns_empty(self):
+        ev = make_event(event_type="alert", alert={"signature_id": 1000001, "signature": "local", "severity": 3})
+        r = self._row(ev)
+        assert r["alert_mitre_technique_id"] is None and r["alert_confidence"] is None
+
+    def test_anomaly_does_not_fill_alert_metadata(self):
+        ev = make_event(event_type="anomaly", anomaly={"type": "applayer", "event": "truncated_options"})
+        assert self._row(ev)["alert_mitre_tactic_id"] is None

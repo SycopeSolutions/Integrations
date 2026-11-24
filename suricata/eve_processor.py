@@ -586,6 +586,17 @@ def setup_column_mapping(fields):
             "event_signature": ["alert", "signature"],
             "event_category": ["alert", "category"],
             "alert_severity": ["alert", "severity"],
+            # rule metadata: every key is a list in EVE, flattened to a comma-separated string
+            "alert_mitre_tactic_id": ["alert", "metadata", "mitre_tactic_id"],
+            "alert_mitre_tactic_name": ["alert", "metadata", "mitre_tactic_name"],
+            "alert_mitre_technique_id": ["alert", "metadata", "mitre_technique_id"],
+            "alert_mitre_technique_name": ["alert", "metadata", "mitre_technique_name"],
+            "alert_signature_severity": ["alert", "metadata", "signature_severity"],
+            "alert_confidence": ["alert", "metadata", "confidence"],
+            "alert_attack_target": ["alert", "metadata", "attack_target"],
+            "alert_malware_family": ["alert", "metadata", "malware_family"],
+            "alert_cve": ["alert", "metadata", "cve"],
+            "alert_tag": ["alert", "metadata", "tag"],
         },
         "tls": {
             "tls_ja4": ["tls", "ja4"],

@@ -11,6 +11,8 @@ predefined fields for Suricata EVE JSON log data.
 The installer creates an index with fields for:
 - Common network event data (IPs, ports, protocols, timestamps)
 - Alert-specific fields (signature ID, severity, action, etc.)
+- Rule metadata of alerts (MITRE tactic/technique, signature severity,
+  confidence, attack target, malware family, CVE, tags)
 - Anomaly-specific fields (event type, category)
 - Client/server role determination fields
 - TLS fields introduced/extended in Suricata 8.0 (ja4, client_alpns, subjectaltname)
@@ -113,6 +115,58 @@ BASIC_FIELDS = [
         "displayName": "Category",
     },
     {"name": "alert_severity", "type": "int", "description": "Severity level", "displayName": "Severity"},
+    # Rule metadata (alert.metadata, ET Open/Pro keys). Lists are stored comma-separated;
+    # rules without a given key leave the column empty.
+    {
+        "name": "alert_mitre_tactic_id",
+        "type": "string",
+        "description": "MITRE ATT&CK tactic ID(s) from rule metadata",
+        "displayName": "MITRE Tactic ID",
+    },
+    {
+        "name": "alert_mitre_tactic_name",
+        "type": "string",
+        "description": "MITRE ATT&CK tactic name(s) from rule metadata",
+        "displayName": "MITRE Tactic",
+    },
+    {
+        "name": "alert_mitre_technique_id",
+        "type": "string",
+        "description": "MITRE ATT&CK technique ID(s) from rule metadata",
+        "displayName": "MITRE Technique ID",
+    },
+    {
+        "name": "alert_mitre_technique_name",
+        "type": "string",
+        "description": "MITRE ATT&CK technique name(s) from rule metadata",
+        "displayName": "MITRE Technique",
+    },
+    {
+        "name": "alert_signature_severity",
+        "type": "string",
+        "description": "Rule author severity (Informational, Minor, Major, Critical)",
+        "displayName": "Signature Severity",
+    },
+    {
+        "name": "alert_confidence",
+        "type": "string",
+        "description": "Rule author confidence (Low, Medium, High)",
+        "displayName": "Confidence",
+    },
+    {
+        "name": "alert_attack_target",
+        "type": "string",
+        "description": "Attack target class from rule metadata (Client_Endpoint, Server, ...)",
+        "displayName": "Attack Target",
+    },
+    {
+        "name": "alert_malware_family",
+        "type": "string",
+        "description": "Malware family from rule metadata",
+        "displayName": "Malware Family",
+    },
+    {"name": "alert_cve", "type": "string", "description": "CVE(s) from rule metadata", "displayName": "CVE"},
+    {"name": "alert_tag", "type": "string", "description": "Tags from rule metadata", "displayName": "Rule Tags"},
     # Additional protocol information
     {
         "name": "app_proto",
