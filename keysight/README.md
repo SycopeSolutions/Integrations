@@ -253,7 +253,7 @@ Typical uses:
 
 | Dashboard | Content |
 |---|---|
-| **Keysight IxFlow \| NOC Overview** | KPIs (bytes, flows, applications, clients, servers, average response time and latency, unclassified bytes), traffic and latency trends, distribution by application, country, OS, AS, protocol and city, slowest applications, top talkers |
+| **Keysight IxFlow \| NOC Overview** | KPIs (bytes, flows, applications, clients, servers, average response time and latency, unclassified bytes), traffic and latency trends, distribution by application, country, OS, AS, protocol and city, slowest applications, top talkers, connection graphs (client country → application → server country, country to country, clients using the most applications, response time by client country and application) |
 | **Keysight IxFlow \| Applications** | Detected applications with volume, endpoints and latency; response time and transaction latency per application over time |
 | **Keysight IxFlow \| Endpoints** | Client and server endpoints with geolocation, client AS, DNS queries |
 | **Keysight IxFlow \| Inventory** | Clients, servers, server ports and services discovered from IxFlow data, with OS, country and first/last seen |

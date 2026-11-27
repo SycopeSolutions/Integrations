@@ -597,6 +597,146 @@
               "right": 7
             }
           }
+        },
+        {
+          "layout": {
+            "id": "dd644d6e-5206-4510-ae13-035424885ae3",
+            "header": {
+              "title": "Client Countries to Applications",
+              "description": "Bytes from client countries (3054:116) to IxFlow applications. Top 10 of each."
+            },
+            "w": 12,
+            "h": 9,
+            "x": 0,
+            "y": 31,
+            "moved": false,
+            "static": false
+          },
+          "config": {
+            "$ref": "68740759-9862160a-31c256e2",
+            "_qbId": "9e3749ba-4c8e-42a6-bd04-54b44348e3ae"
+          },
+          "type": "widget",
+          "style": {
+            "padding": {
+              "top": 7,
+              "bottom": 7,
+              "left": 7,
+              "right": 7
+            }
+          }
+        },
+        {
+          "layout": {
+            "id": "e7c1688b-d2b5-4258-a112-8da5695ae859",
+            "header": {
+              "title": "Applications to Server Countries",
+              "description": "Bytes from IxFlow applications to server countries (3054:120). Top 10 of each."
+            },
+            "w": 12,
+            "h": 9,
+            "x": 12,
+            "y": 31,
+            "moved": false,
+            "static": false
+          },
+          "config": {
+            "$ref": "6874075a-9862160a-31c256e7",
+            "_qbId": "754ccee3-cbf5-4436-920b-c60b9a7bf54d"
+          },
+          "type": "widget",
+          "style": {
+            "padding": {
+              "top": 7,
+              "bottom": 7,
+              "left": 7,
+              "right": 7
+            }
+          }
+        },
+        {
+          "layout": {
+            "id": "e6d0f2b2-6a61-4ff2-8b07-c1222d4dd238",
+            "header": {
+              "title": "Client Countries to Server Countries",
+              "description": "Country-to-country traffic from IxFlow geolocation (3054:116, 3054:120)."
+            },
+            "w": 12,
+            "h": 9,
+            "x": 0,
+            "y": 40,
+            "moved": false,
+            "static": false
+          },
+          "config": {
+            "$ref": "6874075b-9862160a-31c256ec",
+            "_qbId": "6864707d-12fa-49af-b239-2796dac1cb1e"
+          },
+          "type": "widget",
+          "style": {
+            "padding": {
+              "top": 7,
+              "bottom": 7,
+              "left": 7,
+              "right": 7
+            }
+          }
+        },
+        {
+          "layout": {
+            "id": "fcce25d6-e0dc-4005-b457-0c4e3d2463cc",
+            "header": {
+              "title": "Multi-application Clients",
+              "description": "The 12 clients that use the most IxFlow applications, and the 10 applications with the most clients. Line width and node size: bytes."
+            },
+            "w": 12,
+            "h": 9,
+            "x": 12,
+            "y": 40,
+            "moved": false,
+            "static": false
+          },
+          "config": {
+            "$ref": "6874075c-9862160a-31c256f1",
+            "_qbId": "904ecccd-166f-44dd-97a0-9014a42630df"
+          },
+          "type": "widget",
+          "style": {
+            "padding": {
+              "top": 7,
+              "bottom": 7,
+              "left": 7,
+              "right": 7
+            }
+          }
+        },
+        {
+          "layout": {
+            "id": "9b33231b-5d85-48da-ad48-61cbef294a5b",
+            "header": {
+              "title": "Response Time by Client Country",
+              "description": "Average TCP application response time (3054:281, ms) from each client country to each application. Only flows with a measurement. Line width: response time; node size: flows."
+            },
+            "w": 24,
+            "h": 10,
+            "x": 0,
+            "y": 49,
+            "moved": false,
+            "static": false
+          },
+          "config": {
+            "$ref": "68740957-9862160a-31c26059",
+            "_qbId": "b726c3e1-a9b1-473e-ae1e-918bcc44092e"
+          },
+          "type": "widget",
+          "style": {
+            "padding": {
+              "top": 7,
+              "bottom": 7,
+              "left": 7,
+              "right": 7
+            }
+          }
         }
       ],
       "version": 9,
@@ -6425,6 +6565,3037 @@
       },
       "aclEdit": true,
       "description": "Client IP addresses with the highest volume."
+    },
+    {
+      "id": "68740759-9862160a-31c256e2",
+      "name": "IxFlow | NOC Client Countries to Applications",
+      "type": "visualization",
+      "tags": [],
+      "createdBy": "admin",
+      "modifiedBy": "admin",
+      "created": 1794492950121,
+      "modified": 1794492950180,
+      "visualizationConfig": {
+        "type": "chart",
+        "concreteVisualizationConfig": {
+          "dataKey": "ixBytes",
+          "dataKeys": [
+            "ixBytes",
+            "ixFlows"
+          ],
+          "categoryKey": "ixClientIpCountryName",
+          "categoryKeys": [
+            "ixClientIpCountryName",
+            "ixApplication"
+          ],
+          "formatting": {
+            "metrics": [
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              }
+            ],
+            "buckets": []
+          },
+          "names": {
+            "metrics": [
+              {
+                "custom": true,
+                "value": "Bytes"
+              },
+              {
+                "custom": true,
+                "value": "Flows"
+              }
+            ],
+            "buckets": []
+          },
+          "colors": {
+            "metrics": [
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              }
+            ]
+          },
+          "thresholds": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "areThresholdsAbsolute": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "baselines": [],
+          "baselineMetrics": {},
+          "baselineKeys": [],
+          "graphSymbol": {},
+          "graphSymbolSize": {},
+          "graphItemStyle": {},
+          "graphItemLabel": {},
+          "graphLinks": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "graphLineStyle": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "graphEdgeSymbol": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "customSeries": {
+            "active": true,
+            "links": [
+              {
+                "groupMetrics": true,
+                "group": {
+                  "source": 0,
+                  "target": 1,
+                  "metrics": [
+                    "ixBytes"
+                  ]
+                },
+                "pairs": [
+                  {
+                    "source": "ixClientIpCountryName",
+                    "target": "ixApplication",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client Country",
+                    "targetName": "Application",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ],
+                "lineStyle": {
+                  "width": {
+                    "dynamic": true,
+                    "metrics": [
+                      "ixBytes"
+                    ],
+                    "range": [
+                      1,
+                      6
+                    ]
+                  },
+                  "curveness": 0.2,
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "source",
+                    "property": "color"
+                  }
+                },
+                "edgeSymbol": {
+                  "fromSymbol": "none",
+                  "toSymbol": "arrow",
+                  "toSize": 8,
+                  "toSizeBasedOnLineSize": true
+                },
+                "metrics": [
+                  {
+                    "source": "ixClientIpCountryName",
+                    "target": "ixApplication",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client Country",
+                    "targetName": "Application",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "nodes": [
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixClientIpCountryName",
+                      "field": "ixClientIpCountryName",
+                      "fieldName": "ixClientIpCountryName",
+                      "alias": "ixClientIpCountryName",
+                      "preFn": "ixClientIpCountryName",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixBytes",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Client Country"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixClientIpCountryName"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Client Country"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#276EDB"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              },
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixApplication",
+                      "field": "ixApplication",
+                      "fieldName": "ixApplication",
+                      "alias": "ixApplication",
+                      "preFn": "ixApplication",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixBytes",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Application"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixApplication"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Application"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#9739A7"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              }
+            ]
+          },
+          "type": "graph",
+          "hideTooMuchData": {
+            "active": true,
+            "value": 502,
+            "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+          },
+          "hideTooMuchInputData": {
+            "active": false
+          },
+          "noData": {
+            "active": false
+          },
+          "animation": false,
+          "drilldown": [],
+          "showLocalQuerySwitch": false,
+          "roam": true,
+          "showLegend": true,
+          "legendPosition": "top",
+          "draggable": false,
+          "layout": "force",
+          "force": {
+            "repulsion": 50,
+            "gravity": 0.3,
+            "edgeLength": 30,
+            "friction": 0.6
+          },
+          "legendIcons": "radio"
+        }
+      },
+      "data": {
+        "dataMode": "advanced",
+        "source": {
+          "name": "netflow",
+          "type": "stream",
+          "isRaw": true,
+          "base": "netflow",
+          "resolution": ""
+        },
+        "query": {
+          "timerange": {
+            "from": "now-1hours",
+            "to": "now"
+          },
+          "query": "ixApplication != null"
+        },
+        "outputQuery": {},
+        "aggs": {
+          "metrics": [
+            {
+              "metric": "bytes",
+              "metricName": "Bytes",
+              "useAggr": true,
+              "field": "add(clientBytes,serverBytes)",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
+              },
+              "alias": "ixBytes",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "flows",
+              "metricName": "Flows",
+              "useAggr": true,
+              "field": "flows",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "alias": "ixFlows",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            }
+          ],
+          "buckets": [
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixClientIpCountryName",
+              "field": "ixClientIpCountryName",
+              "fieldName": "ixClientIpCountryName",
+              "alias": "ixClientIpCountryName",
+              "preFn": "ixClientIpCountryName",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixBytes",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Client Country"
+              },
+              "defaultFilterStream": "netflow"
+            },
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixApplication",
+              "field": "ixApplication",
+              "fieldName": "ixApplication",
+              "alias": "ixApplication",
+              "preFn": "ixApplication",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixBytes",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Application"
+              },
+              "defaultFilterStream": "netflow"
+            }
+          ]
+        },
+        "sorters": [
+          {
+            "field": "ixBytes",
+            "direction": "desc",
+            "description": "Bytes (desc)"
+          }
+        ],
+        "limit": {
+          "active": true,
+          "limit": 500,
+          "from": "head",
+          "othersShow": false
+        },
+        "queries": [
+          {
+            "nql": "ixApplication != null | subPipe (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixClientIpCountryName) | aggr ixBytes=sum(add(clientBytes,serverBytes)) by ixClientIpCountryName as ixClientIpCountryName unwind=true | ixClientIpCountryName != null AND ixClientIpCountryName != \"\" | sort ixBytes desc | limit 10 | dst \"68740759-9862160a-31c256e2_0_ixClientIpCountryName_bucket-limit\"), (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixApplication) | aggr ixBytes=sum(add(clientBytes,serverBytes)) by ixApplication as ixApplication unwind=true | ixApplication != null AND ixApplication != \"\" | sort ixBytes desc | limit 10 | dst \"68740759-9862160a-31c256e2_0_ixApplication_bucket-limit\") | (valInColl(ixClientIpCountryName, \"68740759-9862160a-31c256e2_0_ixClientIpCountryName_bucket-limit\", \"ixClientIpCountryName\")) AND (valInColl(ixApplication, \"68740759-9862160a-31c256e2_0_ixApplication_bucket-limit\", \"ixApplication\")) | aggr ixBytes=sum(add(clientBytes,serverBytes)), ixFlows=sum(flows) by ixClientIpCountryName as ixClientIpCountryName, ixApplication as ixApplication unwind=true | ixBytes != null AND ixBytes != 0 | sort ixBytes desc | limit 500"
+          }
+        ],
+        "columns": []
+      },
+      "version": 26,
+      "options": {},
+      "acl": {
+        "permissions": [],
+        "privacy": "public",
+        "publicPermissions": [],
+        "owner": "admin",
+        "availPerms": [
+          "VIEW",
+          "EDIT",
+          "ADD",
+          "DELETE",
+          "EXECUTE",
+          "MODIFY_OWNERSHIP",
+          "GRANT_PERMISSIONS"
+        ],
+        "isOwner": true,
+        "aclEdit": true,
+        "entityId": "68740759-9862160a-31c256e2",
+        "entityType": "COMPONENT.visualization"
+      },
+      "entitySet": "COMPONENT",
+      "entityType": "visualization",
+      "annotations": null,
+      "isSystem": false,
+      "_qbId": "68740759-9862160a-31c256e2",
+      "permissions": {
+        "entityId": "68740759-9862160a-31c256e2",
+        "entityType": "COMPONENT.visualization",
+        "canAdd": true,
+        "canView": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canExecute": true,
+        "canModifyOwner": true,
+        "canGrantPermissions": true
+      },
+      "aclEdit": true,
+      "description": "Bytes from client countries (3054:116) to IxFlow applications. Top 10 of each."
+    },
+    {
+      "id": "6874075a-9862160a-31c256e7",
+      "name": "IxFlow | NOC Applications to Server Countries",
+      "type": "visualization",
+      "tags": [],
+      "createdBy": "admin",
+      "modifiedBy": "admin",
+      "created": 1794492951162,
+      "modified": 1794492951214,
+      "visualizationConfig": {
+        "type": "chart",
+        "concreteVisualizationConfig": {
+          "dataKey": "ixBytes",
+          "dataKeys": [
+            "ixBytes",
+            "ixFlows"
+          ],
+          "categoryKey": "ixApplication",
+          "categoryKeys": [
+            "ixApplication",
+            "ixServerIpCountryName"
+          ],
+          "formatting": {
+            "metrics": [
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              }
+            ],
+            "buckets": []
+          },
+          "names": {
+            "metrics": [
+              {
+                "custom": true,
+                "value": "Bytes"
+              },
+              {
+                "custom": true,
+                "value": "Flows"
+              }
+            ],
+            "buckets": []
+          },
+          "colors": {
+            "metrics": [
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              }
+            ]
+          },
+          "thresholds": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "areThresholdsAbsolute": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "baselines": [],
+          "baselineMetrics": {},
+          "baselineKeys": [],
+          "graphSymbol": {},
+          "graphSymbolSize": {},
+          "graphItemStyle": {},
+          "graphItemLabel": {},
+          "graphLinks": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "graphLineStyle": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "graphEdgeSymbol": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "customSeries": {
+            "active": true,
+            "links": [
+              {
+                "groupMetrics": true,
+                "group": {
+                  "source": 0,
+                  "target": 1,
+                  "metrics": [
+                    "ixBytes"
+                  ]
+                },
+                "pairs": [
+                  {
+                    "source": "ixApplication",
+                    "target": "ixServerIpCountryName",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Application",
+                    "targetName": "Server Country",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ],
+                "lineStyle": {
+                  "width": {
+                    "dynamic": true,
+                    "metrics": [
+                      "ixBytes"
+                    ],
+                    "range": [
+                      1,
+                      6
+                    ]
+                  },
+                  "curveness": 0.2,
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "source",
+                    "property": "color"
+                  }
+                },
+                "edgeSymbol": {
+                  "fromSymbol": "none",
+                  "toSymbol": "arrow",
+                  "toSize": 8,
+                  "toSizeBasedOnLineSize": true
+                },
+                "metrics": [
+                  {
+                    "source": "ixApplication",
+                    "target": "ixServerIpCountryName",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Application",
+                    "targetName": "Server Country",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "nodes": [
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixApplication",
+                      "field": "ixApplication",
+                      "fieldName": "ixApplication",
+                      "alias": "ixApplication",
+                      "preFn": "ixApplication",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixBytes",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Application"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixApplication"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Application"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#276EDB"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              },
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixServerIpCountryName",
+                      "field": "ixServerIpCountryName",
+                      "fieldName": "ixServerIpCountryName",
+                      "alias": "ixServerIpCountryName",
+                      "preFn": "ixServerIpCountryName",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixBytes",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Server Country"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixServerIpCountryName"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Server Country"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#9739A7"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              }
+            ]
+          },
+          "type": "graph",
+          "hideTooMuchData": {
+            "active": true,
+            "value": 502,
+            "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+          },
+          "hideTooMuchInputData": {
+            "active": false
+          },
+          "noData": {
+            "active": false
+          },
+          "animation": false,
+          "drilldown": [],
+          "showLocalQuerySwitch": false,
+          "roam": true,
+          "showLegend": true,
+          "legendPosition": "top",
+          "draggable": false,
+          "layout": "force",
+          "force": {
+            "repulsion": 50,
+            "gravity": 0.3,
+            "edgeLength": 30,
+            "friction": 0.6
+          },
+          "legendIcons": "radio"
+        }
+      },
+      "data": {
+        "dataMode": "advanced",
+        "source": {
+          "name": "netflow",
+          "type": "stream",
+          "isRaw": true,
+          "base": "netflow",
+          "resolution": ""
+        },
+        "query": {
+          "timerange": {
+            "from": "now-1hours",
+            "to": "now"
+          },
+          "query": "ixApplication != null"
+        },
+        "outputQuery": {},
+        "aggs": {
+          "metrics": [
+            {
+              "metric": "bytes",
+              "metricName": "Bytes",
+              "useAggr": true,
+              "field": "add(clientBytes,serverBytes)",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
+              },
+              "alias": "ixBytes",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "flows",
+              "metricName": "Flows",
+              "useAggr": true,
+              "field": "flows",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "alias": "ixFlows",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            }
+          ],
+          "buckets": [
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixApplication",
+              "field": "ixApplication",
+              "fieldName": "ixApplication",
+              "alias": "ixApplication",
+              "preFn": "ixApplication",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixBytes",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Application"
+              },
+              "defaultFilterStream": "netflow"
+            },
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixServerIpCountryName",
+              "field": "ixServerIpCountryName",
+              "fieldName": "ixServerIpCountryName",
+              "alias": "ixServerIpCountryName",
+              "preFn": "ixServerIpCountryName",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixBytes",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Server Country"
+              },
+              "defaultFilterStream": "netflow"
+            }
+          ]
+        },
+        "sorters": [
+          {
+            "field": "ixBytes",
+            "direction": "desc",
+            "description": "Bytes (desc)"
+          }
+        ],
+        "limit": {
+          "active": true,
+          "limit": 500,
+          "from": "head",
+          "othersShow": false
+        },
+        "queries": [
+          {
+            "nql": "ixApplication != null | subPipe (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixApplication) | aggr ixBytes=sum(add(clientBytes,serverBytes)) by ixApplication as ixApplication unwind=true | ixApplication != null AND ixApplication != \"\" | sort ixBytes desc | limit 10 | dst \"6874075a-9862160a-31c256e7_0_ixApplication_bucket-limit\"), (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixServerIpCountryName) | aggr ixBytes=sum(add(clientBytes,serverBytes)) by ixServerIpCountryName as ixServerIpCountryName unwind=true | ixServerIpCountryName != null AND ixServerIpCountryName != \"\" | sort ixBytes desc | limit 10 | dst \"6874075a-9862160a-31c256e7_0_ixServerIpCountryName_bucket-limit\") | (valInColl(ixApplication, \"6874075a-9862160a-31c256e7_0_ixApplication_bucket-limit\", \"ixApplication\")) AND (valInColl(ixServerIpCountryName, \"6874075a-9862160a-31c256e7_0_ixServerIpCountryName_bucket-limit\", \"ixServerIpCountryName\")) | aggr ixBytes=sum(add(clientBytes,serverBytes)), ixFlows=sum(flows) by ixApplication as ixApplication, ixServerIpCountryName as ixServerIpCountryName unwind=true | ixBytes != null AND ixBytes != 0 | sort ixBytes desc | limit 500"
+          }
+        ],
+        "columns": []
+      },
+      "version": 26,
+      "options": {},
+      "acl": {
+        "permissions": [],
+        "privacy": "public",
+        "publicPermissions": [],
+        "owner": "admin",
+        "availPerms": [
+          "VIEW",
+          "EDIT",
+          "ADD",
+          "DELETE",
+          "EXECUTE",
+          "MODIFY_OWNERSHIP",
+          "GRANT_PERMISSIONS"
+        ],
+        "isOwner": true,
+        "aclEdit": true,
+        "entityId": "6874075a-9862160a-31c256e7",
+        "entityType": "COMPONENT.visualization"
+      },
+      "entitySet": "COMPONENT",
+      "entityType": "visualization",
+      "annotations": null,
+      "isSystem": false,
+      "_qbId": "6874075a-9862160a-31c256e7",
+      "permissions": {
+        "entityId": "6874075a-9862160a-31c256e7",
+        "entityType": "COMPONENT.visualization",
+        "canAdd": true,
+        "canView": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canExecute": true,
+        "canModifyOwner": true,
+        "canGrantPermissions": true
+      },
+      "aclEdit": true,
+      "description": "Bytes from IxFlow applications to server countries (3054:120). Top 10 of each."
+    },
+    {
+      "id": "6874075b-9862160a-31c256ec",
+      "name": "IxFlow | NOC Client Countries to Server Countries",
+      "type": "visualization",
+      "tags": [],
+      "createdBy": "admin",
+      "modifiedBy": "admin",
+      "created": 1794492952227,
+      "modified": 1794492952280,
+      "visualizationConfig": {
+        "type": "chart",
+        "concreteVisualizationConfig": {
+          "dataKey": "ixBytes",
+          "dataKeys": [
+            "ixBytes",
+            "ixFlows"
+          ],
+          "categoryKey": "ixClientIpCountryName",
+          "categoryKeys": [
+            "ixClientIpCountryName",
+            "ixServerIpCountryName"
+          ],
+          "formatting": {
+            "metrics": [
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              }
+            ],
+            "buckets": []
+          },
+          "names": {
+            "metrics": [
+              {
+                "custom": true,
+                "value": "Bytes"
+              },
+              {
+                "custom": true,
+                "value": "Flows"
+              }
+            ],
+            "buckets": []
+          },
+          "colors": {
+            "metrics": [
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              }
+            ]
+          },
+          "thresholds": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "areThresholdsAbsolute": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "baselines": [],
+          "baselineMetrics": {},
+          "baselineKeys": [],
+          "graphSymbol": {},
+          "graphSymbolSize": {},
+          "graphItemStyle": {},
+          "graphItemLabel": {},
+          "graphLinks": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "graphLineStyle": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "graphEdgeSymbol": {
+            "metrics": [
+              null,
+              null
+            ]
+          },
+          "customSeries": {
+            "active": true,
+            "links": [
+              {
+                "groupMetrics": true,
+                "group": {
+                  "source": 0,
+                  "target": 1,
+                  "metrics": [
+                    "ixBytes"
+                  ]
+                },
+                "pairs": [
+                  {
+                    "source": "ixClientIpCountryName",
+                    "target": "ixServerIpCountryName",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client Country",
+                    "targetName": "Server Country",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ],
+                "lineStyle": {
+                  "width": {
+                    "dynamic": true,
+                    "metrics": [
+                      "ixBytes"
+                    ],
+                    "range": [
+                      1,
+                      6
+                    ]
+                  },
+                  "curveness": 0.2,
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "source",
+                    "property": "color"
+                  }
+                },
+                "edgeSymbol": {
+                  "fromSymbol": "none",
+                  "toSymbol": "arrow",
+                  "toSize": 8,
+                  "toSizeBasedOnLineSize": true
+                },
+                "metrics": [
+                  {
+                    "source": "ixClientIpCountryName",
+                    "target": "ixServerIpCountryName",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client Country",
+                    "targetName": "Server Country",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "nodes": [
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixClientIpCountryName",
+                      "field": "ixClientIpCountryName",
+                      "fieldName": "ixClientIpCountryName",
+                      "alias": "ixClientIpCountryName",
+                      "preFn": "ixClientIpCountryName",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixBytes",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Client Country"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixClientIpCountryName"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Client Country"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#276EDB"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              },
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixServerIpCountryName",
+                      "field": "ixServerIpCountryName",
+                      "fieldName": "ixServerIpCountryName",
+                      "alias": "ixServerIpCountryName",
+                      "preFn": "ixServerIpCountryName",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixBytes",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Server Country"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixServerIpCountryName"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Server Country"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#9739A7"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              }
+            ]
+          },
+          "type": "graph",
+          "hideTooMuchData": {
+            "active": true,
+            "value": 502,
+            "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+          },
+          "hideTooMuchInputData": {
+            "active": false
+          },
+          "noData": {
+            "active": false
+          },
+          "animation": false,
+          "drilldown": [],
+          "showLocalQuerySwitch": false,
+          "roam": true,
+          "showLegend": true,
+          "legendPosition": "top",
+          "draggable": false,
+          "layout": "force",
+          "force": {
+            "repulsion": 50,
+            "gravity": 0.3,
+            "edgeLength": 30,
+            "friction": 0.6
+          },
+          "legendIcons": "radio"
+        }
+      },
+      "data": {
+        "dataMode": "advanced",
+        "source": {
+          "name": "netflow",
+          "type": "stream",
+          "isRaw": true,
+          "base": "netflow",
+          "resolution": ""
+        },
+        "query": {
+          "timerange": {
+            "from": "now-1hours",
+            "to": "now"
+          },
+          "query": "ixApplication != null"
+        },
+        "outputQuery": {},
+        "aggs": {
+          "metrics": [
+            {
+              "metric": "bytes",
+              "metricName": "Bytes",
+              "useAggr": true,
+              "field": "add(clientBytes,serverBytes)",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
+              },
+              "alias": "ixBytes",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "flows",
+              "metricName": "Flows",
+              "useAggr": true,
+              "field": "flows",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "alias": "ixFlows",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            }
+          ],
+          "buckets": [
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixClientIpCountryName",
+              "field": "ixClientIpCountryName",
+              "fieldName": "ixClientIpCountryName",
+              "alias": "ixClientIpCountryName",
+              "preFn": "ixClientIpCountryName",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixBytes",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Client Country"
+              },
+              "defaultFilterStream": "netflow"
+            },
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixServerIpCountryName",
+              "field": "ixServerIpCountryName",
+              "fieldName": "ixServerIpCountryName",
+              "alias": "ixServerIpCountryName",
+              "preFn": "ixServerIpCountryName",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixBytes",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Server Country"
+              },
+              "defaultFilterStream": "netflow"
+            }
+          ]
+        },
+        "sorters": [
+          {
+            "field": "ixBytes",
+            "direction": "desc",
+            "description": "Bytes (desc)"
+          }
+        ],
+        "limit": {
+          "active": true,
+          "limit": 500,
+          "from": "head",
+          "othersShow": false
+        },
+        "queries": [
+          {
+            "nql": "ixApplication != null | subPipe (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixClientIpCountryName) | aggr ixBytes=sum(add(clientBytes,serverBytes)) by ixClientIpCountryName as ixClientIpCountryName unwind=true | ixClientIpCountryName != null AND ixClientIpCountryName != \"\" | sort ixBytes desc | limit 10 | dst \"6874075b-9862160a-31c256ec_0_ixClientIpCountryName_bucket-limit\"), (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixServerIpCountryName) | aggr ixBytes=sum(add(clientBytes,serverBytes)) by ixServerIpCountryName as ixServerIpCountryName unwind=true | ixServerIpCountryName != null AND ixServerIpCountryName != \"\" | sort ixBytes desc | limit 10 | dst \"6874075b-9862160a-31c256ec_0_ixServerIpCountryName_bucket-limit\") | (valInColl(ixClientIpCountryName, \"6874075b-9862160a-31c256ec_0_ixClientIpCountryName_bucket-limit\", \"ixClientIpCountryName\")) AND (valInColl(ixServerIpCountryName, \"6874075b-9862160a-31c256ec_0_ixServerIpCountryName_bucket-limit\", \"ixServerIpCountryName\")) | aggr ixBytes=sum(add(clientBytes,serverBytes)), ixFlows=sum(flows) by ixClientIpCountryName as ixClientIpCountryName, ixServerIpCountryName as ixServerIpCountryName unwind=true | ixBytes != null AND ixBytes != 0 | sort ixBytes desc | limit 500"
+          }
+        ],
+        "columns": []
+      },
+      "version": 26,
+      "options": {},
+      "acl": {
+        "permissions": [],
+        "privacy": "public",
+        "publicPermissions": [],
+        "owner": "admin",
+        "availPerms": [
+          "VIEW",
+          "EDIT",
+          "ADD",
+          "DELETE",
+          "EXECUTE",
+          "MODIFY_OWNERSHIP",
+          "GRANT_PERMISSIONS"
+        ],
+        "isOwner": true,
+        "aclEdit": true,
+        "entityId": "6874075b-9862160a-31c256ec",
+        "entityType": "COMPONENT.visualization"
+      },
+      "entitySet": "COMPONENT",
+      "entityType": "visualization",
+      "annotations": null,
+      "isSystem": false,
+      "_qbId": "6874075b-9862160a-31c256ec",
+      "permissions": {
+        "entityId": "6874075b-9862160a-31c256ec",
+        "entityType": "COMPONENT.visualization",
+        "canAdd": true,
+        "canView": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canExecute": true,
+        "canModifyOwner": true,
+        "canGrantPermissions": true
+      },
+      "aclEdit": true,
+      "description": "Country-to-country traffic from IxFlow geolocation (3054:116, 3054:120)."
+    },
+    {
+      "id": "6874075c-9862160a-31c256f1",
+      "name": "IxFlow | NOC Multi-application Clients",
+      "type": "visualization",
+      "tags": [],
+      "createdBy": "admin",
+      "modifiedBy": "admin",
+      "created": 1794492953252,
+      "modified": 1794493471388,
+      "visualizationConfig": {
+        "type": "chart",
+        "concreteVisualizationConfig": {
+          "dataKey": "ixBytes",
+          "dataKeys": [
+            "ixBytes",
+            "ixFlows",
+            "ixDcIxApplication",
+            "ixDcClientIp"
+          ],
+          "categoryKey": "clientIp",
+          "categoryKeys": [
+            "clientIp",
+            "ixApplication"
+          ],
+          "formatting": {
+            "metrics": [
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              }
+            ],
+            "buckets": []
+          },
+          "names": {
+            "metrics": [
+              {
+                "custom": true,
+                "value": "Bytes"
+              },
+              {
+                "custom": true,
+                "value": "Flows"
+              },
+              {
+                "custom": true,
+                "value": "Applications"
+              },
+              {
+                "custom": true,
+                "value": "Clients"
+              }
+            ],
+            "buckets": []
+          },
+          "colors": {
+            "metrics": [
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              }
+            ]
+          },
+          "thresholds": {
+            "metrics": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "areThresholdsAbsolute": {
+            "metrics": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "baselines": [],
+          "baselineMetrics": {},
+          "baselineKeys": [],
+          "graphSymbol": {},
+          "graphSymbolSize": {},
+          "graphItemStyle": {},
+          "graphItemLabel": {},
+          "graphLinks": {
+            "metrics": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "graphLineStyle": {
+            "metrics": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "graphEdgeSymbol": {
+            "metrics": [
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "customSeries": {
+            "active": true,
+            "links": [
+              {
+                "groupMetrics": true,
+                "group": {
+                  "source": 0,
+                  "target": 1,
+                  "metrics": [
+                    "ixBytes"
+                  ]
+                },
+                "pairs": [
+                  {
+                    "source": "clientIp",
+                    "target": "ixApplication",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client IP",
+                    "targetName": "Application",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ],
+                "lineStyle": {
+                  "width": {
+                    "dynamic": true,
+                    "metrics": [
+                      "ixBytes"
+                    ],
+                    "range": [
+                      1,
+                      6
+                    ]
+                  },
+                  "curveness": 0.2,
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "source",
+                    "property": "color"
+                  }
+                },
+                "edgeSymbol": {
+                  "fromSymbol": "none",
+                  "toSymbol": "arrow",
+                  "toSize": 8,
+                  "toSizeBasedOnLineSize": true
+                },
+                "metrics": [
+                  {
+                    "source": "clientIp",
+                    "target": "ixApplication",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client IP",
+                    "targetName": "Application",
+                    "metrics": [
+                      "ixBytes"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "nodes": [
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "clientIp",
+                      "field": "clientIp",
+                      "fieldName": "clientIp",
+                      "alias": "clientIp",
+                      "preFn": "clientIp",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 12,
+                        "byMetric": "ixDcIxApplication",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": false,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Client IP"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "clientIp"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Client IP"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#276EDB"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              },
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixApplication",
+                      "field": "ixApplication",
+                      "fieldName": "ixApplication",
+                      "alias": "ixApplication",
+                      "preFn": "ixApplication",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixDcClientIp",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Application"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixApplication"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Application"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixBytes"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#9739A7"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              }
+            ]
+          },
+          "type": "graph",
+          "hideTooMuchData": {
+            "active": true,
+            "value": 502,
+            "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+          },
+          "hideTooMuchInputData": {
+            "active": false
+          },
+          "noData": {
+            "active": false
+          },
+          "animation": false,
+          "drilldown": [],
+          "showLocalQuerySwitch": false,
+          "roam": true,
+          "showLegend": true,
+          "legendPosition": "top",
+          "draggable": false,
+          "layout": "force",
+          "force": {
+            "repulsion": 50,
+            "gravity": 0.3,
+            "edgeLength": 30,
+            "friction": 0.6
+          },
+          "legendIcons": "radio"
+        }
+      },
+      "data": {
+        "dataMode": "advanced",
+        "source": {
+          "name": "netflow",
+          "type": "stream",
+          "isRaw": true,
+          "base": "netflow",
+          "resolution": ""
+        },
+        "query": {
+          "timerange": {
+            "from": "now-1hours",
+            "to": "now"
+          },
+          "query": "ixApplication != null"
+        },
+        "outputQuery": {},
+        "aggs": {
+          "metrics": [
+            {
+              "metric": "bytes",
+              "metricName": "Bytes",
+              "useAggr": true,
+              "field": "add(clientBytes,serverBytes)",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
+              },
+              "alias": "ixBytes",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "flows",
+              "metricName": "Flows",
+              "useAggr": true,
+              "field": "flows",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "alias": "ixFlows",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "ixApplication",
+              "metricName": "Applications",
+              "useAggr": true,
+              "field": "ixApplication",
+              "fieldType": "field",
+              "aggregation": "dc",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixDcIxApplication=dc(ixApplication)",
+                "postAggr": ""
+              },
+              "alias": "ixDcIxApplication",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "clientIp",
+              "metricName": "Clients",
+              "useAggr": true,
+              "field": "clientIp",
+              "fieldType": "field",
+              "aggregation": "dc",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixDcClientIp=dc(clientIp)",
+                "postAggr": ""
+              },
+              "alias": "ixDcClientIp",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            }
+          ],
+          "buckets": [
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "clientIp",
+              "field": "clientIp",
+              "fieldName": "clientIp",
+              "alias": "clientIp",
+              "preFn": "clientIp",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 12,
+                "byMetric": "ixDcIxApplication",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": false,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Client IP"
+              },
+              "defaultFilterStream": "netflow"
+            },
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixApplication",
+              "field": "ixApplication",
+              "fieldName": "ixApplication",
+              "alias": "ixApplication",
+              "preFn": "ixApplication",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixDcClientIp",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Application"
+              },
+              "defaultFilterStream": "netflow"
+            }
+          ]
+        },
+        "sorters": [
+          {
+            "field": "ixBytes",
+            "direction": "desc",
+            "description": "Bytes (desc)"
+          }
+        ],
+        "limit": {
+          "active": true,
+          "limit": 500,
+          "from": "head",
+          "othersShow": false
+        },
+        "queries": [
+          {
+            "nql": "ixApplication != null | subPipe (${LIMIT_SOURCE} | ixApplication != null | neq(null, clientIp) | aggr ixDcIxApplication=dc(ixApplication) by clientIp as clientIp unwind=true | clientIp != null AND clientIp != \"\" | sort ixDcIxApplication desc | limit 12 | dst \"6874075c-9862160a-31c256f1_0_clientIp_bucket-limit\"), (${LIMIT_SOURCE} | ixApplication != null | neq(null, ixApplication) | aggr ixDcClientIp=dc(clientIp) by ixApplication as ixApplication unwind=true | ixApplication != null AND ixApplication != \"\" | sort ixDcClientIp desc | limit 10 | dst \"6874075c-9862160a-31c256f1_0_ixApplication_bucket-limit\") | (valInColl(clientIp, \"6874075c-9862160a-31c256f1_0_clientIp_bucket-limit\", \"clientIp\")) AND (valInColl(ixApplication, \"6874075c-9862160a-31c256f1_0_ixApplication_bucket-limit\", \"ixApplication\")) | aggr ixBytes=sum(add(clientBytes,serverBytes)), ixFlows=sum(flows), ixDcIxApplication=dc(ixApplication), ixDcClientIp=dc(clientIp) by clientIp as clientIp, ixApplication as ixApplication unwind=true | ixBytes != null AND ixBytes != 0 | sort ixBytes desc | limit 500"
+          }
+        ],
+        "columns": []
+      },
+      "version": 26,
+      "options": {},
+      "acl": {
+        "permissions": [],
+        "privacy": "public",
+        "publicPermissions": [],
+        "owner": "admin",
+        "availPerms": [
+          "VIEW",
+          "EDIT",
+          "ADD",
+          "DELETE",
+          "EXECUTE",
+          "MODIFY_OWNERSHIP",
+          "GRANT_PERMISSIONS"
+        ],
+        "isOwner": true,
+        "aclEdit": true,
+        "entityId": "6874075c-9862160a-31c256f1",
+        "entityType": "COMPONENT.visualization"
+      },
+      "entitySet": "COMPONENT",
+      "entityType": "visualization",
+      "annotations": null,
+      "isSystem": false,
+      "_qbId": "6874075c-9862160a-31c256f1",
+      "permissions": {
+        "entityId": "6874075c-9862160a-31c256f1",
+        "entityType": "COMPONENT.visualization",
+        "canAdd": true,
+        "canView": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canExecute": true,
+        "canModifyOwner": true,
+        "canGrantPermissions": true
+      },
+      "aclEdit": true,
+      "description": "The 12 clients that use the most IxFlow applications, and the 10 applications with the most clients. Line width and node size: bytes."
+    },
+    {
+      "id": "68740957-9862160a-31c26059",
+      "name": "IxFlow | NOC Response Time by Client Country",
+      "type": "visualization",
+      "tags": [],
+      "createdBy": "admin",
+      "modifiedBy": "admin",
+      "created": 1794493472331,
+      "modified": 1794493472426,
+      "visualizationConfig": {
+        "type": "chart",
+        "concreteVisualizationConfig": {
+          "dataKey": "ixAvgTcpAppResponseTime",
+          "dataKeys": [
+            "ixAvgTcpAppResponseTime",
+            "ixFlows",
+            "ixBytes"
+          ],
+          "categoryKey": "ixClientIpCountryName",
+          "categoryKeys": [
+            "ixClientIpCountryName",
+            "ixApplication"
+          ],
+          "formatting": {
+            "metrics": [
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,0.[0]",
+                "formattingUnit": "off",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.[0]",
+                "formattingUnit": "abbreviation",
+                "formattingSimple": true
+              },
+              {
+                "formattingType": "number",
+                "formattingPattern": "0,.0",
+                "formattingUnit": "bytes_decimal",
+                "formattingSimple": true
+              }
+            ],
+            "buckets": []
+          },
+          "names": {
+            "metrics": [
+              {
+                "custom": true,
+                "value": "Avg TCP App Response (ms)"
+              },
+              {
+                "custom": true,
+                "value": "Flows"
+              },
+              {
+                "custom": true,
+                "value": "Bytes"
+              }
+            ],
+            "buckets": []
+          },
+          "colors": {
+            "metrics": [
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              },
+              {
+                "useDefaultColor": true
+              }
+            ]
+          },
+          "thresholds": {
+            "metrics": [
+              null,
+              null,
+              null
+            ]
+          },
+          "areThresholdsAbsolute": {
+            "metrics": [
+              null,
+              null,
+              null
+            ]
+          },
+          "baselines": [],
+          "baselineMetrics": {},
+          "baselineKeys": [],
+          "graphSymbol": {},
+          "graphSymbolSize": {},
+          "graphItemStyle": {},
+          "graphItemLabel": {},
+          "graphLinks": {
+            "metrics": [
+              null,
+              null,
+              null
+            ]
+          },
+          "graphLineStyle": {
+            "metrics": [
+              null,
+              null,
+              null
+            ]
+          },
+          "graphEdgeSymbol": {
+            "metrics": [
+              null,
+              null,
+              null
+            ]
+          },
+          "customSeries": {
+            "active": true,
+            "links": [
+              {
+                "groupMetrics": true,
+                "group": {
+                  "source": 0,
+                  "target": 1,
+                  "metrics": [
+                    "ixAvgTcpAppResponseTime"
+                  ]
+                },
+                "pairs": [
+                  {
+                    "source": "ixClientIpCountryName",
+                    "target": "ixApplication",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client Country",
+                    "targetName": "Application",
+                    "metrics": [
+                      "ixAvgTcpAppResponseTime"
+                    ]
+                  }
+                ],
+                "lineStyle": {
+                  "width": {
+                    "dynamic": true,
+                    "metrics": [
+                      "ixAvgTcpAppResponseTime"
+                    ],
+                    "range": [
+                      1,
+                      6
+                    ]
+                  },
+                  "curveness": 0.2,
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "source",
+                    "property": "color"
+                  }
+                },
+                "edgeSymbol": {
+                  "fromSymbol": "none",
+                  "toSymbol": "arrow",
+                  "toSize": 8,
+                  "toSizeBasedOnLineSize": true
+                },
+                "metrics": [
+                  {
+                    "source": "ixClientIpCountryName",
+                    "target": "ixApplication",
+                    "sourceIndex": 0,
+                    "targetIndex": 0,
+                    "sourceName": "Client Country",
+                    "targetName": "Application",
+                    "metrics": [
+                      "ixAvgTcpAppResponseTime"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "nodes": [
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixClientIpCountryName",
+                      "field": "ixClientIpCountryName",
+                      "fieldName": "ixClientIpCountryName",
+                      "alias": "ixClientIpCountryName",
+                      "preFn": "ixClientIpCountryName",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixFlows",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Client Country"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixClientIpCountryName"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Client Country"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixFlows"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#276EDB"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              },
+              {
+                "groupDimensions": false,
+                "dimensions": [
+                  {
+                    "nameConfig": {
+                      "aggregation": "terms",
+                      "useFn": false,
+                      "bucket": "ixApplication",
+                      "field": "ixApplication",
+                      "fieldName": "ixApplication",
+                      "alias": "ixApplication",
+                      "preFn": "ixApplication",
+                      "autoBucket": false,
+                      "interval": "",
+                      "includeNullValues": true,
+                      "includeZeroValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "ixFlows",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      },
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "unwindCollection": false,
+                      "isCollectionFieldType": false,
+                      "isNumberFieldType": false,
+                      "isStringFieldType": true,
+                      "transformers": [],
+                      "isSavedField": false,
+                      "visualOptions": {
+                        "label": "Application"
+                      },
+                      "defaultFilterStream": "netflow"
+                    },
+                    "categoryConfig": {
+                      "aggregation": "terms",
+                      "filterFn": {
+                        "custom": false
+                      },
+                      "isCollectionFieldType": false,
+                      "unwindCollection": false,
+                      "autoBucket": true,
+                      "interval": "5m",
+                      "includeNullValues": true,
+                      "includeEmptyValues": true,
+                      "includeEmptyListValues": true,
+                      "includeZeroValues": true,
+                      "visualOptions": {},
+                      "defaultFilterStream": "netflow",
+                      "limit": {
+                        "active": true,
+                        "type": "top",
+                        "limit": 10,
+                        "byMetric": "",
+                        "byMetricSort": "desc",
+                        "byField": []
+                      }
+                    },
+                    "name": "ixApplication"
+                  }
+                ],
+                "visualOptions": {
+                  "label": "Application"
+                },
+                "symbol": "circle",
+                "symbolSize": {
+                  "dynamic": true,
+                  "metrics": [
+                    "ixFlows"
+                  ],
+                  "range": [
+                    20,
+                    60
+                  ]
+                },
+                "itemStyle": {
+                  "color": {
+                    "useCustomColor": true,
+                    "type": "single",
+                    "color": "#9739A7"
+                  },
+                  "border": false,
+                  "borderColor": {
+                    "useCustomColor": false
+                  }
+                },
+                "label": {
+                  "showLabels": true,
+                  "trimLabels": 150,
+                  "showLabelsOverlap": true,
+                  "labelsPosition": "right"
+                }
+              }
+            ]
+          },
+          "type": "graph",
+          "hideTooMuchData": {
+            "active": true,
+            "value": 502,
+            "message": "To protect browser performance output records limit was imposed on the widget. Please apply filters or narrow down analysed time frame to display the results."
+          },
+          "hideTooMuchInputData": {
+            "active": false
+          },
+          "noData": {
+            "active": false
+          },
+          "animation": false,
+          "drilldown": [],
+          "showLocalQuerySwitch": false,
+          "roam": true,
+          "showLegend": true,
+          "legendPosition": "top",
+          "draggable": false,
+          "layout": "force",
+          "force": {
+            "repulsion": 50,
+            "gravity": 0.3,
+            "edgeLength": 30,
+            "friction": 0.6
+          },
+          "legendIcons": "radio"
+        }
+      },
+      "data": {
+        "dataMode": "advanced",
+        "source": {
+          "name": "netflow",
+          "type": "stream",
+          "isRaw": true,
+          "base": "netflow",
+          "resolution": ""
+        },
+        "query": {
+          "timerange": {
+            "from": "now-1hours",
+            "to": "now"
+          },
+          "query": "ixApplication != null AND ixTcpAppResponseTime > 0"
+        },
+        "outputQuery": {},
+        "aggs": {
+          "metrics": [
+            {
+              "metric": "ixTcpAppResponseTimeMs",
+              "metricName": "Avg TCP App Response (ms)",
+              "useAggr": true,
+              "field": "div(ixTcpAppResponseTime, 1000)",
+              "fieldType": "savedFields",
+              "aggregation": "avg",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixAvgTcpAppResponseTime=avg(div(ixTcpAppResponseTime, 1000))",
+                "postAggr": ""
+              },
+              "alias": "ixAvgTcpAppResponseTime",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "flows",
+              "metricName": "Flows",
+              "useAggr": true,
+              "field": "flows",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixFlows=sum(flows)",
+                "postAggr": ""
+              },
+              "alias": "ixFlows",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            },
+            {
+              "metric": "bytes",
+              "metricName": "Bytes",
+              "useAggr": true,
+              "field": "add(clientBytes,serverBytes)",
+              "fieldType": "field",
+              "aggregation": "sum",
+              "aggrParams": {},
+              "fn": {
+                "aggr": "ixBytes=sum(add(clientBytes,serverBytes))",
+                "postAggr": ""
+              },
+              "alias": "ixBytes",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "transformers": []
+            }
+          ],
+          "buckets": [
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixClientIpCountryName",
+              "field": "ixClientIpCountryName",
+              "fieldName": "ixClientIpCountryName",
+              "alias": "ixClientIpCountryName",
+              "preFn": "ixClientIpCountryName",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixFlows",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Client Country"
+              },
+              "defaultFilterStream": "netflow"
+            },
+            {
+              "aggregation": "terms",
+              "useFn": false,
+              "bucket": "ixApplication",
+              "field": "ixApplication",
+              "fieldName": "ixApplication",
+              "alias": "ixApplication",
+              "preFn": "ixApplication",
+              "autoBucket": false,
+              "interval": "",
+              "includeNullValues": true,
+              "includeZeroValues": true,
+              "includeEmptyValues": true,
+              "includeEmptyListValues": true,
+              "limit": {
+                "active": true,
+                "type": "top",
+                "limit": 10,
+                "byMetric": "ixFlows",
+                "byMetricSort": "desc",
+                "byField": []
+              },
+              "filterFn": {
+                "custom": false
+              },
+              "unwindCollection": false,
+              "isCollectionFieldType": false,
+              "isNumberFieldType": false,
+              "isStringFieldType": true,
+              "transformers": [],
+              "isSavedField": false,
+              "visualOptions": {
+                "label": "Application"
+              },
+              "defaultFilterStream": "netflow"
+            }
+          ]
+        },
+        "sorters": [
+          {
+            "field": "ixAvgTcpAppResponseTime",
+            "direction": "desc",
+            "description": "Avg TCP App Response (ms) (desc)"
+          }
+        ],
+        "limit": {
+          "active": true,
+          "limit": 500,
+          "from": "head",
+          "othersShow": false
+        },
+        "queries": [
+          {
+            "nql": "ixApplication != null AND ixTcpAppResponseTime > 0 | subPipe (${LIMIT_SOURCE} | ixApplication != null AND ixTcpAppResponseTime > 0 | neq(null, ixClientIpCountryName) | aggr ixFlows=sum(flows) by ixClientIpCountryName as ixClientIpCountryName unwind=true | ixClientIpCountryName != null AND ixClientIpCountryName != \"\" | sort ixFlows desc | limit 10 | dst \"68740957-9862160a-31c26059_0_ixClientIpCountryName_bucket-limit\"), (${LIMIT_SOURCE} | ixApplication != null AND ixTcpAppResponseTime > 0 | neq(null, ixApplication) | aggr ixFlows=sum(flows) by ixApplication as ixApplication unwind=true | ixApplication != null AND ixApplication != \"\" | sort ixFlows desc | limit 10 | dst \"68740957-9862160a-31c26059_0_ixApplication_bucket-limit\") | (valInColl(ixClientIpCountryName, \"68740957-9862160a-31c26059_0_ixClientIpCountryName_bucket-limit\", \"ixClientIpCountryName\")) AND (valInColl(ixApplication, \"68740957-9862160a-31c26059_0_ixApplication_bucket-limit\", \"ixApplication\")) | aggr ixAvgTcpAppResponseTime=avg(div(ixTcpAppResponseTime, 1000)), ixFlows=sum(flows), ixBytes=sum(add(clientBytes,serverBytes)) by ixClientIpCountryName as ixClientIpCountryName, ixApplication as ixApplication unwind=true | ixAvgTcpAppResponseTime != null AND ixAvgTcpAppResponseTime != 0 | sort ixAvgTcpAppResponseTime desc | limit 500"
+          }
+        ],
+        "columns": []
+      },
+      "version": 26,
+      "options": {},
+      "acl": {
+        "permissions": [],
+        "privacy": "public",
+        "publicPermissions": [],
+        "owner": "admin",
+        "availPerms": [
+          "VIEW",
+          "EDIT",
+          "ADD",
+          "DELETE",
+          "EXECUTE",
+          "MODIFY_OWNERSHIP",
+          "GRANT_PERMISSIONS"
+        ],
+        "isOwner": true,
+        "aclEdit": true,
+        "entityId": "68740957-9862160a-31c26059",
+        "entityType": "COMPONENT.visualization"
+      },
+      "entitySet": "COMPONENT",
+      "entityType": "visualization",
+      "annotations": null,
+      "isSystem": false,
+      "_qbId": "68740957-9862160a-31c26059",
+      "permissions": {
+        "entityId": "68740957-9862160a-31c26059",
+        "entityType": "COMPONENT.visualization",
+        "canAdd": true,
+        "canView": true,
+        "canEdit": true,
+        "canDelete": true,
+        "canExecute": true,
+        "canModifyOwner": true,
+        "canGrantPermissions": true
+      },
+      "aclEdit": true,
+      "description": "Average TCP application response time (3054:281, ms) from each client country to each application. Only flows with a measurement. Line width: response time; node size: flows."
     }
   ]
 }
