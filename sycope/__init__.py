@@ -25,7 +25,7 @@ Example:
     ...     api.log_out()
 """
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 
 # Re-export main classes and functions for convenience
 from .api import SycopeApi

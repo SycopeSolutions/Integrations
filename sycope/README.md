@@ -61,6 +61,14 @@ python3 -m sycope.scripts.convert_dashboard --to 3.2 keysight/dashboards/*.json 
 
 Tests: `python3 -m pytest sycope/tests`.
 
+## Changes in 2.1.0
+
+- Sycope 3.3.1 answers an expired session with a redirect to the login endpoint instead of HTTP 401. The client detects the redirect, logs in again and repeats the request once.
+- `edit_lookup()` keeps the lookup description and tags set in the GUI. A lookup PUT replaces the whole object, so the client reads the current description and tags first (one small GET) and adds them to the payload when the payload does not carry them. If they cannot be read, the edit is aborted with `SycopeApiError` instead of wiping them.
+- Optional hook `SycopeApi(..., auth=obj)`: many clients in one process share one login. `obj.apply(session)` copies the shared session cookies into the client's session; `obj.refresh(session, failed=cookies)` logs in again after Sycope rejected `cookies`. With `auth`, the constructor does not log in and `log_out()` does nothing, so one client cannot end the session of the others.
+- Optional hook `SycopeApi(..., lookup_cache=obj)`: lookup ids are remembered between clients (`get_id/put_id/drop_id(name)`), so `get_lookup()` reads one lookup by id instead of listing all lookups; a stale id is dropped and the list is read again. `privacy_ok/set_privacy(lookup_id, privacy)` skips repeated permission checks in `privacy_edit_lookup()`.
+- Without the hooks the client behaves as in 2.0.0.
+
 ## Changes in 2.0.0
 
 - Every request has a timeout: `SycopeApi(..., timeout=(5, 60))` sets (connect, read) seconds. NQL queries wait at least `wait_time` + 30 s.

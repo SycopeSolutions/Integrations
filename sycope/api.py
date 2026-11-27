@@ -4,6 +4,17 @@ Sycope REST API wrapper.
 This module provides a Python wrapper for the Sycope REST API,
 handling authentication, session management, and common operations
 for indexes and lookups.
+
+Two optional constructor hooks let a host application share one login and a
+lookup-id cache between many clients (both default to a private login and no
+cache):
+
+- ``auth``: an object with ``apply(session)`` (copy the shared session cookies
+  into ``session``) and ``refresh(session, failed=cookies)`` (log in again after
+  Sycope rejected ``failed``). With ``auth`` set, ``log_out()`` is a no-op so one
+  caller can never end the session of the others.
+- ``lookup_cache``: an object with ``get_id/put_id/drop_id(name)`` and
+  ``privacy_ok/set_privacy(lookup_id, privacy)``.
 """
 
 import logging
@@ -35,6 +46,28 @@ def _redact(value: Any) -> Any:
     return value
 
 
+_LOGIN_PATH = "/npm/api/v1/login"
+
+
+class _NoLookupCache:
+    """Default ``lookup_cache``: remembers nothing."""
+
+    def get_id(self, name: str) -> Optional[str]:
+        return None
+
+    def put_id(self, name: str, lookup_id: str) -> None:
+        pass
+
+    def drop_id(self, name: str) -> None:
+        pass
+
+    def privacy_ok(self, lookup_id: str, privacy: str) -> bool:
+        return False
+
+    def set_privacy(self, lookup_id: str, privacy: str) -> None:
+        pass
+
+
 class SycopeApi:
     """
     Sycope REST API client.
@@ -63,6 +96,9 @@ class SycopeApi:
         api_endpoint: str = "/npm/api/v1/",
         api_endpoint_lookup: str = "config-element-lookup/csvFile",
         timeout: Tuple[float, float] = (5, 60),
+        *,
+        auth: Any = None,
+        lookup_cache: Any = None,
     ) -> None:
         """
         Initialize Sycope API client and authenticate.
@@ -75,6 +111,8 @@ class SycopeApi:
             api_endpoint: Base API path (default: '/npm/api/v1/')
             api_endpoint_lookup: Lookup API endpoint suffix
             timeout: (connect, read) timeout in seconds applied to every request
+            auth: optional shared-login object (see the module docstring)
+            lookup_cache: optional lookup-id/privacy cache (see the module docstring)
 
         Raises:
             SycopeAuthError: If authentication fails
@@ -96,7 +134,12 @@ class SycopeApi:
         # transparently on HTTP 401 (see _make_request).
         self._login = login
         self._password = password
-        self._authenticate()
+        self._lookup_cache = lookup_cache if lookup_cache is not None else _NoLookupCache()
+        self._auth = auth
+        if auth is not None:
+            auth.apply(self.session)
+        else:
+            self._authenticate()
 
     def _authenticate(self) -> None:
         """(Re)authenticate the session against the Sycope API.
@@ -146,9 +189,15 @@ class SycopeApi:
 
         An expired session is answered with HTTP 401, but the first request after
         the session was invalidated may get HTTP 400 "Invalid username or password."
+        Sycope 3.3.1 instead redirects to the login endpoint, which requests follows
+        (as a GET) to that 400, so the redirect history is checked as well.
         """
         if response.status_code == 401:
             return True
+        for hop in getattr(response, "history", None) or ():
+            location = (hop.headers or {}).get("Location", "")
+            if hop.status_code in (301, 302, 303, 307, 308) and location.split("?", 1)[0].endswith(_LOGIN_PATH):
+                return True
         if response.status_code == 400:
             try:
                 return "invalid username or password" in str(response.json().get("message", "")).lower()
@@ -207,6 +256,7 @@ class SycopeApi:
             else:
                 logger.debug(f"Request payload: {json_payload}")
 
+        sent = self.session.cookies.get_dict() if self._auth is not None else None
         response = self._send(method, url, json_payload, timeout)
 
         # Expired session (e.g. after a Sycope restart): re-authenticate once and
@@ -215,7 +265,10 @@ class SycopeApi:
             logger.warning(
                 f"Request got HTTP {response.status_code} (session expired) - re-authenticating and retrying once"
             )
-            self._authenticate()
+            if self._auth is not None:
+                self._auth.refresh(self.session, failed=sent)
+            else:
+                self._authenticate()
             response = self._send(method, url, json_payload, timeout)
 
         logger.debug(f"Response status code: {response.status_code}")
@@ -269,8 +322,11 @@ class SycopeApi:
         Log out from the Sycope API.
 
         Returns:
-            Response object from the logout request
+            Response object from the logout request, or None with a shared
+            login (``auth``), which stays open for the other users.
         """
+        if self._auth is not None:
+            return None
         url = f"{self.host}{self.api_endpoint}logout"
         response = self._make_request("GET", url, operation_name="Logout")
         logger.info("Logged out from Sycope API")
@@ -350,6 +406,9 @@ class SycopeApi:
             Tuple of (lookup_id, lookup_data). Returns ("0", {}) if not found.
         """
         logger.debug(f"Looking for lookup: name={lookup_name}, type={lookup_type}")
+        cached = self._get_lookup_cached(lookup_name, lookup_type)
+        if cached is not None:
+            return cached
         all_data = self.get_lookups()
         matching = [x for x in all_data if x.get("config", {}).get("name") == lookup_name]
 
@@ -381,10 +440,31 @@ class SycopeApi:
             return "0", {}
 
         if isinstance(saved_lookup, dict):
+            self._lookup_cache.put_id(lookup_name, str(lookup_id))
             return str(lookup_id), saved_lookup
 
         logger.debug("Response was not a dictionary, returning empty result")
         return "0", {}
+
+    def _get_lookup_cached(self, lookup_name: str, lookup_type: str):
+        """(id, data) through the cached id, or None (cache miss / stale entry -> caller lists).
+        The GET by id is the verification: the returned lookup must carry the same name."""
+        lookup_id = self._lookup_cache.get_id(lookup_name)
+        if not lookup_id:
+            return None
+        endpoint = "config-element-lookup/subnet" if lookup_type == "subnet" else self.api_endpoint_lookup
+        try:
+            response = self._make_request("GET", f"{self.host}{self.api_endpoint}{endpoint}/{lookup_id}",
+                                          operation_name=f"Get lookup {lookup_name} (cached id)")
+            data = response.json() if response.status_code == 200 else None
+        except (ValueError, requests.RequestException):
+            data = None
+        name = (data or {}).get("config", {}).get("name") if isinstance(data, dict) else None
+        if name != lookup_name:
+            logger.debug(f'Cached id {lookup_id} of lookup "{lookup_name}" is stale, listing lookups')
+            self._lookup_cache.drop_id(lookup_name)
+            return None
+        return str(lookup_id), data
 
     def create_lookup(
         self,
@@ -419,6 +499,8 @@ class SycopeApi:
         if data.get("status") == 200:
             lookup_id = data.get("id", "0")
             logger.info(f'New Lookup "{lookup_name}" with ID "{lookup_id}" has been created')
+            if lookup_id and lookup_id != "0":
+                self._lookup_cache.put_id(lookup_name, str(lookup_id))
             logger.debug(f"Create lookup response: {data}")
             return lookup_id
 
@@ -459,6 +541,7 @@ class SycopeApi:
         logger.debug(f"Using endpoint: {endpoint}")
 
         url = f"{self.host}{self.api_endpoint}{endpoint}/{lookup_id}"
+        lookup = self._keep_lookup_metadata(url, lookup_id, lookup)
         response = self._make_request("PUT", url, json_payload=lookup, operation_name=f"Edit lookup {lookup_id}")
 
         try:
@@ -480,6 +563,41 @@ class SycopeApi:
             status_code=data.get("status"),
             response=data,
         )
+
+    def _keep_lookup_metadata(self, url: str, lookup_id: str, lookup: Dict[str, Any]) -> Dict[str, Any]:
+        """Carry the lookup's description and tags over into a data PUT.
+
+        A lookup PUT replaces the whole object: a payload without ``config.description``
+        or with ``tags: None`` wipes the description / tags an operator set in the GUI.
+        Writers only build name/types/rows, so the current values are read back here
+        (one small GET, ``maxRows=1``) and copied into a copy of the payload. A payload
+        that already carries them (description key present, tags a list) is left alone.
+        """
+        cfg = lookup.get("config")
+        need_desc = isinstance(cfg, dict) and "description" not in cfg
+        need_tags = lookup.get("tags") is None
+        if not (need_desc or need_tags):
+            return lookup
+        response = self._make_request("GET", f"{url}?maxRows=1",
+                                      operation_name=f"Get lookup {lookup_id} metadata")
+        try:
+            current = response.json()
+        except ValueError:
+            current = None
+        if not isinstance(current, dict) or "config" not in current:
+            # Never PUT blind: that is exactly the write that would drop the metadata.
+            raise SycopeApiError(f"Could not read lookup {lookup_id} before editing it",
+                                 status_code=response.status_code)
+        desc = (current.get("config") or {}).get("description")
+        tags = current.get("tags")
+        if not ((need_desc and desc) or (need_tags and tags)):
+            return lookup
+        lookup = dict(lookup)
+        if need_desc and desc:
+            lookup["config"] = {**cfg, "description": desc}
+        if need_tags and tags:
+            lookup["tags"] = tags
+        return lookup
 
     def privacy_check_lookup(self, lookup_id: str) -> str:
         """
@@ -550,6 +668,11 @@ class SycopeApi:
         """
         logger.debug(f"Changing privacy for lookup {lookup_id} to {lookup_privacy}")
 
+        # verified recently by another client sharing the cache -> no GET of the permissions
+        if self._lookup_cache.privacy_ok(lookup_id, lookup_privacy):
+            logger.debug(f'Privacy of Lookup ID "{lookup_id}" verified recently as "{lookup_privacy}"')
+            return
+
         current_privacy = self.privacy_check_lookup(lookup_id)
         logger.debug(f"Current privacy: {current_privacy}")
 
@@ -557,6 +680,7 @@ class SycopeApi:
             logger.info(
                 f'Privacy in Lookup ID "{lookup_id}" is already "{lookup_privacy}". No changes required.'
             )
+            self._lookup_cache.set_privacy(lookup_id, lookup_privacy)
             return
 
         public_perms = [{"sid": "ROLE_USER", "perms": ["VIEW"]}]
@@ -583,6 +707,7 @@ class SycopeApi:
 
         if data.get("sidPerms") == target_perms:
             logger.info(f'Privacy for Lookup ID "{lookup_id}" has been changed to "{lookup_privacy}"')
+            self._lookup_cache.set_privacy(lookup_id, lookup_privacy)
             return
 
         logger.error(f"Failed to change privacy for lookup {lookup_id}")
@@ -740,6 +865,7 @@ class SycopeApi:
 
         if data.get("status") == 200:
             logger.info(f'Lookup "{lookup_name}" has been successfully deleted')
+            self._lookup_cache.drop_id(lookup_name)
             logger.debug(f"Delete lookup response: {data}")
             return
 
